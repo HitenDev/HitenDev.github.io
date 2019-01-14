@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="lilei">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="lilei">
+    
+    <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Glide4.8源码拆解（一）基本调用流程 · Hiten&#39;s Blog.</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin="">
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin="">
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/">Hiten&#39;s Blog.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">Glide4.8源码拆解（一）基本调用流程</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href="/">Hiten's Blog.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            Glide4.8源码拆解（一）基本调用流程
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class="post-intro-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="源码分析">源码分析</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Glide">Glide</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">9k</span>阅读时长: <span class="post-count reading-time">44 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/01/03</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Glide是一款功能强大的图片加载框架，它功能强大，用法简单且易于扩展，同时也是Google推荐的Android平台图片加载库，堪称优秀。</p>
+<h2 id="本章拆解思路"><a href="#本章拆解思路" class="headerlink" title="本章拆解思路"></a>本章拆解思路</h2><p>这算是开篇第一章吧，我准备从入口类和简单的调用流程说起，包括但不限于：</p>
+<ul>
+<li>Glide的构造</li>
+<li>RequestManager和生命周期监听</li>
+<li>Request和配置的收集</li>
+<li>Target以及触发异步加载</li>
+</ul>
+<h2 id="Glide对象初始化"><a href="#Glide对象初始化" class="headerlink" title="Glide对象初始化"></a>Glide对象初始化</h2><h3 id="从with-说起"><a href="#从with-说起" class="headerlink" title="从with()说起"></a>从with()说起</h3><p>为何要从with()方法,明明初始化代码在get()方法中：</p>
+<a id="more"></a>
+<p><strong>Glide.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">public static RequestManager with(@NonNull Context context) &#123;</span><br><span class="line">   return getRetriever(context).get(context);</span><br><span class="line"> &#125;</span><br><span class="line"> public static RequestManager with(@NonNull Activity activity) &#123;</span><br><span class="line">   return getRetriever(activity).get(activity);</span><br><span class="line"> &#125;</span><br><span class="line"> public static RequestManager with(@NonNull FragmentActivity activity) &#123;</span><br><span class="line">   return getRetriever(activity).get(activity);</span><br><span class="line"> &#125;</span><br><span class="line"> public static RequestManager with(@NonNull Fragment fragment) &#123;</span><br><span class="line">   return getRetriever(fragment.getActivity()).get(fragment);</span><br><span class="line"> &#125;</span><br><span class="line"> public static RequestManager with(@NonNull View view) &#123;</span><br><span class="line">   return getRetriever(view.getContext()).get(view);</span><br><span class="line"> &#125;</span><br><span class="line"> //get方法获取单例对象</span><br><span class="line"> public static Glide get(@NonNull Context context) &#123;</span><br><span class="line">   if (glide == null) &#123;</span><br><span class="line">     synchronized (Glide.class) &#123;</span><br><span class="line">       if (glide == null) &#123;</span><br><span class="line">         checkAndInitializeGlide(context);</span><br><span class="line">       &#125;</span><br><span class="line">     &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   return glide;</span><br><span class="line"> &#125;</span><br><span class="line"> </span><br><span class="line"> //with方法调用，获取RequestManagerRetriever对象</span><br><span class="line"> private static RequestManagerRetriever getRetriever(@Nullable Context context) &#123;</span><br><span class="line">   // Context could be null for other reasons (ie the user passes in null), but in practice it will</span><br><span class="line">   // only occur due to errors with the Fragment lifecycle.</span><br><span class="line">   Preconditions.checkNotNull(</span><br><span class="line">       context,</span><br><span class="line">       &quot;You cannot start a load on a not yet attached View or a Fragment where getActivity() &quot;</span><br><span class="line">           + &quot;returns null (which usually occurs when getActivity() is called before the Fragment &quot;</span><br><span class="line">           + &quot;is attached or after the Fragment is destroyed).&quot;);</span><br><span class="line">   return Glide.get(context).getRequestManagerRetriever();</span><br><span class="line"> &#125;</span><br><span class="line"> </span><br><span class="line"> //检查和初始化Glide</span><br><span class="line"> private static void checkAndInitializeGlide(@NonNull Context context) &#123;</span><br><span class="line">   // In the thread running initGlide(), one or more classes may call Glide.get(context).</span><br><span class="line">   // Without this check, those calls could trigger infinite recursion.</span><br><span class="line">   if (isInitializing) &#123;</span><br><span class="line">     throw new IllegalStateException(&quot;You cannot call Glide.get() in registerComponents(),&quot;</span><br><span class="line">         + &quot; use the provided Glide instance instead&quot;);</span><br><span class="line">   &#125;</span><br><span class="line">   isInitializing = true;</span><br><span class="line">   initializeGlide(context);</span><br><span class="line">   isInitializing = false;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></p>
+<p>with()和get()区别是啥？</p>
+<p>两者最终都会调用到get()方法，区别是with()方法会返回一个RequestManager对象，get方法会返回Glide对象，Glide是一个单例模式，在get()中调用checkAndInitializeGlide()方法，checkAndInitializeGlide()方法对初始化的判断</p>
+<p>真正执行初始化的调用initializeGlide();</p>
+<h3 id="解析注解配置项"><a href="#解析注解配置项" class="headerlink" title="解析注解配置项"></a>解析注解配置项</h3><p><strong>Glide.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line">private static void initializeGlide(@NonNull Context context) &#123;</span><br><span class="line">    initializeGlide(context, new GlideBuilder());//GlideBuilder在此处创建</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">@SuppressWarnings(&quot;deprecation&quot;)</span><br><span class="line">private static void initializeGlide(@NonNull Context context, @NonNull GlideBuilder builder) &#123;</span><br><span class="line">    Context applicationContext = context.getApplicationContext();</span><br><span class="line">    GeneratedAppGlideModule annotationGeneratedModule = getAnnotationGeneratedGlideModules();</span><br><span class="line">    List&lt;com.bumptech.glide.module.GlideModule&gt; manifestModules = Collections.emptyList();</span><br><span class="line">    //代码1 判断是否使用清单文件配置模块</span><br><span class="line">    if (annotationGeneratedModule == null || annotationGeneratedModule.isManifestParsingEnabled()) &#123;</span><br><span class="line">      manifestModules = new ManifestParser(applicationContext).parse();</span><br><span class="line">    &#125;</span><br><span class="line">    //代码2 删掉排除的类</span><br><span class="line">    if (annotationGeneratedModule != null</span><br><span class="line">        &amp;&amp; !annotationGeneratedModule.getExcludedModuleClasses().isEmpty()) &#123;</span><br><span class="line">      Set&lt;Class&lt;?&gt;&gt; excludedModuleClasses =</span><br><span class="line">          annotationGeneratedModule.getExcludedModuleClasses();</span><br><span class="line">      Iterator&lt;com.bumptech.glide.module.GlideModule&gt; iterator = manifestModules.iterator();</span><br><span class="line">      while (iterator.hasNext()) &#123;</span><br><span class="line">        com.bumptech.glide.module.GlideModule current = iterator.next();</span><br><span class="line">        if (!excludedModuleClasses.contains(current.getClass())) &#123;</span><br><span class="line">          continue;</span><br><span class="line">        &#125;</span><br><span class="line">        if (Log.isLoggable(TAG, Log.DEBUG)) &#123;</span><br><span class="line">          Log.d(TAG, &quot;AppGlideModule excludes manifest GlideModule: &quot; + current);</span><br><span class="line">        &#125;</span><br><span class="line">        iterator.remove();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (Log.isLoggable(TAG, Log.DEBUG)) &#123;</span><br><span class="line">      for (com.bumptech.glide.module.GlideModule glideModule : manifestModules) &#123;</span><br><span class="line">        Log.d(TAG, &quot;Discovered GlideModule from manifest: &quot; + glideModule.getClass());</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    RequestManagerRetriever.RequestManagerFactory factory =</span><br><span class="line">        annotationGeneratedModule != null</span><br><span class="line">            ? annotationGeneratedModule.getRequestManagerFactory() : null;</span><br><span class="line">    builder.setRequestManagerFactory(factory);</span><br><span class="line">    //代码3 循环调用清单配置模块applyOptions方法</span><br><span class="line">    for (com.bumptech.glide.module.GlideModule module : manifestModules) &#123;</span><br><span class="line">      module.applyOptions(applicationContext, builder);</span><br><span class="line">    &#125;</span><br><span class="line">    //代码4 调用注解配置模块applyOptions方法</span><br><span class="line">    if (annotationGeneratedModule != null) &#123;</span><br><span class="line">      annotationGeneratedModule.applyOptions(applicationContext, builder);</span><br><span class="line">    &#125;</span><br><span class="line">    //代码7 关键代码创建Glide对象</span><br><span class="line">    Glide glide = builder.build(applicationContext);</span><br><span class="line">    //代码5 循环调用清单配置模块registerComponents方法</span><br><span class="line">    for (com.bumptech.glide.module.GlideModule module : manifestModules) &#123;</span><br><span class="line">      module.registerComponents(applicationContext, glide, glide.registry);</span><br><span class="line">    &#125;</span><br><span class="line">    //代码6 调用注解配置模块registerComponents方法</span><br><span class="line">    if (annotationGeneratedModule != null) &#123;</span><br><span class="line">      annotationGeneratedModule.registerComponents(applicationContext, glide, glide.registry);</span><br><span class="line">    &#125;</span><br><span class="line">    applicationContext.registerComponentCallbacks(glide);</span><br><span class="line">    Glide.glide = glide;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>initializeGlide还有一个重载的方法，不过被标识过期了，但是核心的逻辑都在这里啊。</p>
+<p>我们发现GlideBuilder在此创建，进入这个过时的方法，该方法先是操作annotationGeneratedModule和manifestModules,注释在代码1~6中有讲解，这两种Module主要是针对Glide的配置，在Glide v3版本中，使用GlideModule和清单文件中配置，而在V4版本中，废弃了GlideModule接口，不推荐使用清单文件配置，建议用AppGlideModule，LibraryGlideModule接口和编译时注解@GlideModule，具体如何使用清单配置不赘述，借用官方的一个注解配置示例.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">例如，v3 版本中 Volley 集成库的 GlideModule ：</span><br><span class="line">public class VolleyGlideModule implements GlideModule &#123;</span><br><span class="line">  @Override</span><br><span class="line">  public void applyOptions(Context context, GlideBuilder builder) &#123;</span><br><span class="line">    // Do nothing.</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Override</span><br><span class="line">  public void registerComponents(Context context, Registry registry) &#123;</span><br><span class="line">    registry.replace(GlideUrl.class, InputStream.class, new VolleyUrlLoader.Factory(context));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">在 v4 版本中可以转换成为一个 LibraryGlideModule ：</span><br><span class="line">@GlideModule</span><br><span class="line">public class VolleyLibraryGlideModule extends LibraryGlideModule &#123;</span><br><span class="line">  @Override</span><br><span class="line">  public void registerComponents(Context context, Registry registry) &#123;</span><br><span class="line">    registry.replace(GlideUrl.class, InputStream.class, new VolleyUrlLoader.Factory(context));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>解析注解/清单文件和构造Glide的要有先后顺序：</p>
+<p><code>GlideModule</code>的主要功能是让用户配置Register和GlideBuilder，在构建Glide之前，将配置选择添加进去；</p>
+<p>接着上面initializeGlide讲解，代码7处主要是调用GlideBuilder.build()方法得到Glide对象，代码7必须得在配置模块执行applyOptions之前和执行registerComponents之后调用，为什么？</p>
+<p>因为applyOptions(Context context, GlideBuilder builder)方法目的是配置Glide，肯定要执行在builder.build()之前；</p>
+<p>registerComponents(Context context, Registry registry)方法配置register，register必须等到Glide创建之后，才能初始化调用。</p>
+<p>剩下就是GlideBuilder执行build()方法;</p>
+<h3 id="GlideBuilder创建默认参数"><a href="#GlideBuilder创建默认参数" class="headerlink" title="GlideBuilder创建默认参数"></a>GlideBuilder创建默认参数</h3><p><strong>GlideBuilder.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">Glide build(@NonNull Context context) &#123;</span><br><span class="line">    if (sourceExecutor == null) &#123;</span><br><span class="line">      sourceExecutor = GlideExecutor.newSourceExecutor();</span><br><span class="line">    &#125;</span><br><span class="line">    if (diskCacheExecutor == null) &#123;</span><br><span class="line">      diskCacheExecutor = GlideExecutor.newDiskCacheExecutor();</span><br><span class="line">    &#125;</span><br><span class="line">    if (animationExecutor == null) &#123;</span><br><span class="line">      animationExecutor = GlideExecutor.newAnimationExecutor();</span><br><span class="line">    &#125;</span><br><span class="line">    if (memorySizeCalculator == null) &#123;</span><br><span class="line">      memorySizeCalculator = new MemorySizeCalculator.Builder(context).build();</span><br><span class="line">    &#125;</span><br><span class="line">    if (connectivityMonitorFactory == null) &#123;</span><br><span class="line">      connectivityMonitorFactory = new DefaultConnectivityMonitorFactory();</span><br><span class="line">    &#125;</span><br><span class="line">    if (bitmapPool == null) &#123;</span><br><span class="line">      int size = memorySizeCalculator.getBitmapPoolSize();</span><br><span class="line">      if (size &gt; 0) &#123;</span><br><span class="line">        bitmapPool = new LruBitmapPool(size);</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">        bitmapPool = new BitmapPoolAdapter();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if (arrayPool == null) &#123;</span><br><span class="line">      arrayPool = new LruArrayPool(memorySizeCalculator.getArrayPoolSizeInBytes());</span><br><span class="line">    &#125;</span><br><span class="line">    if (memoryCache == null) &#123;</span><br><span class="line">      memoryCache = new LruResourceCache(memorySizeCalculator.getMemoryCacheSize());</span><br><span class="line">    &#125;</span><br><span class="line">    if (diskCacheFactory == null) &#123;</span><br><span class="line">      diskCacheFactory = new InternalCacheDiskCacheFactory(context);</span><br><span class="line">    &#125;</span><br><span class="line">    if (engine == null) &#123;</span><br><span class="line">      engine =</span><br><span class="line">          new Engine(</span><br><span class="line">              memoryCache,</span><br><span class="line">              diskCacheFactory,</span><br><span class="line">              diskCacheExecutor,</span><br><span class="line">              sourceExecutor,</span><br><span class="line">              GlideExecutor.newUnlimitedSourceExecutor(),</span><br><span class="line">              GlideExecutor.newAnimationExecutor(),</span><br><span class="line">              isActiveResourceRetentionAllowed);</span><br><span class="line">    &#125;</span><br><span class="line">    RequestManagerRetriever requestManagerRetriever =</span><br><span class="line">        new RequestManagerRetriever(requestManagerFactory);</span><br><span class="line">    return new Glide(</span><br><span class="line">        context,</span><br><span class="line">        engine,</span><br><span class="line">        memoryCache,</span><br><span class="line">        bitmapPool,</span><br><span class="line">        arrayPool,</span><br><span class="line">        requestManagerRetriever,</span><br><span class="line">        connectivityMonitorFactory,</span><br><span class="line">        logLevel,</span><br><span class="line">        defaultRequestOptions.lock(),</span><br><span class="line">        defaultTransitionOptions);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>GlideBuilder主要是为Glide的创建，提供默认配置项和用户配置项，在上面我们说GlideModule和LibraryGlideModule中applyOptions(Context context, GlideBuilder builder)方法,得到GlideBuilder对象就可以设置相关的配置；详见GlideBuilder.setXXX()方法；</p>
+<h3 id="构造方法和创建Registry"><a href="#构造方法和创建Registry" class="headerlink" title="构造方法和创建Registry"></a>构造方法和创建Registry</h3><p>接下来就是真正的调用Glide构造方法了</p>
+<p><strong>Glide.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">Glide(</span><br><span class="line">      @NonNull Context context,</span><br><span class="line">      @NonNull Engine engine,</span><br><span class="line">      @NonNull MemoryCache memoryCache,</span><br><span class="line">      @NonNull BitmapPool bitmapPool,</span><br><span class="line">      @NonNull ArrayPool arrayPool,</span><br><span class="line">      @NonNull RequestManagerRetriever requestManagerRetriever,</span><br><span class="line">      @NonNull ConnectivityMonitorFactory connectivityMonitorFactory,</span><br><span class="line">      int logLevel,</span><br><span class="line">      @NonNull RequestOptions defaultRequestOptions,</span><br><span class="line">      @NonNull Map&lt;Class&lt;?&gt;, TransitionOptions&lt;?, ?&gt;&gt; defaultTransitionOptions) &#123;</span><br><span class="line">    this.engine = engine;</span><br><span class="line">    this.bitmapPool = bitmapPool;</span><br><span class="line">    this.arrayPool = arrayPool;</span><br><span class="line">    this.memoryCache = memoryCache;</span><br><span class="line">    this.requestManagerRetriever = requestManagerRetriever;</span><br><span class="line">    this.connectivityMonitorFactory = connectivityMonitorFactory;</span><br><span class="line"></span><br><span class="line">    DecodeFormat decodeFormat = defaultRequestOptions.getOptions().get(Downsampler.DECODE_FORMAT);</span><br><span class="line">    bitmapPreFiller = new BitmapPreFiller(memoryCache, bitmapPool, decodeFormat);</span><br><span class="line"></span><br><span class="line">    final Resources resources = context.getResources();</span><br><span class="line"></span><br><span class="line">    registry = new Registry();</span><br><span class="line">    if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O_MR1) &#123;</span><br><span class="line">      registry.register(new ExifInterfaceImageHeaderParser());</span><br><span class="line">    &#125;</span><br><span class="line">    registry.register(new DefaultImageHeaderParser());</span><br><span class="line"></span><br><span class="line">    Downsampler downsampler = new Downsampler(registry.getImageHeaderParsers(),</span><br><span class="line">        resources.getDisplayMetrics(), bitmapPool, arrayPool);</span><br><span class="line">    ByteBufferGifDecoder byteBufferGifDecoder =</span><br><span class="line">        new ByteBufferGifDecoder(context, registry.getImageHeaderParsers(), bitmapPool, arrayPool);</span><br><span class="line">    ResourceDecoder&lt;ParcelFileDescriptor, Bitmap&gt; parcelFileDescriptorVideoDecoder =</span><br><span class="line">        VideoDecoder.parcel(bitmapPool);</span><br><span class="line">    ByteBufferBitmapDecoder byteBufferBitmapDecoder = new ByteBufferBitmapDecoder(downsampler);</span><br><span class="line">    StreamBitmapDecoder streamBitmapDecoder = new StreamBitmapDecoder(downsampler, arrayPool);</span><br><span class="line">    ResourceDrawableDecoder resourceDrawableDecoder =</span><br><span class="line">        new ResourceDrawableDecoder(context);</span><br><span class="line">    ResourceLoader.StreamFactory resourceLoaderStreamFactory =</span><br><span class="line">        new ResourceLoader.StreamFactory(resources);</span><br><span class="line">    ResourceLoader.UriFactory resourceLoaderUriFactory =</span><br><span class="line">        new ResourceLoader.UriFactory(resources);</span><br><span class="line">    ResourceLoader.FileDescriptorFactory resourceLoaderFileDescriptorFactory =</span><br><span class="line">        new ResourceLoader.FileDescriptorFactory(resources);</span><br><span class="line">    ResourceLoader.AssetFileDescriptorFactory resourceLoaderAssetFileDescriptorFactory =</span><br><span class="line">        new ResourceLoader.AssetFileDescriptorFactory(resources);</span><br><span class="line">    BitmapEncoder bitmapEncoder = new BitmapEncoder(arrayPool);</span><br><span class="line"></span><br><span class="line">    BitmapBytesTranscoder bitmapBytesTranscoder = new BitmapBytesTranscoder();</span><br><span class="line">    GifDrawableBytesTranscoder gifDrawableBytesTranscoder = new GifDrawableBytesTranscoder();</span><br><span class="line"></span><br><span class="line">    ContentResolver contentResolver = context.getContentResolver();</span><br><span class="line"></span><br><span class="line">    registry</span><br><span class="line">        .append(ByteBuffer.class, new ByteBufferEncoder())</span><br><span class="line">        .append(InputStream.class, new StreamEncoder(arrayPool))</span><br><span class="line">        /* Bitmaps */</span><br><span class="line">        .append(Registry.BUCKET_BITMAP, ByteBuffer.class, Bitmap.class, byteBufferBitmapDecoder)</span><br><span class="line">        .append(Registry.BUCKET_BITMAP, InputStream.class, Bitmap.class, streamBitmapDecoder)</span><br><span class="line">        //此处省略好多append方法</span><br><span class="line">          ImageViewTargetFactory imageViewTargetFactory = new ImageViewTargetFactory();</span><br><span class="line">    glideContext = new GlideContext(</span><br><span class="line">            context,</span><br><span class="line">            arrayPool,</span><br><span class="line">            registry,</span><br><span class="line">            imageViewTargetFactory,</span><br><span class="line">            defaultRequestOptions,</span><br><span class="line">            defaultTransitionOptions,</span><br><span class="line">            engine,</span><br><span class="line">            logLevel);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>Glide构造方法除了接受GlideBuilder提供的参数之外，还创建了Registry对象和一堆组件；Registry是整个Glide运转的核心功能之一，也是我们后面文章即将讲到的重点；整理一下Glide构造方法遇到的比较重要的参数：<br><code>engine</code>、<code>memoryCache</code>、<code>bitmapPool</code>、<code>arrayPool</code>、<code>requestManagerRetriever</code>、<code>connectivityMonitorFactory</code>、<code>defaultRequestOptions</code>、<code>defaultTransitionOptions</code>、<code>registry</code>、<code>glideContext</code>等。<br>构造环节就讲到这里，下面从with()方法开始，继续往下分析；</p>
+<h2 id="with"><a href="#with" class="headerlink" title="with()"></a>with()</h2><p>上文已经说到with一共有五个重载的方法，最终都调用Glide.getRetriever()方法得到<code>RequestManagerRetriever</code>对象，然后调用<code>RequestManagerRetriever.get()</code>方法，得到<code>RequestManager</code>对象</p>
+<p>下面来看一下<code>RequestManagerRetriever</code>的get方法：</p>
+<p><strong>RequestManagerRetriever.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line">public RequestManager get(@NonNull Context context) &#123;</span><br><span class="line">    if (context == null) &#123;</span><br><span class="line">      throw new IllegalArgumentException(&quot;You cannot start a load on a null Context&quot;);</span><br><span class="line">    &#125; else if (Util.isOnMainThread() &amp;&amp; !(context instanceof Application)) &#123;</span><br><span class="line">      if (context instanceof FragmentActivity) &#123;</span><br><span class="line">        return get((FragmentActivity) context);</span><br><span class="line">      &#125; else if (context instanceof Activity) &#123;</span><br><span class="line">        return get((Activity) context);</span><br><span class="line">      &#125; else if (context instanceof ContextWrapper) &#123;</span><br><span class="line">        return get(((ContextWrapper) context).getBaseContext());</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return getApplicationManager(context);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public RequestManager get(@NonNull FragmentActivity activity) &#123;</span><br><span class="line">    if (Util.isOnBackgroundThread()) &#123;</span><br><span class="line">      return get(activity.getApplicationContext());</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      assertNotDestroyed(activity);</span><br><span class="line">      FragmentManager fm = activity.getSupportFragmentManager();</span><br><span class="line">      return supportFragmentGet(</span><br><span class="line">          activity, fm, /*parentHint=*/ null, isActivityVisible(activity));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public RequestManager get(@NonNull Fragment fragment) &#123;</span><br><span class="line">    Preconditions.checkNotNull(fragment.getActivity(),</span><br><span class="line">          &quot;You cannot start a load on a fragment before it is attached or after it is destroyed&quot;);</span><br><span class="line">    if (Util.isOnBackgroundThread()) &#123;</span><br><span class="line">      return get(fragment.getActivity().getApplicationContext());</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      FragmentManager fm = fragment.getChildFragmentManager();</span><br><span class="line">      return supportFragmentGet(fragment.getActivity(), fm, fragment, fragment.isVisible());</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  @SuppressWarnings(&quot;deprecation&quot;)</span><br><span class="line">  @NonNull</span><br><span class="line">  public RequestManager get(@NonNull Activity activity) &#123;</span><br><span class="line">    if (Util.isOnBackgroundThread()) &#123;</span><br><span class="line">      return get(activity.getApplicationContext());</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      assertNotDestroyed(activity);</span><br><span class="line">      android.app.FragmentManager fm = activity.getFragmentManager();</span><br><span class="line">      return fragmentGet(</span><br><span class="line">          activity, fm, /*parentHint=*/ null, isActivityVisible(activity));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  @SuppressWarnings(&quot;deprecation&quot;)</span><br><span class="line">  @NonNull</span><br><span class="line">  public RequestManager get(@NonNull View view) &#123;</span><br><span class="line">    if (Util.isOnBackgroundThread()) &#123;</span><br><span class="line">      return get(view.getContext().getApplicationContext());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Preconditions.checkNotNull(view);</span><br><span class="line">    Preconditions.checkNotNull(view.getContext(),</span><br><span class="line">        &quot;Unable to obtain a request manager for a view without a Context&quot;);</span><br><span class="line">    Activity activity = findActivity(view.getContext());</span><br><span class="line">    // The view might be somewhere else, like a service.</span><br><span class="line">    if (activity == null) &#123;</span><br><span class="line">      return get(view.getContext().getApplicationContext());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // Support Fragments.</span><br><span class="line">    // Although the user might have non-support Fragments attached to FragmentActivity, searching</span><br><span class="line">    // for non-support Fragments is so expensive pre O and that should be rare enough that we</span><br><span class="line">    // prefer to just fall back to the Activity directly.</span><br><span class="line">    if (activity instanceof FragmentActivity) &#123;</span><br><span class="line">      Fragment fragment = findSupportFragment(view, (FragmentActivity) activity);</span><br><span class="line">      return fragment != null ? get(fragment) : get(activity);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // Standard Fragments.</span><br><span class="line">    android.app.Fragment fragment = findFragment(view, activity);</span><br><span class="line">    if (fragment == null) &#123;</span><br><span class="line">      return get(activity);</span><br><span class="line">    &#125;</span><br><span class="line">    return get(fragment);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>RequestManagerRetriever.get()</code>方法重载，我们分析一下调用过程：</p>
+<ul>
+<li>当前调用运行在子线程时，直接把context转成Application调用</li>
+<li>当运行在主线程时，</li>
+<li>如果参数为support下的Fragment或FragmentActivity,调用supportFragmentGet(),</li>
+<li>如果参数为android包下的Activity或Fragment，调用fragmentGet()方法，</li>
+<li>如果参数为Application，调用getApplicationManager()方法，</li>
+<li>如果参数为View,获取View对应的Context,判断Context类型，调用上面的几个重载方法；</li>
+</ul>
+<p>接下来的调用就在getApplicationManager()、supportFragmentGet(),由于fragmentGet()方法已经过时且逻辑和supportFragmentGet()大同小异，所以就不分析它了：</p>
+<p><strong>RequestManagerRetriever.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line">private RequestManager getApplicationManager(@NonNull Context context) &#123;</span><br><span class="line">    if (applicationManager == null) &#123;</span><br><span class="line">      synchronized (this) &#123;</span><br><span class="line">        if (applicationManager == null) &#123;</span><br><span class="line">          Glide glide = Glide.get(context.getApplicationContext());</span><br><span class="line">          applicationManager =</span><br><span class="line">              factory.build(</span><br><span class="line">                  glide,</span><br><span class="line">                  new ApplicationLifecycle(),</span><br><span class="line">                  new EmptyRequestManagerTreeNode(),</span><br><span class="line">                  context.getApplicationContext());</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return applicationManager;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  private RequestManager supportFragmentGet(</span><br><span class="line">      @NonNull Context context,</span><br><span class="line">      @NonNull FragmentManager fm,</span><br><span class="line">      @Nullable Fragment parentHint,</span><br><span class="line">      boolean isParentVisible) &#123;</span><br><span class="line">    SupportRequestManagerFragment current =</span><br><span class="line">        getSupportRequestManagerFragment(fm, parentHint, isParentVisible);</span><br><span class="line">    RequestManager requestManager = current.getRequestManager();</span><br><span class="line">    if (requestManager == null) &#123;</span><br><span class="line">      Glide glide = Glide.get(context);</span><br><span class="line">      requestManager =</span><br><span class="line">          factory.build(</span><br><span class="line">              glide, current.getGlideLifecycle(), current.getRequestManagerTreeNode(), context);</span><br><span class="line">      current.setRequestManager(requestManager);</span><br><span class="line">    &#125;</span><br><span class="line">    return requestManager;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  private final RequestManagerFactory factory;</span><br><span class="line">  </span><br><span class="line">  public RequestManagerRetriever(@Nullable RequestManagerFactory factory) &#123;</span><br><span class="line">    this.factory = factory != null ? factory : DEFAULT_FACTORY;</span><br><span class="line">    handler = new Handler(Looper.getMainLooper(), this /* Callback */);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  private static final RequestManagerFactory DEFAULT_FACTORY = new RequestManagerFactory() &#123;</span><br><span class="line">    @NonNull</span><br><span class="line">    @Override</span><br><span class="line">    public RequestManager build(@NonNull Glide glide, @NonNull Lifecycle lifecycle,</span><br><span class="line">        @NonNull RequestManagerTreeNode requestManagerTreeNode, @NonNull Context context) &#123;</span><br><span class="line">      return new RequestManager(glide, lifecycle, requestManagerTreeNode, context);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">  </span><br><span class="line">  @NonNull</span><br><span class="line">  private SupportRequestManagerFragment getSupportRequestManagerFragment(</span><br><span class="line">      @NonNull final FragmentManager fm, @Nullable Fragment parentHint, boolean isParentVisible) &#123;</span><br><span class="line">    SupportRequestManagerFragment current =</span><br><span class="line">        (SupportRequestManagerFragment) fm.findFragmentByTag(FRAGMENT_TAG);</span><br><span class="line">    if (current == null) &#123;</span><br><span class="line">      current = pendingSupportRequestManagerFragments.get(fm);</span><br><span class="line">      if (current == null) &#123;</span><br><span class="line">        current = new SupportRequestManagerFragment();</span><br><span class="line">        current.setParentFragmentHint(parentHint);</span><br><span class="line">        if (isParentVisible) &#123;</span><br><span class="line">          current.getGlideLifecycle().onStart();</span><br><span class="line">        &#125;</span><br><span class="line">        pendingSupportRequestManagerFragments.put(fm, current);//通过事务添加frg</span><br><span class="line">        fm.beginTransaction().add(current, FRAGMENT_TAG).commitAllowingStateLoss();</span><br><span class="line">        handler.obtainMessage(ID_REMOVE_SUPPORT_FRAGMENT_MANAGER, fm).sendToTarget();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return current;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>上面两个方法最后真正创建RequestManager的是factory.build()，factory是RequestManagerFactory中默认的DEFAULT_FACTORY静态变量；supportFragmentGet()方法中调用getSupportRequestManagerFragment方法创建了SupportRequestManagerFragment对象并通过Transaction.add(fragment,tag)方法提交；</p>
+<p>所有问题转换为RequestManager的作用，以及SupportRequestManagerFragment和Lifecycle的意义；</p>
+<p>先从SupportRequestManagerFragment分析；</p>
+<p><strong>SupportRequestManagerFragment.java</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">private final ActivityFragmentLifecycle lifecycle;</span><br><span class="line"></span><br><span class="line">public SupportRequestManagerFragment() &#123;</span><br><span class="line">    this(new ActivityFragmentLifecycle());</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @VisibleForTesting</span><br><span class="line">  @SuppressLint(&quot;ValidFragment&quot;)</span><br><span class="line">  public SupportRequestManagerFragment(@NonNull ActivityFragmentLifecycle lifecycle) &#123;</span><br><span class="line">    this.lifecycle = lifecycle;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  ActivityFragmentLifecycle getGlideLifecycle() &#123;</span><br><span class="line">    return lifecycle;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  @Override</span><br><span class="line">  public void onStart() &#123;</span><br><span class="line">    super.onStart();</span><br><span class="line">    lifecycle.onStart();</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  @Override</span><br><span class="line">  public void onStop() &#123;</span><br><span class="line">    super.onStop();</span><br><span class="line">    lifecycle.onStop();</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  @Override</span><br><span class="line">  public void onDestroy() &#123;</span><br><span class="line">    super.onDestroy();</span><br><span class="line">    lifecycle.onDestroy();</span><br><span class="line">    unregisterFragmentWithRoot();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p><strong>ActivityFragmentLifecycle.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">class ActivityFragmentLifecycle implements Lifecycle &#123;</span><br><span class="line">  private final Set&lt;LifecycleListener&gt; lifecycleListeners =</span><br><span class="line">      Collections.newSetFromMap(new WeakHashMap&lt;LifecycleListener, Boolean&gt;());</span><br><span class="line">  private boolean isStarted;</span><br><span class="line">  private boolean isDestroyed;</span><br><span class="line"></span><br><span class="line">  @Override</span><br><span class="line">  public void addListener(@NonNull LifecycleListener listener) &#123;</span><br><span class="line">    lifecycleListeners.add(listener);</span><br><span class="line"></span><br><span class="line">    if (isDestroyed) &#123;</span><br><span class="line">      listener.onDestroy();</span><br><span class="line">    &#125; else if (isStarted) &#123;</span><br><span class="line">      listener.onStart();</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      listener.onStop();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Override</span><br><span class="line">  public void removeListener(@NonNull LifecycleListener listener) &#123;</span><br><span class="line">    lifecycleListeners.remove(listener);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  void onStart() &#123;</span><br><span class="line">    isStarted = true;</span><br><span class="line">    for (LifecycleListener lifecycleListener : Util.getSnapshot(lifecycleListeners)) &#123;</span><br><span class="line">      lifecycleListener.onStart();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  void onStop() &#123;</span><br><span class="line">    isStarted = false;</span><br><span class="line">    for (LifecycleListener lifecycleListener : Util.getSnapshot(lifecycleListeners)) &#123;</span><br><span class="line">      lifecycleListener.onStop();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  void onDestroy() &#123;</span><br><span class="line">    isDestroyed = true;</span><br><span class="line">    for (LifecycleListener lifecycleListener : Util.getSnapshot(lifecycleListeners)) &#123;</span><br><span class="line">      lifecycleListener.onDestroy();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>LifecycleListener.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public interface LifecycleListener &#123;</span><br><span class="line">  void onStart();</span><br><span class="line">  void onStop();</span><br><span class="line">  void onDestroy();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>Lifecycle.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public interface Lifecycle &#123;</span><br><span class="line">  void addListener(@NonNull LifecycleListener listener);</span><br><span class="line">  void removeListener(@NonNull LifecycleListener listener);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>SupportRequestManagerFragment的构造方法创建了ActivityFragmentLifecycle()对象，然后再fragment对应的onStart()、onStop()、onDestory()方法中调用lifecycle的对应方法；</p>
+<p>看到这里有点明白了，Lifecycle是根据Fragment的生命周期而产生；ActivityFragmentLifecycle类持有LifecycleListener泛型的Set集合，在对应的onStart()、onStop()、onDestory()调用Set集合中的LifecycleListener对应的方法；</p>
+<p>至此我们可以得到一张生命周期的调用链:SupportRequestManagerFragment-&gt;Lifecycle-&gt;LifecycleListener;</p>
+<p>我们回到对RequestManager的理解，上文分析了RequestManagerRetriever中创建RequestManager，传递了Lifecycle参数，下面分析RequestManager的构造和以及它和Lifecycle的关系；</p>
+<p><strong>RequestManager.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line">//实现了LifecycleListener接口</span><br><span class="line">public class RequestManager implements LifecycleListener&#123;</span><br><span class="line"></span><br><span class="line">private final RequestTracker requestTracker;</span><br><span class="line">private final TargetTracker targetTracker = new TargetTracker();</span><br><span class="line"></span><br><span class="line">//主线程中执行</span><br><span class="line">private final Runnable addSelfToLifecycle = new Runnable() &#123;</span><br><span class="line">    @Override</span><br><span class="line">    public void run() &#123;</span><br><span class="line">      lifecycle.addListener(RequestManager.this);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">//构造方法</span><br><span class="line">RequestManager(</span><br><span class="line">      Glide glide,</span><br><span class="line">      Lifecycle lifecycle,</span><br><span class="line">      RequestManagerTreeNode treeNode,</span><br><span class="line">      RequestTracker requestTracker,</span><br><span class="line">      ConnectivityMonitorFactory factory,</span><br><span class="line">      Context context) &#123;</span><br><span class="line">    this.glide = glide;</span><br><span class="line">    this.lifecycle = lifecycle;</span><br><span class="line">    this.treeNode = treeNode;</span><br><span class="line">    this.requestTracker = requestTracker;</span><br><span class="line">    this.context = context;</span><br><span class="line"></span><br><span class="line">    connectivityMonitor =</span><br><span class="line">        factory.build(</span><br><span class="line">            context.getApplicationContext(),</span><br><span class="line">            new RequestManagerConnectivityListener(requestTracker));</span><br><span class="line">    if (Util.isOnBackgroundThread()) &#123;</span><br><span class="line">        //在主线程中执行</span><br><span class="line">      mainHandler.post(addSelfToLifecycle);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        //把自身加入生命周期的监听中</span><br><span class="line">      lifecycle.addListener(this);</span><br><span class="line">    &#125;</span><br><span class="line">    lifecycle.addListener(connectivityMonitor);</span><br><span class="line"></span><br><span class="line">    setRequestOptions(glide.getGlideContext().getDefaultRequestOptions());</span><br><span class="line"></span><br><span class="line">    glide.registerRequestManager(this);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  @Override</span><br><span class="line">  public void onStart() &#123;</span><br><span class="line">    resumeRequests();</span><br><span class="line">    targetTracker.onStart();//targetTracker监听</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  @Override</span><br><span class="line">  public void onStop() &#123;</span><br><span class="line">    pauseRequests();</span><br><span class="line">    targetTracker.onStop();//targetTracker监听</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public void resumeRequests() &#123;</span><br><span class="line">    Util.assertMainThread();</span><br><span class="line">    requestTracker.resumeRequests();//requestTracker监听</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public void pauseRequests() &#123;</span><br><span class="line">    Util.assertMainThread();</span><br><span class="line">    requestTracker.pauseRequests();//requestTracker监听</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  @Override</span><br><span class="line">  public void onDestroy() &#123;</span><br><span class="line">    targetTracker.onDestroy();//targetTracker监听</span><br><span class="line">    for (Target&lt;?&gt; target : targetTracker.getAll()) &#123;</span><br><span class="line">      clear(target);</span><br><span class="line">    &#125;</span><br><span class="line">    targetTracker.clear();//targetTracker监听</span><br><span class="line">    requestTracker.clearRequests();//requestTracker监听</span><br><span class="line">    lifecycle.removeListener(this);</span><br><span class="line">    lifecycle.removeListener(connectivityMonitor);</span><br><span class="line">    mainHandler.removeCallbacks(addSelfToLifecycle);</span><br><span class="line">    glide.unregisterRequestManager(this);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>RequestManager自身实现了LifecycleListener接口，在构造方法中获得Lifecycle对象然后把自身addListener，在对应的onStart()、onStop()、onDestory()方法中调用调用RequestTracker和TargetTracker的对应生命周期方法，完成了生命周期的传递；</p>
+<p>最终要用到这三个生命周期的对想是RequestTracker和TargetTracker这两个类，后面会用上他们。</p>
+<h2 id="load"><a href="#load" class="headerlink" title="load()"></a>load()</h2><p>紧接上文，Glide.with()之后获得RequestManager对象，load()方法自然是RequestManager对象的，RequestManager实现了ModelTypes接口，ModelTypes接口正是这一些列load方法的定义者。</p>
+<p><strong>ModelTypes.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">interface ModelTypes&lt;T&gt; &#123;</span><br><span class="line">  @NonNull</span><br><span class="line">  @CheckResult</span><br><span class="line">  T load(@Nullable Bitmap bitmap);</span><br><span class="line"></span><br><span class="line">  @NonNull</span><br><span class="line">  @CheckResult</span><br><span class="line">  T load(@Nullable Drawable drawable);</span><br><span class="line"></span><br><span class="line">  @NonNull</span><br><span class="line">  @CheckResult</span><br><span class="line">  T load(@Nullable String string);</span><br><span class="line"></span><br><span class="line">  @NonNull</span><br><span class="line">  @CheckResult</span><br><span class="line">  T load(@Nullable Uri uri);</span><br><span class="line"></span><br><span class="line">  @NonNull</span><br><span class="line">  @CheckResult</span><br><span class="line">  T load(@Nullable File file);</span><br><span class="line"></span><br><span class="line">  @NonNull</span><br><span class="line">  @CheckResult</span><br><span class="line">  T load(@RawRes @DrawableRes @Nullable Integer resourceId);</span><br><span class="line"></span><br><span class="line">  @Deprecated</span><br><span class="line">  @CheckResult</span><br><span class="line">  T load(@Nullable URL url);</span><br><span class="line"></span><br><span class="line">  @NonNull</span><br><span class="line">  @CheckResult</span><br><span class="line">  T load(@Nullable byte[] model);</span><br><span class="line"></span><br><span class="line">  @NonNull</span><br><span class="line">  @CheckResult</span><br><span class="line">  @SuppressWarnings(&quot;unchecked&quot;)</span><br><span class="line">  T load(@Nullable Object model);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>ModelTypes定义了8个重载方法load()，支持参数类型：<code>Bitmap</code>、<code>Drawable</code>、<code>String</code>、<code>Uri</code>、<code>File</code>、<code>Integer</code>、<code>URL</code>、<code>byte</code>、<code>Object</code>；</p>
+<p>它的实现类RequestManager是怎么做具体的实现<br><strong>RequestManager.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">public class RequestManager implements LifecycleListener,</span><br><span class="line">    ModelTypes&lt;RequestBuilder&lt;Drawable&gt;&gt; &#123;</span><br><span class="line">    </span><br><span class="line">  public RequestBuilder&lt;Drawable&gt; load(@Nullable Bitmap bitmap) &#123;</span><br><span class="line">    return asDrawable().load(bitmap);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public RequestBuilder&lt;Drawable&gt; load(@Nullable String string) &#123;</span><br><span class="line">    return asDrawable().load(string);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public RequestBuilder&lt;Drawable&gt; load(@Nullable Uri uri) &#123;</span><br><span class="line">    return asDrawable().load(uri);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public RequestBuilder&lt;Drawable&gt; asDrawable() &#123;</span><br><span class="line">    return as(Drawable.class);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public RequestBuilder&lt;GifDrawable&gt; asGif() &#123;</span><br><span class="line">    return as(GifDrawable.class).apply(DECODE_TYPE_GIF);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public &lt;ResourceType&gt; RequestBuilder&lt;ResourceType&gt; as(</span><br><span class="line">      @NonNull Class&lt;ResourceType&gt; resourceClass) &#123;</span><br><span class="line">    return new RequestBuilder&lt;&gt;(glide, this, resourceClass, context);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>RequestManager实现了ModelTypes接口并且返回类型为RequestBuilder<drawable>，重写了load(xxx)方法，所有的操作都是调用asDrawable().load(xxx)方法,真正执行load的还是asDrawable()返回的对象,</drawable></p>
+<p>除了asDrawable(),还有asGif()、asFile()、as(Class)等方法，其中asGif()，asFile()本质上还是调用as(Class)来实现，这个as(Class)方法创建了RequestBuilder对象，所以这个as()方法调用就是创建RequestBuilder的，真正load的还是RequestBuilder,</p>
+<p>再说说类型，as()方法支持泛型，load()方法支持8种类型(其中包括Object)，这意味着，我们可以load()任意自定义类型，返回任意自定义类型的RequestBuilder<resourcetype>，这个疑问先放一放，从load()方法追踪RequestBuilder这个类；</resourcetype></p>
+<p><strong>RequestBuilder.java</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">public RequestBuilder&lt;TranscodeType&gt; load(@Nullable Bitmap bitmap) &#123;</span><br><span class="line">    return loadGeneric(bitmap)</span><br><span class="line">        .apply(diskCacheStrategyOf(DiskCacheStrategy.NONE));</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public RequestBuilder&lt;TranscodeType&gt; load(@Nullable Drawable drawable) &#123;</span><br><span class="line">    return loadGeneric(drawable)</span><br><span class="line">        .apply(diskCacheStrategyOf(DiskCacheStrategy.NONE));</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public RequestBuilder&lt;TranscodeType&gt; load(@Nullable String string) &#123;</span><br><span class="line">    return loadGeneric(string);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public RequestBuilder&lt;TranscodeType&gt; load(@Nullable Uri uri) &#123;</span><br><span class="line">    return loadGeneric(uri);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public RequestBuilder&lt;TranscodeType&gt; load(@Nullable File file) &#123;</span><br><span class="line">    return loadGeneric(file);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  private RequestBuilder&lt;TranscodeType&gt; loadGeneric(@Nullable Object model) &#123;</span><br><span class="line">    this.model = model;</span><br><span class="line">    isModelSet = true;</span><br><span class="line">    return this;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public RequestBuilder&lt;TranscodeType&gt; load(@Nullable Object model) &#123;</span><br><span class="line">    return loadGeneric(model);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>从load方法来看，最终都调用loadGeneric(Object model)，loadGeneric()也只是对model和isModelSet进行赋值，仅此而已，</p>
+<p>但是load(Bitmap)和load(Drawable)默认设置了apply(diskCacheStrategyOf(DiskCacheStrategy.NONE)，说明直接加载Bitmap和Drawable是不需要DiskCache的，load方法走到这里就结束了。</p>
+<p>load流程总结：<br>在RequestManager中确定model和SourceType，然后创建RequestBuilder对象，再把model信息传递给RequestBuilder，完成了load流程。</p>
+<h2 id="apply"><a href="#apply" class="headerlink" title="apply()"></a>apply()</h2><p>在Glide实际运用中，简单的调用Glide.with.load.into是远远不够的，我们可能需要更多的配置，比如有占位图，圆角剪裁，缩略图等场景，这就要调用RequestBuilder.apply()方法，该方法接受一下RequestOptions参数，我们从apply()方法和RequestOptions类来分析：</p>
+<p><strong>RequestBuilder.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">public RequestBuilder&lt;TranscodeType&gt; apply(@NonNull RequestOptions requestOptions) &#123;</span><br><span class="line">    Preconditions.checkNotNull(requestOptions);</span><br><span class="line">    this.requestOptions = getMutableOptions().apply(requestOptions);</span><br><span class="line">    return this;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  protected RequestOptions getMutableOptions() &#123;</span><br><span class="line">    return defaultRequestOptions == this.requestOptions</span><br><span class="line">        ? this.requestOptions.clone() : this.requestOptions;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>RequestBuilder持有requestOptions，apply()方法主要流程是拿当前的requestOptions,调用RequestOptions.apply组合配置；</p>
+<p><strong>RequestOptions.java</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><span class="line">public RequestOptions apply(@NonNull RequestOptions other) &#123;</span><br><span class="line">    if (isAutoCloneEnabled) &#123;</span><br><span class="line">      return clone().apply(other);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (isSet(other.fields, SIZE_MULTIPLIER)) &#123;</span><br><span class="line">      sizeMultiplier = other.sizeMultiplier;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, USE_UNLIMITED_SOURCE_GENERATORS_POOL)) &#123;</span><br><span class="line">      useUnlimitedSourceGeneratorsPool = other.useUnlimitedSourceGeneratorsPool;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, USE_ANIMATION_POOL)) &#123;</span><br><span class="line">      useAnimationPool = other.useAnimationPool;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, DISK_CACHE_STRATEGY)) &#123;</span><br><span class="line">      diskCacheStrategy = other.diskCacheStrategy;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, PRIORITY)) &#123;</span><br><span class="line">      priority = other.priority;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, ERROR_PLACEHOLDER)) &#123;</span><br><span class="line">      errorPlaceholder = other.errorPlaceholder;</span><br><span class="line">      errorId = 0;</span><br><span class="line">      fields &amp;= ~ERROR_ID;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, ERROR_ID)) &#123;</span><br><span class="line">      errorId = other.errorId;</span><br><span class="line">      errorPlaceholder = null;</span><br><span class="line">      fields &amp;= ~ERROR_PLACEHOLDER;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, PLACEHOLDER)) &#123;</span><br><span class="line">      placeholderDrawable = other.placeholderDrawable;</span><br><span class="line">      placeholderId = 0;</span><br><span class="line">      fields &amp;= ~PLACEHOLDER_ID;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, PLACEHOLDER_ID)) &#123;</span><br><span class="line">      placeholderId = other.placeholderId;</span><br><span class="line">      placeholderDrawable = null;</span><br><span class="line">      fields &amp;= ~PLACEHOLDER;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, IS_CACHEABLE)) &#123;</span><br><span class="line">      isCacheable = other.isCacheable;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, OVERRIDE)) &#123;</span><br><span class="line">      overrideWidth = other.overrideWidth;</span><br><span class="line">      overrideHeight = other.overrideHeight;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, SIGNATURE)) &#123;</span><br><span class="line">      signature = other.signature;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, RESOURCE_CLASS)) &#123;</span><br><span class="line">      resourceClass = other.resourceClass;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, FALLBACK)) &#123;</span><br><span class="line">      fallbackDrawable = other.fallbackDrawable;</span><br><span class="line">      fallbackId = 0;</span><br><span class="line">      fields &amp;= ~FALLBACK_ID;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, FALLBACK_ID)) &#123;</span><br><span class="line">      fallbackId = other.fallbackId;</span><br><span class="line">      fallbackDrawable = null;</span><br><span class="line">      fields &amp;= ~FALLBACK;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, THEME)) &#123;</span><br><span class="line">      theme = other.theme;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, TRANSFORMATION_ALLOWED)) &#123;</span><br><span class="line">      isTransformationAllowed = other.isTransformationAllowed;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, TRANSFORMATION_REQUIRED)) &#123;</span><br><span class="line">      isTransformationRequired = other.isTransformationRequired;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, TRANSFORMATION)) &#123;</span><br><span class="line">      transformations.putAll(other.transformations);</span><br><span class="line">      isScaleOnlyOrNoTransform = other.isScaleOnlyOrNoTransform;</span><br><span class="line">    &#125;</span><br><span class="line">    if (isSet(other.fields, ONLY_RETRIEVE_FROM_CACHE)) &#123;</span><br><span class="line">      onlyRetrieveFromCache = other.onlyRetrieveFromCache;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    if (!isTransformationAllowed) &#123;</span><br><span class="line">      transformations.clear();</span><br><span class="line">      fields &amp;= ~TRANSFORMATION;</span><br><span class="line">      isTransformationRequired = false;</span><br><span class="line">      fields &amp;= ~TRANSFORMATION_REQUIRED;</span><br><span class="line">      isScaleOnlyOrNoTransform = true;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fields |= other.fields;</span><br><span class="line">    options.putAll(other.options);</span><br><span class="line"></span><br><span class="line">    return selfOrThrowIfLocked();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>注意到RequestOptions有一个int类型成员变量fields，apply方法一直在调用isSet()方法做判断，isSet()逻辑是如果传入的这个RequestOptions对象other设置了xxx属性，就替换掉现有的属性，如果特殊情况再清楚掉其他标志位，下面着重分析一下fields标志位；</p>
+<h3 id="RequestOptions标志位"><a href="#RequestOptions标志位" class="headerlink" title="RequestOptions标志位"></a>RequestOptions标志位</h3><p>上文提到fields，分析它是用来标志各个属性是否被赋值，我们就拿常用了placeholder()方法来分析，placeholder()有两个重载方法</p>
+<p><strong>RequestOptions.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">  private static final int UNSET = -1;</span><br><span class="line">  private static final int SIZE_MULTIPLIER = 1 &lt;&lt; 1;</span><br><span class="line">  private static final int DISK_CACHE_STRATEGY = 1 &lt;&lt; 2;</span><br><span class="line">  private static final int PRIORITY = 1 &lt;&lt; 3;</span><br><span class="line">  private static final int ERROR_PLACEHOLDER = 1 &lt;&lt; 4;</span><br><span class="line">  private static final int ERROR_ID = 1 &lt;&lt; 5;</span><br><span class="line">  private static final int PLACEHOLDER = 1 &lt;&lt; 6;</span><br><span class="line">  private static final int PLACEHOLDER_ID = 1 &lt;&lt; 7;</span><br><span class="line">  private static final int IS_CACHEABLE = 1 &lt;&lt; 8;</span><br><span class="line">  private static final int OVERRIDE = 1 &lt;&lt; 9;</span><br><span class="line">  private static final int SIGNATURE = 1 &lt;&lt; 10;</span><br><span class="line">  private static final int TRANSFORMATION = 1 &lt;&lt; 11;</span><br><span class="line">  private static final int RESOURCE_CLASS = 1 &lt;&lt; 12;</span><br><span class="line">  private static final int FALLBACK = 1 &lt;&lt; 13;</span><br><span class="line">  private static final int FALLBACK_ID = 1 &lt;&lt; 14;</span><br><span class="line">  private static final int THEME = 1 &lt;&lt; 15;</span><br><span class="line">  private static final int TRANSFORMATION_ALLOWED = 1 &lt;&lt; 16;</span><br><span class="line">  private static final int TRANSFORMATION_REQUIRED = 1 &lt;&lt; 17;</span><br><span class="line">  private static final int USE_UNLIMITED_SOURCE_GENERATORS_POOL = 1 &lt;&lt; 18;</span><br><span class="line">  private static final int ONLY_RETRIEVE_FROM_CACHE = 1 &lt;&lt; 19;</span><br><span class="line">  private static final int USE_ANIMATION_POOL = 1 &lt;&lt; 20;</span><br><span class="line"></span><br><span class="line">public RequestOptions placeholder(@Nullable Drawable drawable) &#123;</span><br><span class="line">    if (isAutoCloneEnabled) &#123;</span><br><span class="line">      return clone().placeholder(drawable);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    this.placeholderDrawable = drawable;</span><br><span class="line">    fields |= PLACEHOLDER;//给代表drawable的placeholder标志位至1</span><br><span class="line"></span><br><span class="line">    placeholderId = 0;</span><br><span class="line">    fields &amp;= ~PLACEHOLDER_ID;//给代表id的placeholder标志位至0</span><br><span class="line"></span><br><span class="line">    return selfOrThrowIfLocked();</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">public RequestOptions placeholder(@DrawableRes int resourceId) &#123;</span><br><span class="line">    if (isAutoCloneEnabled) &#123;</span><br><span class="line">      return clone().placeholder(resourceId);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    this.placeholderId = resourceId;</span><br><span class="line">    fields |= PLACEHOLDER_ID;//给代表id的placeholder标志位至1</span><br><span class="line"></span><br><span class="line">    placeholderDrawable = null;</span><br><span class="line">    fields &amp;= ~PLACEHOLDER;//给代表drawable的placeholder标志位至0</span><br><span class="line"></span><br><span class="line">    return selfOrThrowIfLocked();</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  private static boolean isSet(int fields, int flag) &#123;</span><br><span class="line">    return (fields &amp; flag) != 0;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>placeholder(drawable)和placeholder(resourceId)这两个方法不能同时对placeholder这一实物产生效果，所以会有fields |= PLACEHOLDER和fields &amp;= ~PLACEHOLDER_ID这样的代码，</p>
+<p>系统定义了21个标志位，通过每个标志位代表RequestOptions对应属性的赋值与否，巧妙使用位运算，用一个int类型表示了21个bool逻辑(其实一个int最多能标识32个逻辑)，当然这种位运算也是Android源码中非常常见的。</p>
+<p>RequestOptions的其他方法暂时不过多介绍，我们还是回到主干调用流程，上面讲到了load()和apply()方法，这两个方法主要是收集用户的配置信息，真正触发逻辑的入口是into()方法；</p>
+<h2 id="into-流程"><a href="#into-流程" class="headerlink" title="into()流程"></a>into()流程</h2><p><strong>RequestBuilder.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">@NonNull</span><br><span class="line">public &lt;Y extends Target&lt;TranscodeType&gt;&gt; Y into(@NonNull Y target) &#123;</span><br><span class="line">  return into(target, /*targetListener=*/ null);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@NonNull</span><br><span class="line">@Synthetic &lt;Y extends Target&lt;TranscodeType&gt;&gt; Y into(</span><br><span class="line">    @NonNull Y target,</span><br><span class="line">    @Nullable RequestListener&lt;TranscodeType&gt; targetListener) &#123;</span><br><span class="line">  return into(target, targetListener, getMutableOptions());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private &lt;Y extends Target&lt;TranscodeType&gt;&gt; Y into(</span><br><span class="line">    @NonNull Y target,</span><br><span class="line">    @Nullable RequestListener&lt;TranscodeType&gt; targetListener,</span><br><span class="line">    @NonNull RequestOptions options) &#123;</span><br><span class="line">  Util.assertMainThread();</span><br><span class="line">  Preconditions.checkNotNull(target);</span><br><span class="line">  if (!isModelSet) &#123;</span><br><span class="line">    throw new IllegalArgumentException(&quot;You must call #load() before calling #into()&quot;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  options = options.autoClone();</span><br><span class="line">  //创建Request</span><br><span class="line">  Request request = buildRequest(target, targetListener, options);</span><br><span class="line"></span><br><span class="line">  Request previous = target.getRequest();</span><br><span class="line">  if (request.isEquivalentTo(previous)</span><br><span class="line">      &amp;&amp; !isSkipMemoryCacheWithCompletePreviousRequest(options, previous)) &#123;</span><br><span class="line">    request.recycle();</span><br><span class="line">    // If the request is completed, beginning again will ensure the result is re-delivered,</span><br><span class="line">    // triggering RequestListeners and Targets. If the request is failed, beginning again will</span><br><span class="line">    // restart the request, giving it another chance to complete. If the request is already</span><br><span class="line">    // running, we can let it continue running without interruption.</span><br><span class="line">    if (!Preconditions.checkNotNull(previous).isRunning()) &#123;</span><br><span class="line">      // Use the previous request rather than the new one to allow for optimizations like skipping</span><br><span class="line">      // setting placeholders, tracking and un-tracking Targets, and obtaining View dimensions</span><br><span class="line">      // that are done in the individual Request.</span><br><span class="line">      previous.begin();</span><br><span class="line">    &#125;</span><br><span class="line">    return target;</span><br><span class="line">  &#125;</span><br><span class="line">  requestManager.clear(target);</span><br><span class="line">  //给Target设置request</span><br><span class="line">  target.setRequest(request);</span><br><span class="line">  //跟踪target和request</span><br><span class="line">  requestManager.track(target, request);</span><br><span class="line">  return target;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>RequestBuilder的into()方法代码量并不大，主要做了这些事:</p>
+<ol>
+<li>创建Request对象，</li>
+<li>将request设置给target</li>
+<li>requestManager跟踪request和target;</li>
+</ol>
+<p>之前一直在说RequestBuilder，顾名思义RequestBuilder是Request的建造者，Request才是真正的大佬;</p>
+<p><strong>Request.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">public interface Request &#123;</span><br><span class="line"></span><br><span class="line">  void begin();</span><br><span class="line"></span><br><span class="line">  void clear();</span><br><span class="line"></span><br><span class="line">  boolean isRunning();</span><br><span class="line"></span><br><span class="line">  boolean isComplete();</span><br><span class="line"></span><br><span class="line">  boolean isResourceSet();</span><br><span class="line"></span><br><span class="line">  boolean isCleared();</span><br><span class="line"></span><br><span class="line">  boolean isFailed();</span><br><span class="line"></span><br><span class="line">  void recycle();</span><br><span class="line"></span><br><span class="line">  boolean isEquivalentTo(Request other);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Request不是一个具体的类，它定义了Request该有的方法，其中begin()方法开始一个异步加载，</p>
+<p>Request实现类有三个：<br><code>ErrorRequestCoordinator</code>，<code>ThumbnailRequestCoordinator</code>、<code>SingleRequest</code>，先不细说Request,回到主流程Request的创建是由Builder类完成，RequestBuilder如何构建Request对象的：</p>
+<p>在分析Request构建之前，我觉得有必要写一下Glide<code>缩略图</code>和<code>失败新请求</code>的用法：</p>
+<h3 id="缩略图-Thumbnail-请求"><a href="#缩略图-Thumbnail-请求" class="headerlink" title="缩略图 (Thumbnail) 请求"></a>缩略图 (Thumbnail) 请求</h3><p>Glide 的 thumbnail() API 允许你指定一个 RequestBuilder 以与你的主请求并行启动。thumbnail() 会在主请求加载过程中展示。如果主请求在缩略图请求之前完成，则缩略图请求中的图像将不会被展示。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Glide.with(fragment)</span><br><span class="line">  .load(url)</span><br><span class="line">  .thumbnail(Glide.with(fragment)</span><br><span class="line">    .load(thumbnailUrl))</span><br><span class="line">  .into(imageView);</span><br></pre></td></tr></table></figure></p>
+<p>thumbnail() 方法有一个简化版本，它只需要一个 sizeMultiplier 参数。如果你只是想为你的加载相同的图片，但尺寸为 View 或 Target 的某个百分比的话特别有用：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Glide.with(fragment)</span><br><span class="line">  .load(localUri)</span><br><span class="line">  .thumbnail(/*sizeMultiplier=*/ 0.25f)</span><br><span class="line">  .into(imageView);</span><br></pre></td></tr></table></figure></p>
+<h3 id="在失败时开始新的请求"><a href="#在失败时开始新的请求" class="headerlink" title="在失败时开始新的请求"></a>在失败时开始新的请求</h3><p>可以使用 error API 来指定一个 RequestBuilder，以在主请求失败时开始一次新的加载。例如，在请求 primaryUrl 失败后加载 fallbackUrl<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Glide.with(fragment)</span><br><span class="line">  .load(primaryUrl)</span><br><span class="line">  .error(Glide.with(fragment)</span><br><span class="line">      .load(fallbackUrl))</span><br><span class="line">  .into(imageView);</span><br></pre></td></tr></table></figure></p>
+<p>如果主请求成功完成，这个error RequestBuilder 将不会被启动。如果你同时指定了一个 thumbnail() 和一个 error() RequestBuilder，则这个后备的 RequestBuilder 将在主请求失败时启动，即使缩略图请求成功也是如此。</p>
+<p>以上关于缩略图和fallback大部分内容都是来自Glide官方示例。</p>
+<p><strong>RequestBuilder.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">private Float thumbSizeMultiplier;</span><br><span class="line">RequestBuilder&lt;TranscodeType&gt; errorBuilder;</span><br><span class="line">private RequestBuilder&lt;TranscodeType&gt; thumbnailBuilder;</span><br><span class="line"></span><br><span class="line">public RequestBuilder&lt;TranscodeType&gt; error(@Nullable RequestBuilder&lt;TranscodeType&gt; errorBuilder) &#123;</span><br><span class="line">  this.errorBuilder = errorBuilder;</span><br><span class="line">  return this;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public RequestBuilder&lt;TranscodeType&gt; thumbnail(</span><br><span class="line">    @Nullable RequestBuilder&lt;TranscodeType&gt; thumbnailRequest) &#123;</span><br><span class="line">  this.thumbnailBuilder = thumbnailRequest;</span><br><span class="line"></span><br><span class="line">  return this;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public RequestBuilder&lt;TranscodeType&gt; thumbnail(float sizeMultiplier) &#123;</span><br><span class="line">  if (sizeMultiplier &lt; 0f || sizeMultiplier &gt; 1f) &#123;</span><br><span class="line">    throw new IllegalArgumentException(&quot;sizeMultiplier must be between 0 and 1&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">  this.thumbSizeMultiplier = sizeMultiplier;</span><br><span class="line"></span><br><span class="line">  return this;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其中thumbnail和error支持传入一个新的RequestBuilder，而且thumbnail是支持float(0-1.0)参数进行比例等比缩小的f方式。</p>
+<h3 id="构建Request流程"><a href="#构建Request流程" class="headerlink" title="构建Request流程"></a>构建Request流程</h3><p>接下来看一下Request实例如何被创建处理；</p>
+<p><strong>RequestBuilder.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br></pre></td><td class="code"><pre><span class="line">private Request buildRequest(</span><br><span class="line">      Target&lt;TranscodeType&gt; target,</span><br><span class="line">      @Nullable RequestListener&lt;TranscodeType&gt; targetListener,</span><br><span class="line">      RequestOptions requestOptions) &#123;</span><br><span class="line">    return buildRequestRecursive(</span><br><span class="line">        target,</span><br><span class="line">        targetListener,</span><br><span class="line">        /*parentCoordinator=*/ null,</span><br><span class="line">        transitionOptions,</span><br><span class="line">        requestOptions.getPriority(),</span><br><span class="line">        requestOptions.getOverrideWidth(),</span><br><span class="line">        requestOptions.getOverrideHeight(),</span><br><span class="line">        requestOptions);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  private Request buildRequestRecursive(</span><br><span class="line">      Target&lt;TranscodeType&gt; target,</span><br><span class="line">      @Nullable RequestListener&lt;TranscodeType&gt; targetListener,</span><br><span class="line">      @Nullable RequestCoordinator parentCoordinator,</span><br><span class="line">      TransitionOptions&lt;?, ? super TranscodeType&gt; transitionOptions,</span><br><span class="line">      Priority priority,</span><br><span class="line">      int overrideWidth,</span><br><span class="line">      int overrideHeight,</span><br><span class="line">      RequestOptions requestOptions) &#123;</span><br><span class="line"></span><br><span class="line">    //判断是否需要创建带有errorRequest的嵌套Request类</span><br><span class="line">    ErrorRequestCoordinator errorRequestCoordinator = null;</span><br><span class="line">    if (errorBuilder != null) &#123;//意味着这（标记1）调用的</span><br><span class="line">      errorRequestCoordinator = new ErrorRequestCoordinator(parentCoordinator);</span><br><span class="line">      parentCoordinator = errorRequestCoordinator;</span><br><span class="line">    &#125;</span><br><span class="line">    //得到可能带有缩略图嵌套的请求类</span><br><span class="line">    Request mainRequest =</span><br><span class="line">        buildThumbnailRequestRecursive(</span><br><span class="line">            target,</span><br><span class="line">            targetListener,</span><br><span class="line">            parentCoordinator,</span><br><span class="line">            transitionOptions,</span><br><span class="line">            priority,</span><br><span class="line">            overrideWidth,</span><br><span class="line">            overrideHeight,</span><br><span class="line">            requestOptions);</span><br><span class="line">    //不带error直接返回mainRequest</span><br><span class="line">    if (errorRequestCoordinator == null) &#123;</span><br><span class="line">      return mainRequest;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    int errorOverrideWidth = errorBuilder.requestOptions.getOverrideWidth();</span><br><span class="line">    int errorOverrideHeight = errorBuilder.requestOptions.getOverrideHeight();</span><br><span class="line">    if (Util.isValidDimensions(overrideWidth, overrideHeight)</span><br><span class="line">        &amp;&amp; !errorBuilder.requestOptions.isValidOverride()) &#123;</span><br><span class="line">      errorOverrideWidth = requestOptions.getOverrideWidth();</span><br><span class="line">      errorOverrideHeight = requestOptions.getOverrideHeight();</span><br><span class="line">    &#125;</span><br><span class="line">    //调用当前方法，构建带error请求 （标记1）</span><br><span class="line">    Request errorRequest = errorBuilder.buildRequestRecursive(</span><br><span class="line">        target,</span><br><span class="line">        targetListener,</span><br><span class="line">        errorRequestCoordinator,</span><br><span class="line">        errorBuilder.transitionOptions,</span><br><span class="line">        errorBuilder.requestOptions.getPriority(),</span><br><span class="line">        errorOverrideWidth,</span><br><span class="line">        errorOverrideHeight,</span><br><span class="line">        errorBuilder.requestOptions);</span><br><span class="line">    errorRequestCoordinator.setRequests(mainRequest, errorRequest);</span><br><span class="line">    return errorRequestCoordinator;</span><br><span class="line">  &#125;</span><br><span class="line">  //创建带缩略图的请求类</span><br><span class="line">  private Request buildThumbnailRequestRecursive(</span><br><span class="line">      Target&lt;TranscodeType&gt; target,</span><br><span class="line">      RequestListener&lt;TranscodeType&gt; targetListener,</span><br><span class="line">      @Nullable RequestCoordinator parentCoordinator,</span><br><span class="line">      TransitionOptions&lt;?, ? super TranscodeType&gt; transitionOptions,</span><br><span class="line">      Priority priority,</span><br><span class="line">      int overrideWidth,</span><br><span class="line">      int overrideHeight,</span><br><span class="line">      RequestOptions requestOptions) &#123;</span><br><span class="line">      //thumbnailBuilder不为空</span><br><span class="line">    if (thumbnailBuilder != null) &#123;</span><br><span class="line">      // Recursive case: contains a potentially recursive thumbnail request builder.</span><br><span class="line">      if (isThumbnailBuilt) &#123;</span><br><span class="line">        throw new IllegalStateException(&quot;You cannot use a request as both the main request and a &quot;</span><br><span class="line">            + &quot;thumbnail, consider using clone() on the request(s) passed to thumbnail()&quot;);</span><br><span class="line">      &#125;</span><br><span class="line">       //获取缩略图配置参数</span><br><span class="line">      TransitionOptions&lt;?, ? super TranscodeType&gt; thumbTransitionOptions =</span><br><span class="line">          thumbnailBuilder.transitionOptions;</span><br><span class="line"></span><br><span class="line">      // Apply our transition by default to thumbnail requests but avoid overriding custom options</span><br><span class="line">      // that may have been applied on the thumbnail request explicitly.</span><br><span class="line">      if (thumbnailBuilder.isDefaultTransitionOptionsSet) &#123;</span><br><span class="line">        thumbTransitionOptions = transitionOptions;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      Priority thumbPriority = thumbnailBuilder.requestOptions.isPrioritySet()</span><br><span class="line">          ? thumbnailBuilder.requestOptions.getPriority() : getThumbnailPriority(priority);</span><br><span class="line"></span><br><span class="line">      int thumbOverrideWidth = thumbnailBuilder.requestOptions.getOverrideWidth();</span><br><span class="line">      int thumbOverrideHeight = thumbnailBuilder.requestOptions.getOverrideHeight();</span><br><span class="line">      if (Util.isValidDimensions(overrideWidth, overrideHeight)</span><br><span class="line">          &amp;&amp; !thumbnailBuilder.requestOptions.isValidOverride()) &#123;</span><br><span class="line">        thumbOverrideWidth = requestOptions.getOverrideWidth();</span><br><span class="line">        thumbOverrideHeight = requestOptions.getOverrideHeight();</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      ThumbnailRequestCoordinator coordinator = new ThumbnailRequestCoordinator(parentCoordinator);</span><br><span class="line">      //源Request</span><br><span class="line">      Request fullRequest =</span><br><span class="line">          obtainRequest(</span><br><span class="line">              target,</span><br><span class="line">              targetListener,</span><br><span class="line">              requestOptions,</span><br><span class="line">              coordinator,</span><br><span class="line">              transitionOptions,</span><br><span class="line">              priority,</span><br><span class="line">              overrideWidth,</span><br><span class="line">              overrideHeight);</span><br><span class="line">      isThumbnailBuilt = true;</span><br><span class="line">      // 缩略图的Request</span><br><span class="line">      Request thumbRequest =</span><br><span class="line">          thumbnailBuilder.buildRequestRecursive(</span><br><span class="line">              target,</span><br><span class="line">              targetListener,</span><br><span class="line">              coordinator,</span><br><span class="line">              thumbTransitionOptions,</span><br><span class="line">              thumbPriority,</span><br><span class="line">              thumbOverrideWidth,</span><br><span class="line">              thumbOverrideHeight,</span><br><span class="line">              thumbnailBuilder.requestOptions);</span><br><span class="line">      isThumbnailBuilt = false;</span><br><span class="line">      coordinator.setRequests(fullRequest, thumbRequest);</span><br><span class="line">      return coordinator;</span><br><span class="line">    &#125; else if (thumbSizeMultiplier != null) &#123;//缩略图缩放比例不为空</span><br><span class="line">      // Base case: thumbnail multiplier generates a thumbnail request, but cannot recurse.</span><br><span class="line">      ThumbnailRequestCoordinator coordinator = new ThumbnailRequestCoordinator(parentCoordinator);</span><br><span class="line">       //源Request</span><br><span class="line">      Request fullRequest =</span><br><span class="line">          obtainRequest(</span><br><span class="line">              target,</span><br><span class="line">              targetListener,</span><br><span class="line">              requestOptions,</span><br><span class="line">              coordinator,</span><br><span class="line">              transitionOptions,</span><br><span class="line">              priority,</span><br><span class="line">              overrideWidth,</span><br><span class="line">              overrideHeight);</span><br><span class="line">      RequestOptions thumbnailOptions = requestOptions.clone()</span><br><span class="line">          .sizeMultiplier(thumbSizeMultiplier);</span><br><span class="line">        // 缩略图的Request</span><br><span class="line">      Request thumbnailRequest =</span><br><span class="line">          obtainRequest(</span><br><span class="line">              target,</span><br><span class="line">              targetListener,</span><br><span class="line">              thumbnailOptions,</span><br><span class="line">              coordinator,</span><br><span class="line">              transitionOptions,</span><br><span class="line">              getThumbnailPriority(priority),</span><br><span class="line">              overrideWidth,</span><br><span class="line">              overrideHeight);</span><br><span class="line">        //结合在一起</span><br><span class="line">      coordinator.setRequests(fullRequest, thumbnailRequest);</span><br><span class="line">      return coordinator;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      //无缩略图，直接返回源Request</span><br><span class="line">      return obtainRequest(</span><br><span class="line">          target,</span><br><span class="line">          targetListener,</span><br><span class="line">          requestOptions,</span><br><span class="line">          parentCoordinator,</span><br><span class="line">          transitionOptions,</span><br><span class="line">          priority,</span><br><span class="line">          overrideWidth,</span><br><span class="line">          overrideHeight);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  private Request obtainRequest(</span><br><span class="line">      Target&lt;TranscodeType&gt; target,</span><br><span class="line">      RequestListener&lt;TranscodeType&gt; targetListener,</span><br><span class="line">      RequestOptions requestOptions,</span><br><span class="line">      RequestCoordinator requestCoordinator,</span><br><span class="line">      TransitionOptions&lt;?, ? super TranscodeType&gt; transitionOptions,</span><br><span class="line">      Priority priority,</span><br><span class="line">      int overrideWidth,</span><br><span class="line">      int overrideHeight) &#123;</span><br><span class="line">    return SingleRequest.obtain(</span><br><span class="line">        context,</span><br><span class="line">        glideContext,</span><br><span class="line">        model,</span><br><span class="line">        transcodeClass,</span><br><span class="line">        requestOptions,</span><br><span class="line">        overrideWidth,</span><br><span class="line">        overrideHeight,</span><br><span class="line">        priority,</span><br><span class="line">        target,</span><br><span class="line">        targetListener,</span><br><span class="line">        requestListeners,</span><br><span class="line">        requestCoordinator,</span><br><span class="line">        glideContext.getEngine(),</span><br><span class="line">        transitionOptions.getTransitionFactory());</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="构建嵌套Request核心流程"><a href="#构建嵌套Request核心流程" class="headerlink" title="构建嵌套Request核心流程"></a>构建嵌套Request核心流程</h3><p>代码有点长，不过流程还不算复杂，主要涉及到errorRequest,thumbnailRequest,fullRequest,逻辑判断流程如下;</p>
+<p><strong>先判断errorRequest逻辑</strong></p>
+<ol>
+<li>判断用户是否设置过errorRequest，没有的话直接创建带有缩略图的mainRequest(不一定真的有缩略图)；</li>
+<li>如果设置过errorRequest，拿errorRequest对象调用buildRequestRecursive，创建errorRequest请求</li>
+<li>用ErrorRequestCoordinator包装errorRequest和mainRequest。</li>
+</ol>
+<p><strong>再判断thumbnailRequest逻辑</strong></p>
+<ol start="4">
+<li>如果用户设置了thumbnailBuilder，取配置参数，创建fullRequest和thumbRequest，然后用ThumbnailRequestCoordinator包装返回；</li>
+<li>如果用户设置了thumbSizeMultiplier，创建fullRequest和thumbRequest，然后用ThumbnailRequestCoordinator包装返回；</li>
+<li>用户没有缩略图，只创fullRequest;</li>
+</ol>
+<p><strong>ps:</strong> </p>
+<p>其中fullRequest和mainRequest表示原始的请求，thumbRequest表示缩略图请求，errorRequest表示错误重使请求；</p>
+<p>如果用户同时设置了error和thumbnail,最终生成的模型应该是ErrorRequestCoordinator(ThumbnailRequestCoordinator(fullRequest,thumbRequest),errorRequest)；</p>
+<p>值得注意到是，以Coordinator结尾的连个Request类并不执行真的的Request逻辑，真正执行逻辑的类是<code>SingleRequest</code>；</p>
+<h3 id="SingleRequest分析"><a href="#SingleRequest分析" class="headerlink" title="SingleRequest分析"></a>SingleRequest分析</h3><p>接下来就是SingleRequest咯，相关代码:</p>
+<p><strong>SingleRequest.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line">public final class SingleRequest&lt;R&gt; implements Request,</span><br><span class="line">    SizeReadyCallback,</span><br><span class="line">    ResourceCallback,</span><br><span class="line">    FactoryPools.Poolable &#123;</span><br><span class="line">    </span><br><span class="line">  public void begin() &#123;</span><br><span class="line">    assertNotCallingCallbacks();</span><br><span class="line">    stateVerifier.throwIfRecycled();</span><br><span class="line">    startTime = LogTime.getLogTime();</span><br><span class="line">    if (model == null) &#123;</span><br><span class="line">      if (Util.isValidDimensions(overrideWidth, overrideHeight)) &#123;</span><br><span class="line">        width = overrideWidth;</span><br><span class="line">        height = overrideHeight;</span><br><span class="line">      &#125;</span><br><span class="line">      // Only log at more verbose log levels if the user has set a fallback drawable, because</span><br><span class="line">      // fallback Drawables indicate the user expects null models occasionally.</span><br><span class="line">      int logLevel = getFallbackDrawable() == null ? Log.WARN : Log.DEBUG;</span><br><span class="line">      onLoadFailed(new GlideException(&quot;Received null model&quot;), logLevel);</span><br><span class="line">      return;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (status == Status.RUNNING) &#123;</span><br><span class="line">      throw new IllegalArgumentException(&quot;Cannot restart a running request&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    if (status == Status.COMPLETE) &#123;</span><br><span class="line">      onResourceReady(resource, DataSource.MEMORY_CACHE);</span><br><span class="line">      return;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    status = Status.WAITING_FOR_SIZE;</span><br><span class="line">    if (Util.isValidDimensions(overrideWidth, overrideHeight)) &#123;//如果尺寸已经确定，调用onSizeReady</span><br><span class="line">      onSizeReady(overrideWidth, overrideHeight);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      target.getSize(this);//从Target身上获取Size</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if ((status == Status.RUNNING || status == Status.WAITING_FOR_SIZE)</span><br><span class="line">        &amp;&amp; canNotifyStatusChanged()) &#123;</span><br><span class="line">      target.onLoadStarted(getPlaceholderDrawable());</span><br><span class="line">    &#125;</span><br><span class="line">    if (IS_VERBOSE_LOGGABLE) &#123;</span><br><span class="line">      logV(&quot;finished run method in &quot; + LogTime.getElapsedMillis(startTime));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line"> @Override</span><br><span class="line">  public void onSizeReady(int width, int height) &#123;</span><br><span class="line">    stateVerifier.throwIfRecycled();</span><br><span class="line">    if (IS_VERBOSE_LOGGABLE) &#123;</span><br><span class="line">      logV(&quot;Got onSizeReady in &quot; + LogTime.getElapsedMillis(startTime));</span><br><span class="line">    &#125;</span><br><span class="line">    if (status != Status.WAITING_FOR_SIZE) &#123;</span><br><span class="line">      return;</span><br><span class="line">    &#125;</span><br><span class="line">    status = Status.RUNNING;</span><br><span class="line"></span><br><span class="line">    float sizeMultiplier = requestOptions.getSizeMultiplier();</span><br><span class="line">    this.width = maybeApplySizeMultiplier(width, sizeMultiplier);</span><br><span class="line">    this.height = maybeApplySizeMultiplier(height, sizeMultiplier);</span><br><span class="line">    //真正调用加载的逻辑在这里</span><br><span class="line">    loadStatus = engine.load(</span><br><span class="line">        glideContext,</span><br><span class="line">        model,</span><br><span class="line">        requestOptions.getSignature(),</span><br><span class="line">        this.width,</span><br><span class="line">        this.height,</span><br><span class="line">        requestOptions.getResourceClass(),</span><br><span class="line">        transcodeClass,</span><br><span class="line">        priority,</span><br><span class="line">        requestOptions.getDiskCacheStrategy(),</span><br><span class="line">        requestOptions.getTransformations(),</span><br><span class="line">        requestOptions.isTransformationRequired(),</span><br><span class="line">        requestOptions.isScaleOnlyOrNoTransform(),</span><br><span class="line">        requestOptions.getOptions(),</span><br><span class="line">        requestOptions.isMemoryCacheable(),</span><br><span class="line">        requestOptions.getUseUnlimitedSourceGeneratorsPool(),</span><br><span class="line">        requestOptions.getUseAnimationPool(),</span><br><span class="line">        requestOptions.getOnlyRetrieveFromCache(),</span><br><span class="line">        this);</span><br><span class="line">    if (status != Status.RUNNING) &#123;</span><br><span class="line">      loadStatus = null;</span><br><span class="line">    &#125;</span><br><span class="line">    if (IS_VERBOSE_LOGGABLE) &#123;</span><br><span class="line">      logV(&quot;finished onSizeReady in &quot; + LogTime.getElapsedMillis(startTime));</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>我们这里只分析SingleRequest最关键的两个方法onSizeReady()和begin()；</p>
+<p>这里有个疑问：begin的调用时候由谁触发？</p>
+<p>记得在into()方法中，调用了requestManager.track(target, request)方法，该方法会调用requestTracker.runRequest(request)，<br>看一下requestTracker;</p>
+<p><strong>RequestTracker.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">public void runRequest(@NonNull Request request) &#123;</span><br><span class="line">    requests.add(request);</span><br><span class="line">    if (!isPaused) &#123;</span><br><span class="line">      request.begin();//begin</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      request.clear();</span><br><span class="line">      pendingRequests.add(request);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>SingleRequest的begin应该就是这货调用起来的；</p>
+<h3 id="SingleRequest尺寸问题"><a href="#SingleRequest尺寸问题" class="headerlink" title="SingleRequest尺寸问题"></a>SingleRequest尺寸问题</h3><p>再继续分析SingleRequest尺寸问题：</p>
+<p>Glide设计之初Size尺寸这一概念就很重视，竟然把真正执行异步加载的入口放在尺寸的回调函数onSizeReady()当中，</p>
+<p>有没有可能在begin()的时候已经得到尺寸，其实有可能的，例如用户通过<code>override</code>定义了尺寸；</p>
+<p>除此之外，尺寸信息从何而来，我们能看到的是SingleRequest继承SizeReadyCallback接口和重写onSizeReady，在begin()方法中发现调用target.getSize(this)；这一点就是获取尺寸的伏笔，Traget是可以提供尺寸信息的；</p>
+<h3 id="Target是接口"><a href="#Target是接口" class="headerlink" title="Target是接口"></a>Target是接口</h3><p>紧接上面的into()方法，该方法主要接受参数类型Target或者ImageView</p>
+<p>如果参数类型是ImageView,Glide最终也是创建Target,这一点在下面代码可以说明；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">public ViewTarget&lt;ImageView, TranscodeType&gt; into(@NonNull ImageView view) &#123;</span><br><span class="line">    Util.assertMainThread();</span><br><span class="line">    Preconditions.checkNotNull(view);</span><br><span class="line"></span><br><span class="line">    RequestOptions requestOptions = this.requestOptions;</span><br><span class="line">    if (!requestOptions.isTransformationSet()</span><br><span class="line">        &amp;&amp; requestOptions.isTransformationAllowed()</span><br><span class="line">        &amp;&amp; view.getScaleType() != null) &#123;</span><br><span class="line">        //如果requestOptions设置了Transformation且允许，会自动添加imagView.ScaleType对应的Transformation</span><br><span class="line">      switch (view.getScaleType()) &#123;</span><br><span class="line">        case CENTER_CROP:</span><br><span class="line">          requestOptions = requestOptions.clone().optionalCenterCrop();</span><br><span class="line">          break;</span><br><span class="line">        case CENTER_INSIDE:</span><br><span class="line">          requestOptions = requestOptions.clone().optionalCenterInside();</span><br><span class="line">          break;</span><br><span class="line">        case FIT_CENTER:</span><br><span class="line">        case FIT_START:</span><br><span class="line">        case FIT_END:</span><br><span class="line">          requestOptions = requestOptions.clone().optionalFitCenter();</span><br><span class="line">          break;</span><br><span class="line">        case FIT_XY:</span><br><span class="line">          requestOptions = requestOptions.clone().optionalCenterInside();</span><br><span class="line">          break;</span><br><span class="line">        case CENTER:</span><br><span class="line">        case MATRIX:</span><br><span class="line">        default:</span><br><span class="line">          // Do nothing.</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return into(</span><br><span class="line">        glideContext.buildImageViewTarget(view, transcodeClass),</span><br><span class="line">        /*targetListener=*/ null,</span><br><span class="line">        requestOptions);</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>上面也说了，into(ImageView)本质上还是调用into(Target)，除此之外，requestOptions可能会自动为Bitmap设置剪裁模式;</p>
+<p>下面正式来到Target分析。Target本质上是一个接口，在早期版本中大家比较常用的是SimpleTarget,不过这一版SimpleTarget不建议使用了</p>
+<p>看一下Target这个接口：</p>
+<p><strong>Target.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">public interface Target&lt;R&gt; extends LifecycleListener &#123;</span><br><span class="line">   </span><br><span class="line">  int SIZE_ORIGINAL = Integer.MIN_VALUE;</span><br><span class="line"> </span><br><span class="line">  void onLoadStarted(@Nullable Drawable placeholder);</span><br><span class="line"> </span><br><span class="line">  void onLoadFailed(@Nullable Drawable errorDrawable);</span><br><span class="line"> </span><br><span class="line">  void onResourceReady(@NonNull R resource, @Nullable Transition&lt;? super R&gt; transition);</span><br><span class="line"> </span><br><span class="line">  void onLoadCleared(@Nullable Drawable placeholder);</span><br><span class="line"></span><br><span class="line">  void getSize(@NonNull SizeReadyCallback cb);</span><br><span class="line"></span><br><span class="line">  void removeCallback(@NonNull SizeReadyCallback cb);</span><br><span class="line"> </span><br><span class="line">  void setRequest(@Nullable Request request);</span><br><span class="line"></span><br><span class="line">  @Nullable</span><br><span class="line">  Request getRequest();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Target继承自LifecycleListener，还记得上文讲的LifecycleListener和RequestManager以及Fragment都是有千丝万缕的关系，onResourceReady()，onLoadFailed()相信大家也不陌生，还有setRequest()在into流程中也见过，</p>
+<p>除此之外，还有一个关键的方法：void getSize(@NonNull SizeReadyCallback cb);</p>
+<p>上文说到：SingleRequest真正执行engine.loade是触发onSizeReady方法，假设用户没有设置明确的SIZE，Target是如何计算尺寸的；</p>
+<h3 id="Target计算尺寸"><a href="#Target计算尺寸" class="headerlink" title="Target计算尺寸"></a>Target计算尺寸</h3><h4 id="SimpleTarget获取尺寸"><a href="#SimpleTarget获取尺寸" class="headerlink" title="SimpleTarget获取尺寸"></a>SimpleTarget获取尺寸</h4><p>我们首先来看SimpleTarget，这个类在前些版本还很受欢迎，这个版本已经淘汰了，我们分析SimageTarget对Size是如何处理的：</p>
+<p><strong>SimpleTarget</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">public abstract class SimpleTarget&lt;Z&gt; extends BaseTarget&lt;Z&gt; &#123;</span><br><span class="line">  private final int width;</span><br><span class="line">  private final int height;</span><br><span class="line"></span><br><span class="line">  public SimpleTarget() &#123;</span><br><span class="line">    this(SIZE_ORIGINAL, SIZE_ORIGINAL);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @SuppressWarnings(&quot;WeakerAccess&quot;)</span><br><span class="line">  public SimpleTarget(int width, int height) &#123;</span><br><span class="line">    this.width = width;</span><br><span class="line">    this.height = height;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Override</span><br><span class="line">  public final void getSize(@NonNull SizeReadyCallback cb) &#123;</span><br><span class="line">    if (!Util.isValidDimensions(width, height)) &#123;</span><br><span class="line">      throw new IllegalArgumentException(</span><br><span class="line">          &quot;Width and height must both be &gt; 0 or Target#SIZE_ORIGINAL, but given&quot; + &quot; width: &quot;</span><br><span class="line">              + width + &quot; and height: &quot; + height + &quot;, either provide dimensions in the constructor&quot;</span><br><span class="line">              + &quot; or call override()&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    cb.onSizeReady(width, height);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Override</span><br><span class="line">  public void removeCallback(@NonNull SizeReadyCallback cb) &#123;</span><br><span class="line">    // Do nothing, we never retain a reference to the callback.</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>SimpleTarget构造方法可以传递size参数，一般我们使用SimpleTarget无参构造,无参构造默认用SIZE_ORIGINAL设置宽高加载原图尺寸，当然Gilde不建议我们这样做，如果原图太大的话，会造成内存加载过大甚至OOM，当然如果我们有特殊需求，也是可以的，然而现在4.8.0版本该方法已经被标识为过时，官方建议用<code>CustomViewTarget</code>。</p>
+<h4 id="CustomViewTarget获取尺寸"><a href="#CustomViewTarget获取尺寸" class="headerlink" title="CustomViewTarget获取尺寸"></a>CustomViewTarget获取尺寸</h4><p>看看CustomViewTarget有什么区别：</p>
+<p><strong>CustomViewTarget.java</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line">public abstract class CustomViewTarget&lt;T extends View, Z&gt; implements Target&lt;Z&gt; &#123;</span><br><span class="line">  private static final String TAG = &quot;CustomViewTarget&quot;;</span><br><span class="line">  @IdRes private static final int VIEW_TAG_ID =</span><br><span class="line">      R.id.glide_custom_view_target_tag;</span><br><span class="line"></span><br><span class="line">  private final SizeDeterminer sizeDeterminer;//尺寸获取</span><br><span class="line">  protected final T view;</span><br><span class="line">  @Nullable private OnAttachStateChangeListener attachStateListener;</span><br><span class="line">  private boolean isClearedByUs;</span><br><span class="line">  private boolean isAttachStateListenerAdded;</span><br><span class="line">  @IdRes private int overrideTag;</span><br><span class="line"></span><br><span class="line">  public CustomViewTarget(@NonNull T view) &#123;</span><br><span class="line">    this.view = Preconditions.checkNotNull(view);</span><br><span class="line">    sizeDeterminer = new SizeDeterminer(view);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//获取尺寸</span><br><span class="line">public final void getSize(@NonNull SizeReadyCallback cb) &#123;</span><br><span class="line">    sizeDeterminer.getSize(cb);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">static final class SizeDeterminer &#123;</span><br><span class="line">    static Integer maxDisplayLength;</span><br><span class="line">    private final View view;</span><br><span class="line">    private final List&lt;SizeReadyCallback&gt; cbs = new ArrayList&lt;&gt;();</span><br><span class="line">    //构造方法</span><br><span class="line">    SizeDeterminer(@NonNull View view) &#123;</span><br><span class="line">      this.view = view;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    //通知SizeReadyCallback</span><br><span class="line">    private void notifyCbs(int width, int height) &#123;</span><br><span class="line">      for (SizeReadyCallback cb : new ArrayList&lt;&gt;(cbs)) &#123;</span><br><span class="line">        cb.onSizeReady(width, height);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    void checkCurrentDimens() &#123;</span><br><span class="line">      if (cbs.isEmpty()) &#123;</span><br><span class="line">        return;</span><br><span class="line">      &#125;</span><br><span class="line">      int currentWidth = getTargetWidth();</span><br><span class="line">      int currentHeight = getTargetHeight();</span><br><span class="line">      if (!isViewStateAndSizeValid(currentWidth, currentHeight)) &#123;</span><br><span class="line">        return;</span><br><span class="line">      &#125;</span><br><span class="line">      notifyCbs(currentWidth, currentHeight);</span><br><span class="line">      clearCallbacksAndListener();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    //从CustomViewTarget.getSize调用</span><br><span class="line">    void getSize(@NonNull SizeReadyCallback cb) &#123;</span><br><span class="line">      int currentWidth = getTargetWidth();</span><br><span class="line">      int currentHeight = getTargetHeight();</span><br><span class="line">      if (isViewStateAndSizeValid(currentWidth, currentHeight)) &#123;</span><br><span class="line">        cb.onSizeReady(currentWidth, currentHeight);</span><br><span class="line">        return;</span><br><span class="line">      &#125;</span><br><span class="line">      if (!cbs.contains(cb)) &#123;</span><br><span class="line">        cbs.add(cb);</span><br><span class="line">      &#125;</span><br><span class="line">      if (layoutListener == null) &#123;</span><br><span class="line">        ViewTreeObserver observer = view.getViewTreeObserver();</span><br><span class="line">        layoutListener = new SizeDeterminerLayoutListener(this);</span><br><span class="line">        observer.addOnPreDrawListener(layoutListener);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    //获取宽</span><br><span class="line">    private int getTargetHeight() &#123;</span><br><span class="line">      int verticalPadding = view.getPaddingTop() + view.getPaddingBottom();</span><br><span class="line">      LayoutParams layoutParams = view.getLayoutParams();</span><br><span class="line">      int layoutParamSize = layoutParams != null ? layoutParams.height : PENDING_SIZE;</span><br><span class="line">      return getTargetDimen(view.getHeight(), layoutParamSize, verticalPadding);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //获取高</span><br><span class="line">    private int getTargetWidth() &#123;</span><br><span class="line">      int horizontalPadding = view.getPaddingLeft() + view.getPaddingRight();</span><br><span class="line">      LayoutParams layoutParams = view.getLayoutParams();</span><br><span class="line">      int layoutParamSize = layoutParams != null ? layoutParams.width : PENDING_SIZE;</span><br><span class="line">      return getTargetDimen(view.getWidth(), layoutParamSize, horizontalPadding);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    //从View身上获取尺寸的监听</span><br><span class="line">    private static final class SizeDeterminerLayoutListener</span><br><span class="line">        implements ViewTreeObserver.OnPreDrawListener &#123;</span><br><span class="line">      private final WeakReference&lt;SizeDeterminer&gt; sizeDeterminerRef;</span><br><span class="line"></span><br><span class="line">      SizeDeterminerLayoutListener(@NonNull SizeDeterminer sizeDeterminer) &#123;</span><br><span class="line">        sizeDeterminerRef = new WeakReference&lt;&gt;(sizeDeterminer);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      @Override</span><br><span class="line">      public boolean onPreDraw() &#123;</span><br><span class="line">        SizeDeterminer sizeDeterminer = sizeDeterminerRef.get();</span><br><span class="line">        if (sizeDeterminer != null) &#123;</span><br><span class="line">          sizeDeterminer.checkCurrentDimens();</span><br><span class="line">        &#125;</span><br><span class="line">        return true;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>CustomViewTarget</code>把所有尺寸的获取都放到<code>SizeDeterminer</code>这个类当中，<code>SizeDeterminer</code>是内部类，<br><code>SizeDeterminer</code>构造方法传入tragetView,然后通过<code>ViewTreeObserver.OnPreDrawListener</code>的回调来获取targetView的确切宽度，最后再回调给<code>SizeReadyCallback</code>对象。</p>
+<p>结合上面说到的SingleRequest实现了SizeReadyCallback接口和target的关联，最终尺寸由<code>SizeDeterminer</code>进行回调。</p>
+<font color="#ff3333">所以：Request的触发加载是由尺寸回调驱动，而Target是尺寸的提供者；</font>
+
+<p>最后，into(ImageView)默认创建的Target如何把结果设置给ImageView的，其实Glide源码中定义了很多Target,比如ImageViewTarget，默认是由ImageViewTargetFactory创建；</p>
+<p>ImageViewTargetFactory是Glide初始化流程中创建了，代码很简单：<br><strong>ImageViewTargetFactory.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">public class ImageViewTargetFactory &#123;</span><br><span class="line">  @NonNull</span><br><span class="line">  @SuppressWarnings(&quot;unchecked&quot;)</span><br><span class="line">  public &lt;Z&gt; ViewTarget&lt;ImageView, Z&gt; buildTarget(@NonNull ImageView view,</span><br><span class="line">      @NonNull Class&lt;Z&gt; clazz) &#123;</span><br><span class="line">    if (Bitmap.class.equals(clazz)) &#123;</span><br><span class="line">      return (ViewTarget&lt;ImageView, Z&gt;) new BitmapImageViewTarget(view);</span><br><span class="line">    &#125; else if (Drawable.class.isAssignableFrom(clazz)) &#123;</span><br><span class="line">      return (ViewTarget&lt;ImageView, Z&gt;) new DrawableImageViewTarget(view);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      throw new IllegalArgumentException(</span><br><span class="line">          &quot;Unhandled class: &quot; + clazz + &quot;, try .as*(Class).transcode(ResourceTranscoder)&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>最终生成BitmapImageViewTarget或者DrawableImageViewTarget，在这两个类中，回调结果会调用view.setImageBitmap(resource)和view.setImageDrawable(resource)。</p>
+<p>最后还有一个遗漏，Target的onResourceReady()和onLoadFailed()等一些列方法调用时机在哪、调用者是谁，答案是<code>SingleRequest</code>，这个类向下执行加载引擎，向上接受请求参数,而且和target有着十分紧密的调用关系，后面篇幅会再回这个类的，这一篇点到为止。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>到这时候要做收尾了，在回顾一下这一篇主要讲了哪些点：</p>
+<ol>
+<li><code>Glide</code>的构建依赖<code>GlideBuilder</code>,<code>GlideBuilder</code>可以被用户配置，配置模块可以是Manifest和Annotation；</li>
+<li><code>Glide</code>初始化时会创建<code>Registry</code>，以及注册相关模块，<code>Registry</code>是很重要的部分；</li>
+<li><code>Glide.with</code>会创建<code>RequestManager</code>，<code>RequestManager</code>通过<code>Fragment</code>获得生命周期，<code>RequestManager</code>持有<code>requestTracker</code>和<code>targetTracker</code>;</li>
+<li><code>RequestManager</code>通过<code>load()</code>创建<code>RequestBuilder</code>对象，<code>RequestBuilder</code>是<code>Request</code>的Builder类，主要工作是收集配置信息;</li>
+<li><code>RequestBuilder</code>接收<code>RequestOptions</code>对象，来丰富配置选项,<code>RequestBuilder</code>在<code>into()</code>时创建<code>Request</code>对象；</li>
+<li><code>Request</code>正真有意义的类是<code>SingleRequest</code>,<code>SingleRequest</code>的生命周期被<code>RequestManager</code>的<code>requestTracker</code>所接管；</li>
+<li><code>SingleRequest</code>必须得到确切的尺寸才会执行加载引擎逻辑，如果用户没有配置<code>override</code>，<code>SingleRequest</code>会从<code>Target</code>获取尺寸信息，同时它会把<code>Engine</code>返回的异步结果回调给<code>Target</code>;</li>
+<li><code>Target</code>主要意义是提供确切的尺寸信息和对结果回调进行处理。</li>
+<li><code>Engine</code>是真是的异步加载调用入口，也是核心逻辑的入口；</li>
+</ol>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://yoursite.com">lilei</a>
+            </p><p>原文链接：<a href="http://yoursite.com/2019/01/03/Glide4-8源码拆解（一）基本调用流程/">http://yoursite.com/2019/01/03/Glide4-8源码拆解（一）基本调用流程/</a>
+            </p><p>发表日期：<a href="http://yoursite.com/2019/01/03/Glide4-8源码拆解（一）基本调用流程/">January 3rd 2019, 12:00:00 am</a>
+            </p><p>更新日期：<a href="http://yoursite.com/2019/01/03/Glide4-8源码拆解（一）基本调用流程/">January 14th 2019, 10:05:34 am</a>
+            </p><p>版权声明：本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2019/01/04/Glide4-8源码拆解（二）核心加载流程/" title="Glide4.8源码拆解（二）核心加载流程">
+                    <div class="nextTitle">Glide4.8源码拆解（二）核心加载流程</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2018/03/30/WindowManager调用流程源码分析/" title="WindowManager调用流程源码分析">
+                    <div class="prevTitle">WindowManager调用流程源码分析</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:zzdxit@gmail.com" class="iconfont-archer email" title="email"></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/HitenDev" class="iconfont-archer github" target="_blank" title="github"></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title="wechat">
+                  
+                  <img class="profile-qr" src="/assets/example_qr.png">
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#本章拆解思路"><span class="toc-number">2.</span> <span class="toc-text">本章拆解思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Glide对象初始化"><span class="toc-number">3.</span> <span class="toc-text">Glide对象初始化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#从with-说起"><span class="toc-number">3.1.</span> <span class="toc-text">从with()说起</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#解析注解配置项"><span class="toc-number">3.2.</span> <span class="toc-text">解析注解配置项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#GlideBuilder创建默认参数"><span class="toc-number">3.3.</span> <span class="toc-text">GlideBuilder创建默认参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#构造方法和创建Registry"><span class="toc-number">3.4.</span> <span class="toc-text">构造方法和创建Registry</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#with"><span class="toc-number">4.</span> <span class="toc-text">with()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#load"><span class="toc-number">5.</span> <span class="toc-text">load()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#apply"><span class="toc-number">6.</span> <span class="toc-text">apply()</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#RequestOptions标志位"><span class="toc-number">6.1.</span> <span class="toc-text">RequestOptions标志位</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#into-流程"><span class="toc-number">7.</span> <span class="toc-text">into()流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#缩略图-Thumbnail-请求"><span class="toc-number">7.1.</span> <span class="toc-text">缩略图 (Thumbnail) 请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#在失败时开始新的请求"><span class="toc-number">7.2.</span> <span class="toc-text">在失败时开始新的请求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#构建Request流程"><span class="toc-number">7.3.</span> <span class="toc-text">构建Request流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#构建嵌套Request核心流程"><span class="toc-number">7.4.</span> <span class="toc-text">构建嵌套Request核心流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SingleRequest分析"><span class="toc-number">7.5.</span> <span class="toc-text">SingleRequest分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SingleRequest尺寸问题"><span class="toc-number">7.6.</span> <span class="toc-text">SingleRequest尺寸问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Target是接口"><span class="toc-number">7.7.</span> <span class="toc-text">Target是接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Target计算尺寸"><span class="toc-number">7.8.</span> <span class="toc-text">Target计算尺寸</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SimpleTarget获取尺寸"><span class="toc-number">7.8.1.</span> <span class="toc-text">SimpleTarget获取尺寸</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#CustomViewTarget获取尺寸"><span class="toc-number">7.8.2.</span> <span class="toc-text">CustomViewTarget获取尺寸</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">8.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 26
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href="/2019/01/13/Glide4-8源码拆解（四）Bitmap解析之下采样浅析/">Glide4.8源码拆解（四）Bitmap解析之下采样浅析</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span><a class="archive-post-title" href="/2019/01/09/Glide4-8源码拆解（三）Registry和数据转换流程/">Glide4.8源码拆解（三）Registry和数据转换流程</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/04</span><a class="archive-post-title" href="/2019/01/04/Glide4-8源码拆解（二）核心加载流程/">Glide4.8源码拆解（二）核心加载流程</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/03</span><a class="archive-post-title" href="/2019/01/03/Glide4-8源码拆解（一）基本调用流程/">Glide4.8源码拆解（一）基本调用流程</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/30</span><a class="archive-post-title" href="/2018/03/30/WindowManager调用流程源码分析/">WindowManager调用流程源码分析</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/29</span><a class="archive-post-title" href="/2018/03/29/Activity启动流程源码分析/">Activity启动流程源码分析</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2017 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/14</span><a class="archive-post-title" href="/2017/04/14/Android-Gradle-搞定Groovy闭包这一篇就够了/">[Android Gradle] 搞定Groovy闭包这一篇就够了</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span><a class="archive-post-title" href="/2017/01/17/Git分支管理策略浅识/">Git分支管理策略浅识</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2016 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/02</span><a class="archive-post-title" href="/2016/12/02/自定义头部悬停的下拉刷新控件/">自定义头部悬停的下拉刷新控件</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span><a class="archive-post-title" href="/2016/12/01/你是否留意过“位运算”/"><基础>你是否留意过“位运算”</基础></a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/28</span><a class="archive-post-title" href="/2016/11/28/解惑requestDisallowInterceptTouchEvent/">解惑requestDisallowInterceptTouchEvent</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/25</span><a class="archive-post-title" href="/2016/11/25/Kotlin转Java记录/">Kotlin转Java记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/24</span><a class="archive-post-title" href="/2016/11/24/初探Android6-0权限库PermissionsDispatcher/">初探Android6.0权限库PermissionsDispatcher</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span><a class="archive-post-title" href="/2016/08/05/由CSDN博主猝死引发的思考/">由CSDN博主猝死引发的思考</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/01</span><a class="archive-post-title" href="/2016/08/01/retrofit源码解析1-md/">retrofit2.0源码解析（一）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/31</span><a class="archive-post-title" href="/2016/07/31/回顾反省与计划/"><总结> 回顾、反省与计划</总结></a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/26</span><a class="archive-post-title" href="/2016/07/26/项目重构总结-架构设计/">项目重构总结-架构版</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/25</span><a class="archive-post-title" href="/2016/07/25/从反射分析HashMap存储原理/">从反射分析HashMap存储原理</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/27</span><a class="archive-post-title" href="/2016/06/27/初探AOP在Android中的使用/">初探AOP在Android中的使用</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/20</span><a class="archive-post-title" href="/2016/05/20/解读官方MVP架构/">解读官方MVP架构</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/14</span><a class="archive-post-title" href="/2016/05/14/Android6-0权限检测总结/">Android6.0运行时权限总结</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/22</span><a class="archive-post-title" href="/2016/04/22/我为什么使用RxJava/">我为什么要使用RxJava</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2015 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/22</span><a class="archive-post-title" href="/2015/12/22/Android中简单实现比例布局/">Android中简单实现比例布局</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/11</span><a class="archive-post-title" href="/2015/10/11/解决ListView footView不能完全隐藏/">解决ListView FootView不能完全隐藏</a>
+        </li>
+    
+    </ul></div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="Android"><span class="iconfont-archer">&#xe606;</span>Android</span>
+    
+        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
+    
+        <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
+    
+        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
+    
+        <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
+    
+        <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
+    
+        <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
+    
+        <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
+    
+        <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
+    
+        <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
+    
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
+    
+        <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
+    
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
+    
+        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
+    
+        <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
+    
+        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
+    
+        <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
+    
+        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
+    
+        <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
+    
+        <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
+    
+        <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br>
+    1、请确保node版本大于6.2<br>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "lilei"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+

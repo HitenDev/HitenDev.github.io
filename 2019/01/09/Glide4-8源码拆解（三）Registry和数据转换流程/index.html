@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="lilei">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="lilei">
+    
+    <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Glide4.8源码拆解（三）Registry和数据转换流程 · Hiten&#39;s Blog.</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin="">
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin="">
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/">Hiten&#39;s Blog.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">Glide4.8源码拆解（三）Registry和数据转换流程</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href="/">Hiten's Blog.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            Glide4.8源码拆解（三）Registry和数据转换流程
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class="post-intro-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="源码分析">源码分析</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Glide">Glide</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">3.3k</span>阅读时长: <span class="post-count reading-time">15 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/01/09</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Registry是Glide中非常重要的知识，可以把它理解成连结各个核心功能模块的集中营或者挂载中心，这一章节就来分解它是如何建立和运作的：</p>
+<p>本章要讨论的内容：</p>
+<ul>
+<li>Registry的基本构成；</li>
+<li>各个模块的功能和介绍；</li>
+<li>数据的转换流程；</li>
+</ul>
+<h2 id="从Registry开始"><a href="#从Registry开始" class="headerlink" title="从Registry开始"></a>从Registry开始</h2><p>Registry是一个组件管理类，它的主要用途是扩展和替换Glide组件，这些组件包括加载，编码，解码等逻辑；Registry内部支持的模块类型如下:</p>
+<a id="more"></a>
+<p><strong>Registry.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">private final ModelLoaderRegistry modelLoaderRegistry;</span><br><span class="line">private final EncoderRegistry encoderRegistry;</span><br><span class="line">private final ResourceDecoderRegistry decoderRegistry;</span><br><span class="line">private final ResourceEncoderRegistry resourceEncoderRegistry;</span><br><span class="line">private final DataRewinderRegistry dataRewinderRegistry;</span><br><span class="line">private final TranscoderRegistry transcoderRegistry;//Resource转换模块注册</span><br><span class="line">private final ImageHeaderParserRegistry imageHeaderParserRegistry;//文件头解析模块注册</span><br></pre></td></tr></table></figure></p>
+<p>Registry并不是承当所有模块的注册工作，而是把各个模块分配的不同的Registry当中；<br>主要模块的功能：</p>
+<ul>
+<li>ModelLoaderRegistry ：//数据加载模块注册</li>
+<li>EncoderRegistry：//所有对数据进行编码模块的注册</li>
+<li>ResourceDecoderRegistry：//处理过的解码模块注册</li>
+<li>ResourceEncoderRegistry：//处理过的编码模块注册</li>
+<li>DataRewinderRegistry ： //数据流重置起点模块注册</li>
+<li>TranscoderRegistry： // Resource进行转换模块注册</li>
+<li>ImageHeaderParserRegistry //图片头解析模块注册</li>
+</ul>
+<p>Glide自身充当对外调用的门户，Registry提供了一下入口方法来实现各个模块的注册和调用；主要方法如下：</p>
+<p>注册相关方法：</p>
+<ul>
+<li>append() //尾步追加</li>
+<li>prepend() //头部插入</li>
+<li>register() //注册，相当于append()</li>
+<li>replace() //替换掉相同条件的所有模块</li>
+</ul>
+<p>操作相关的方法：</p>
+<ul>
+<li>getLoadPath()//获取加载路径</li>
+<li>getDecodePaths() //获取解析路径</li>
+<li>getRegisteredResourceClasses()//获取所有匹配的ResourceClasses;</li>
+<li>isResourceEncoderAvailable()//ResourceEncoder是否可用；</li>
+<li>getResultEncoder()//获取Encoder;</li>
+<li>getRewinder()//获取Rewinder;</li>
+<li>getModelLoaders()//获取ModelLoader；</li>
+</ul>
+<p>总结：Registry通过内部Registry分别管理不同类型的组件，Registry提供统一的入口方法来实现注册和获取；</p>
+<p>下面对各个模块基本介绍：</p>
+<h2 id="模块简要分析"><a href="#模块简要分析" class="headerlink" title="模块简要分析"></a>模块简要分析</h2><h3 id="ModelLoader"><a href="#ModelLoader" class="headerlink" title="ModelLoader"></a>ModelLoader</h3><p><code>ModelLoader</code>是通过<code>ModelLoaderRegistry</code>进行管理，<code>ModelLoader</code>需要接受两个泛型类型<code>&lt;Model,Data&gt;</code>，<code>ModelLoader</code>本身是一个工厂接口，主要工作是将复杂数据模型转通过DataFetcher转换成需要的Data，<code>LoadData</code>是ModelLoader的内部类，是对DataFetcher和Key的封装实体，<code>ModelLoader</code>的创建用<code>ModelLoaderFactory</code>，一个基本的<code>ModelLoader</code>创建应该是这个样子的：<br>参考<code>HttpGlideUrlLoader</code></p>
+<p>第一步：自定义类实现自ModelLoader，重写BuildLoadData()方法和handles()方法；<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">public class HttpGlideUrlLoader implements ModelLoader&lt;GlideUrl, InputStream&gt; &#123;</span><br><span class="line"></span><br><span class="line">  @Nullable private final ModelCache&lt;GlideUrl, GlideUrl&gt; modelCache;</span><br><span class="line"></span><br><span class="line">  public HttpGlideUrlLoader() &#123;</span><br><span class="line">    this(null);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  public HttpGlideUrlLoader(@Nullable ModelCache&lt;GlideUrl, GlideUrl&gt; modelCache) &#123;</span><br><span class="line">    this.modelCache = modelCache;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Override</span><br><span class="line">  public LoadData&lt;InputStream&gt; buildLoadData(@NonNull GlideUrl model, int width, int height,</span><br><span class="line">      @NonNull Options options) &#123;</span><br><span class="line">    GlideUrl url = model;</span><br><span class="line">    if (modelCache != null) &#123;</span><br><span class="line">      url = modelCache.get(model, 0, 0);</span><br><span class="line">      if (url == null) &#123;</span><br><span class="line">        modelCache.put(model, 0, 0, model);</span><br><span class="line">        url = model;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    int timeout = options.get(TIMEOUT);</span><br><span class="line">    return new LoadData&lt;&gt;(url, new HttpUrlFetcher(url, timeout));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Override</span><br><span class="line">  public boolean handles(@NonNull GlideUrl model) &#123;</span><br><span class="line">    return true;</span><br><span class="line">  &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>buildLoadData()</code>需要创建LoadData,需要传入Key和DataFetcher，<code>handles()</code>返回值代表是否接受当前model类型的，true代表接受，所以一般都是true;</p>
+<p>第二步：自定义Fetcher实现DataFecher，重写loadData()、cleanup()、cancel()、getDataClass()、getDataSource()方法；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">public class HttpUrlFetcher implements DataFetcher&lt;InputStream&gt; &#123;</span><br><span class="line"> public void loadData(@NonNull Priority priority,</span><br><span class="line">      @NonNull DataCallback&lt;? super InputStream&gt; callback) &#123;</span><br><span class="line">    long startTime = LogTime.getLogTime();</span><br><span class="line">    try &#123;</span><br><span class="line">      InputStream result = loadDataWithRedirects(glideUrl.toURL(), 0, null, glideUrl.getHeaders());</span><br><span class="line">      callback.onDataReady(result);</span><br><span class="line">    &#125; catch (IOException e) &#123;</span><br><span class="line">      if (Log.isLoggable(TAG, Log.DEBUG)) &#123;</span><br><span class="line">        Log.d(TAG, &quot;Failed to load data for url&quot;, e);</span><br><span class="line">      &#125;</span><br><span class="line">      callback.onLoadFailed(e);</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">      if (Log.isLoggable(TAG, Log.VERBOSE)) &#123;</span><br><span class="line">        Log.v(TAG, &quot;Finished http url fetcher fetch in &quot; + LogTime.getElapsedMillis(startTime));</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  //清理工作</span><br><span class="line">  @Override</span><br><span class="line">  public void cleanup() &#123;</span><br><span class="line">    if (stream != null) &#123;</span><br><span class="line">      try &#123;</span><br><span class="line">        stream.close();</span><br><span class="line">      &#125; catch (IOException e) &#123;</span><br><span class="line">    </span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if (urlConnection != null) &#123;</span><br><span class="line">      urlConnection.disconnect();</span><br><span class="line">    &#125;</span><br><span class="line">    urlConnection = null;</span><br><span class="line">  &#125;</span><br><span class="line">  //取消请求</span><br><span class="line">  @Override</span><br><span class="line">  public void cancel() &#123;</span><br><span class="line">    isCancelled = true;</span><br><span class="line">  &#125;</span><br><span class="line">  //返回Data类型</span><br><span class="line">  @NonNull</span><br><span class="line">  @Override</span><br><span class="line">  public Class&lt;InputStream&gt; getDataClass() &#123;</span><br><span class="line">    return InputStream.class;</span><br><span class="line">  &#125;</span><br><span class="line">  //返回DataSource</span><br><span class="line">  @NonNull</span><br><span class="line">  @Override</span><br><span class="line">  public DataSource getDataSource() &#123;</span><br><span class="line">    return DataSource.REMOTE;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第三步:创建Factory类，重写build()、teardown()方法，在build()方法中返回真正的MolderLoader对象；<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">public static class Factory implements ModelLoaderFactory&lt;GlideUrl, InputStream&gt; &#123;</span><br><span class="line">    private final ModelCache&lt;GlideUrl, GlideUrl&gt; modelCache = new ModelCache&lt;&gt;(500);</span><br><span class="line"></span><br><span class="line">    @NonNull</span><br><span class="line">    @Override</span><br><span class="line">    public ModelLoader&lt;GlideUrl, InputStream&gt; build(MultiModelLoaderFactory multiFactory) &#123;</span><br><span class="line">      return new HttpGlideUrlLoader(modelCache);//创建ModelLoader</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public void teardown() &#123;</span><br><span class="line">      // Do nothing.</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>接下来，就可以在Registry中注册ModelLoader了；在第一章我们简单说过模块的配置可以用Annotation和Manifest两种类型，在<code>registerComponents()</code>方法中，可以拿到<code>Registry</code>，这样就可以调用registry的注册相关方法；<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">  public void registerComponents(Context context, Registry registry) &#123;</span><br><span class="line">    registry.replace(GlideUrl.class, InputStream.class, new HttpGlideUrlLoader.Factory(context));</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>最后，说一下泛型&lt;Model,Data&gt;接受的范围，Model代表用户输入的类型，理论上可以用任意数据类型，主要的输入点在<code>Glide.with().load(model)</code>；<br>Data理论上也可以是任意数据类型，但基于后续流程的支持，一般都是<code>File</code>,<code>InputStream</code>和<code>ByteBuffer</code>;</p>
+<h3 id="ResourceDecoder"><a href="#ResourceDecoder" class="headerlink" title="ResourceDecoder"></a>ResourceDecoder</h3><p><code>ResourceDecoder</code>是一个解析Resource的接口，接受两个泛型<code>&lt;T,Z&gt;</code>，定义了两个方法<code>handles()</code>和<code>decode</code>，参考一个简单的<code>BitmapDecoder</code>:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">public class StreamBitmapDecoder implements ResourceDecoder&lt;InputStream, Bitmap&gt; &#123;</span><br><span class="line"></span><br><span class="line">  private final Downsampler downsampler;</span><br><span class="line">  private final ArrayPool byteArrayPool;</span><br><span class="line"></span><br><span class="line">  public StreamBitmapDecoder(Downsampler downsampler, ArrayPool byteArrayPool) &#123;</span><br><span class="line">    this.downsampler = downsampler;</span><br><span class="line">    this.byteArrayPool = byteArrayPool;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Override</span><br><span class="line">  public boolean handles(@NonNull InputStream source, @NonNull Options options) &#123;</span><br><span class="line">    return downsampler.handles(source);</span><br><span class="line">  &#125;</span><br><span class="line">   @Override</span><br><span class="line">  public Resource&lt;Bitmap&gt; decode(@NonNull InputStream source, int width, int height,</span><br><span class="line">      @NonNull Options options)</span><br><span class="line">      throws IOException &#123;</span><br><span class="line">    ...</span><br><span class="line">    try &#123;</span><br><span class="line">      return downsampler.decode(invalidatingStream, width, height, options, callbacks);</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">      exceptionStream.release();</span><br><span class="line">      if (ownsBufferedStream) &#123;</span><br><span class="line">        bufferedStream.release();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></p>
+<p>泛型解析：<code>T</code>表示输入类型一般为<code>File</code>，<code>InputStream</code>或者<code>ByteBuffer</code>，<code>Z</code>表示输出类型，一般为<code>Bitmap</code>和<code>Drawable</code></p>
+<h3 id="Encoder和ResourceEncoder"><a href="#Encoder和ResourceEncoder" class="headerlink" title="Encoder和ResourceEncoder"></a>Encoder和ResourceEncoder</h3><p><code>Encoder</code>表面意思为加密，本质上和加密没有关系，主要作用是将T持久化到本地cache；<code>Encode</code>接受泛型<code>T</code>,而这个<code>T</code>可以是<code>InputStream</code>、<code>ByteBuffer</code>、<code>Resource&lt;T&gt;</code>，<code>ResourceEncoder</code>继承<code>Encoder&lt;Resource&lt;T&gt;&gt;</code>，接受泛型<code>T</code>，而<code>Resource</code>中的<code>T</code>一般取值范围为:<code>Bitmap</code>、<code>BitmapDrawable</code>、<code>GifDrawable</code>;</p>
+<p>我们分析一下把Bitmap持久化到本地cache的类:<code>BitmapEncoder</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">public class BitmapEncoder implements ResourceEncoder&lt;Bitmap&gt; &#123;</span><br><span class="line">  @Override</span><br><span class="line">  public boolean encode(@NonNull Resource&lt;Bitmap&gt; resource, @NonNull File file,</span><br><span class="line">      @NonNull Options options) &#123;</span><br><span class="line">    final Bitmap bitmap = resource.get();</span><br><span class="line">    Bitmap.CompressFormat format = getFormat(bitmap, options);</span><br><span class="line">    GlideTrace.</span><br><span class="line">        beginSectionFormat(&quot;encode: [%dx%d] %s&quot;, bitmap.getWidth(), bitmap.getHeight(), format);</span><br><span class="line">    try &#123;</span><br><span class="line">      long start = LogTime.getLogTime();</span><br><span class="line">      int quality = options.get(COMPRESSION_QUALITY);</span><br><span class="line"></span><br><span class="line">      boolean success = false;</span><br><span class="line">      OutputStream os = null;</span><br><span class="line">      try &#123;</span><br><span class="line">        os = new FileOutputStream(file);</span><br><span class="line">        if (arrayPool != null) &#123;</span><br><span class="line">          os = new BufferedOutputStream(os, arrayPool);</span><br><span class="line">        &#125;</span><br><span class="line">        bitmap.compress(format, quality, os);</span><br><span class="line">        os.close();</span><br><span class="line">        success = true;</span><br><span class="line">      &#125; catch (IOException e) &#123;</span><br><span class="line">        if (Log.isLoggable(TAG, Log.DEBUG)) &#123;</span><br><span class="line">          Log.d(TAG, &quot;Failed to encode Bitmap&quot;, e);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125; finally &#123;</span><br><span class="line">        if (os != null) &#123;</span><br><span class="line">          try &#123;</span><br><span class="line">            os.close();</span><br><span class="line">          &#125; catch (IOException e) &#123;</span><br><span class="line">            // Do nothing.</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      return success;</span><br><span class="line">    &#125; finally &#123;</span><br><span class="line">      GlideTrace.endSection();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>BitmapEncoder</code>重写<code>encode()</code>方法，该方法中入参<code>file</code>代表将要保存的cache文件；encode基本流程是：根据File得到输出流OutPutStream，调用Bitmap.compress将bitmap写入输出流，然后关闭流等等处理；</p>
+<h3 id="DataRewinder"><a href="#DataRewinder" class="headerlink" title="DataRewinder"></a>DataRewinder</h3><p><code>DataRewinder</code>是一个接口，作用是将流进行rewinding，主要的方法是<code>rewindAndGet()</code>；Glide中有两个有意义的实现类:<code>InputStreamRewinder</code>和<code>ByteBufferRewinder</code>，简单看一下这两个类是实现：</p>
+<p><strong>ByteBufferRewinder.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">public class ByteBufferRewinder implements DataRewinder&lt;ByteBuffer&gt; &#123;</span><br><span class="line">  private final ByteBuffer buffer;</span><br><span class="line"></span><br><span class="line">  @SuppressWarnings(&quot;WeakerAccess&quot;)</span><br><span class="line">  public ByteBufferRewinder(ByteBuffer buffer) &#123;</span><br><span class="line">    this.buffer = buffer;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @NonNull</span><br><span class="line">  @Override</span><br><span class="line">  public ByteBuffer rewindAndGet() &#123;</span><br><span class="line">    buffer.position(0);</span><br><span class="line">    return buffer;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Override</span><br><span class="line">  public void cleanup() &#123;</span><br><span class="line">    // Do nothing.</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>InputStreamRewinder.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">public final class InputStreamRewinder implements DataRewinder&lt;InputStream&gt; &#123;</span><br><span class="line">  // 5mb.</span><br><span class="line">  private static final int MARK_LIMIT = 5 * 1024 * 1024;</span><br><span class="line"></span><br><span class="line">  private final RecyclableBufferedInputStream bufferedStream;</span><br><span class="line"></span><br><span class="line">  @Synthetic</span><br><span class="line">  InputStreamRewinder(InputStream is, ArrayPool byteArrayPool) &#123;</span><br><span class="line">    bufferedStream = new RecyclableBufferedInputStream(is, byteArrayPool);</span><br><span class="line">    bufferedStream.mark(MARK_LIMIT);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @NonNull</span><br><span class="line">  @Override</span><br><span class="line">  public InputStream rewindAndGet() throws IOException &#123;</span><br><span class="line">    bufferedStream.reset();</span><br><span class="line">    return bufferedStream;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Override</span><br><span class="line">  public void cleanup() &#123;</span><br><span class="line">    bufferedStream.release();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="ResourceTranscoder"><a href="#ResourceTranscoder" class="headerlink" title="ResourceTranscoder"></a>ResourceTranscoder</h3><p><code>ResourceTranscoder</code>是一个接口，作用是对两个Resource&lt;?&gt;进行转换，接受泛型&lt;Z,R&gt;，主要方法是<code>transcode()</code>,一般泛型的接收范围是<code>Bitmap</code>、<code>Drawable</code>、<code>byte[]</code>等，看一下简单的<code>BitmapBytesTranscoder</code>源码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">public class BitmapBytesTranscoder implements ResourceTranscoder&lt;Bitmap, byte[]&gt; &#123;</span><br><span class="line">  private final Bitmap.CompressFormat compressFormat;</span><br><span class="line">  private final int quality;</span><br><span class="line"></span><br><span class="line">  public BitmapBytesTranscoder() &#123;</span><br><span class="line">    this(Bitmap.CompressFormat.JPEG, 100);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @SuppressWarnings(&quot;WeakerAccess&quot;)</span><br><span class="line">  public BitmapBytesTranscoder(@NonNull Bitmap.CompressFormat compressFormat, int quality) &#123;</span><br><span class="line">    this.compressFormat = compressFormat;</span><br><span class="line">    this.quality = quality;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Nullable</span><br><span class="line">  @Override</span><br><span class="line">  public Resource&lt;byte[]&gt; transcode(@NonNull Resource&lt;Bitmap&gt; toTranscode,</span><br><span class="line">      @NonNull Options options) &#123;</span><br><span class="line">    ByteArrayOutputStream os = new ByteArrayOutputStream();</span><br><span class="line">    toTranscode.get().compress(compressFormat, quality, os);</span><br><span class="line">    toTranscode.recycle();</span><br><span class="line">    return new BytesResource(os.toByteArray());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="加载-解析-数据转换流程"><a href="#加载-解析-数据转换流程" class="headerlink" title="加载/解析 数据转换流程"></a>加载/解析 数据转换流程</h2><p>上面介绍一堆组件和一堆泛型，数据类型的转换到底是怎样？搞明白这一点还得从Rigistry提供的操作方法入手：</p>
+<p><code>Registry</code>提供<code>getModelLoaders()</code>和<code>getLoadPath()</code>，我们先从定义方法的泛型来看:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public &lt;Model&gt; List&lt;ModelLoader&lt;Model, ?&gt;&gt; getModelLoaders(@NonNull Model model) &#123;...&#125;</span><br><span class="line"></span><br><span class="line">public &lt;Data, TResource, Transcode&gt; LoadPath&lt;Data, TResource, Transcode&gt; getLoadPath(</span><br><span class="line">      @NonNull Class&lt;Data&gt; dataClass, @NonNull Class&lt;TResource&gt; resourceClass,</span><br><span class="line">      @NonNull Class&lt;Transcode&gt; transcodeClass) &#123;...&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="getModelLoader-分析"><a href="#getModelLoader-分析" class="headerlink" title="getModelLoader()分析"></a>getModelLoader()分析</h3><p><code>getModelLoaders()</code>入参类型为<code>&lt;Model&gt;</code>，返回类型为<code>&lt;Model,?&gt;</code>，<code>&lt;Model&gt;</code>具体类型就是我们调用<code>Glide.with().load(model)</code>时<code>load()</code>传入的类型，返回类型<code>&lt;?&gt;</code>是我们在<code>Registry</code>中注册的所有符合输入<code>&lt;Model&gt;</code>的类型，比如<code>InputStream</code>或者<code>ByteBuffer</code>；</p>
+<h3 id="LoadPath-分析"><a href="#LoadPath-分析" class="headerlink" title="LoadPath()分析"></a>LoadPath()分析</h3><p><code>LoadPath()</code>入参类型为<code>&lt;Data, TResource, Transcode&gt;</code>，其中<code>&lt;Data&gt;</code>是在<code>getModelLoaders()</code>返回的类型，例如<code>InputStream</code>或者<code>ByteBuffer</code>，<code>&lt;TResource&gt;</code>是待定类型，调用者一般传<code>?</code>,<code>&lt;Transcode&gt;</code>调用<code>Glide.with().as(xxx)</code>时<code>as()</code>传入的类型，Glide提供有<code>asBitmap()</code>,<code>asFile()</code>,<code>asGif()</code>，默认是<code>Drawable</code>类型；在调用时<code>&lt;TResource&gt;</code>是待定类型，肯定有逻辑获取它的目标类型，下面分析<code>getLoadPath()</code>方法一看究竟；</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">public &lt;Data, TResource, Transcode&gt; LoadPath&lt;Data, TResource, Transcode&gt; getLoadPath(</span><br><span class="line">    @NonNull Class&lt;Data&gt; dataClass, @NonNull Class&lt;TResource&gt; resourceClass,</span><br><span class="line">    @NonNull Class&lt;Transcode&gt; transcodeClass) &#123;</span><br><span class="line">  LoadPath&lt;Data, TResource, Transcode&gt; result =</span><br><span class="line">      loadPathCache.get(dataClass, resourceClass, transcodeClass);</span><br><span class="line">  if (loadPathCache.isEmptyLoadPath(result)) &#123;</span><br><span class="line">    return null;</span><br><span class="line">  &#125; else if (result == null) &#123;</span><br><span class="line">    List&lt;DecodePath&lt;Data, TResource, Transcode&gt;&gt; decodePaths =</span><br><span class="line">        getDecodePaths(dataClass, resourceClass, transcodeClass);</span><br><span class="line">    if (decodePaths.isEmpty()) &#123;</span><br><span class="line">      result = null;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      result =</span><br><span class="line">          new LoadPath&lt;&gt;(</span><br><span class="line">              dataClass, resourceClass, transcodeClass, decodePaths, throwableListPool);</span><br><span class="line">    &#125;</span><br><span class="line">    loadPathCache.put(dataClass, resourceClass, transcodeClass, result);</span><br><span class="line">  &#125;</span><br><span class="line">  return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>LoadPath()</code>方法从<code>loadPathCache</code>获取缓存对象，如果不存在，调用<code>getDecodePaths()</code>，经过判断，创建<code>LoadPath</code>对象，将获取的结果放入LoadPath，最后放入<code>loadPathCache</code>并返回，<code>LoadPath</code>是对<code>Data</code>,<code>TResource</code>,<code>Transcode</code>和<code>List&lt;DecodePath&lt;Data, TResource, Transcode&gt;&gt;</code>的封装，最终的逻辑还是再<code>DecodePath</code>中；</p>
+<p>看一下<code>getDecodePaths()</code>方法定义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">private &lt;Data, TResource, Transcode&gt; List&lt;DecodePath&lt;Data, TResource, Transcode&gt;&gt; getDecodePaths(</span><br><span class="line">      @NonNull Class&lt;Data&gt; dataClass, @NonNull Class&lt;TResource&gt; resourceClass,</span><br><span class="line">      @NonNull Class&lt;Transcode&gt; transcodeClass) &#123;</span><br><span class="line">    List&lt;DecodePath&lt;Data, TResource, Transcode&gt;&gt; decodePaths = new ArrayList&lt;&gt;();</span><br><span class="line">     //获取所有dataClass对应的ResourceClasses</span><br><span class="line">    List&lt;Class&lt;TResource&gt;&gt; registeredResourceClasses =</span><br><span class="line">        decoderRegistry.getResourceClasses(dataClass, resourceClass);**代码1</span><br><span class="line">    //遍历registeredResourceClass</span><br><span class="line">    for (Class&lt;TResource&gt; registeredResourceClass : registeredResourceClasses) &#123;</span><br><span class="line">        //获取所有的registeredResourceClass对应的registeredTranscodeClasses</span><br><span class="line">      List&lt;Class&lt;Transcode&gt;&gt; registeredTranscodeClasses =</span><br><span class="line">          transcoderRegistry.getTranscodeClasses(registeredResourceClass, transcodeClass);**代码2</span><br><span class="line">      //遍历registeredTranscodeClasses</span><br><span class="line">      for (Class&lt;Transcode&gt; registeredTranscodeClass : registeredTranscodeClasses) &#123;</span><br><span class="line">        //获取dataClass和registeredResourceClass对应的所有ResourceDecoder</span><br><span class="line">        List&lt;ResourceDecoder&lt;Data, TResource&gt;&gt; decoders =</span><br><span class="line">            decoderRegistry.getDecoders(dataClass, registeredResourceClass);**代码3</span><br><span class="line">         //获取registeredResourceClass和registeredTranscodeClasss对应的所有ResourceTranscoder</span><br><span class="line">        ResourceTranscoder&lt;TResource, Transcode&gt; transcoder =</span><br><span class="line">            transcoderRegistry.get(registeredResourceClass, registeredTranscodeClass);**代码4</span><br><span class="line">        @SuppressWarnings(&quot;PMD.AvoidInstantiatingObjectsInLoops&quot;)</span><br><span class="line">        //创建DecodePath,把相关信息封装</span><br><span class="line">        DecodePath&lt;Data, TResource, Transcode&gt; path =</span><br><span class="line">            new DecodePath&lt;&gt;(dataClass, registeredResourceClass, registeredTranscodeClass,</span><br><span class="line">                decoders, transcoder, throwableListPool);</span><br><span class="line">        //添加进集合</span><br><span class="line">        decodePaths.add(path);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    //返回集合</span><br><span class="line">    return decodePaths;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>为了更清楚的分析代码，我可以将假设泛型的类型为<code>&lt;InputStream,?,Drawable&gt;</code>；</p>
+<p>我在上面代码中做了标记：代码1通过调用<code>transcoderRegistry.getTranscodeClasses()</code>，返回的类型就是泛型<code>?</code>所未知的具体类型；</p>
+<p>代码2通过调用<code>transcoderRegistry.getTranscodeClasses()</code>，返回所有符合条件的<code>registeredTranscodeClasses</code>;</p>
+<p>代码3通过调用<code>decoderRegistry.getDecoders()</code>获取符合条件的<code>List&lt;ResourceDecoder&gt;</code>;</p>
+<p>代码4通过调用<code>transcoderRegistry.get()</code>获取符合条件的<code>ResourceTranscoder</code></p>
+<p>DecodePath是对<code>Data, TResource, Transcode,decoders,transcoder</code>的封装；</p>
+<p><strong>第一层for循环理解</strong><br>由于<code>&lt;TResource&gt;</code>是入参是未知类型，并不是用户定义的，是Registry模块支持的中间类型，它是靠入参类型<code>&lt;Data&gt;</code>进行筛选，所以就可能有可能有多个匹配；</p>
+<p><strong>第二层for循环理解</strong><br>因为<code>&lt;Transcode&gt;</code>是用户传入，这个泛型是一个已确定类型，通常是<code>Drawable</code>，但是真正注册给<code>transcoderRegistry</code>可能是<code>BitmapDrawable</code>或则<code>BitmapDrawable</code>类型，这一刻还不确定是哪个<code>Drawable</code>，所以在这一步，registry返回给调用者多个;</p>
+<h3 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h3><p>加载过程是从<code>getModelLoader()</code>调用，数据从Model-&gt;Data;</p>
+<p>解析过程是从<code>getLoadPath()</code>调用，中间经过decoder、transcoder，数据类型从Data-&gt;TResource-&gt;Transcode</p>
+<h2 id="写缓存数据转换流程"><a href="#写缓存数据转换流程" class="headerlink" title="写缓存数据转换流程"></a>写缓存数据转换流程</h2><p>写缓存过程分为两类，一类是直接将原数据缓存，另一类是将变化后的数据写缓存，他们分别对应的是<code>Encoder</code>和<code>ResourceEncoder</code>;</p>
+<p><strong>Encoder流程</strong></p>
+<p><code>Encoder</code>的使用场景在<code>SourceGenerator.cacheData(dataToCache)</code>方法中，最终通过调用<code>Registry.getSourceEncoder()</code>获取到<code>Encode</code>;</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">public &lt;X&gt; Encoder&lt;X&gt; getSourceEncoder(@NonNull X data) throws NoSourceEncoderAvailableException &#123;</span><br><span class="line">  Encoder&lt;X&gt; encoder = encoderRegistry.getEncoder((Class&lt;X&gt;) data.getClass());</span><br><span class="line">  if (encoder != null) &#123;</span><br><span class="line">    return encoder;</span><br><span class="line">  &#125;</span><br><span class="line">  throw new NoSourceEncoderAvailableException(data.getClass());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上一节说过<code>SourceGenerator</code>是对原数据的获取，<code>cacheData()</code>中拿到的 <code>dataToCache</code>一般是加载过程返回的Data，确切的说是<code>InputStream</code>或者<code>ByteBuffer</code>类型，而<code>Encoder</code>最终保存到文件，类型为File，所以<code>Encoder</code>数据是从Data-&gt;File的；执行的时机在加载之后，和解析过程并列执行；</p>
+<p><strong>ResourceEncoder流程</strong></p>
+<p><code>ResourceEncoder</code>的使用场景是在数据解析完毕后，将处理过的数据进行缓存，调用的地方在<code>DecodeJob.onResourceDecoded()</code>方法中，其最终通过调用<code>Registry.getResultEncoder()</code>获取；<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public &lt;X&gt; ResourceEncoder&lt;X&gt; getResultEncoder(@NonNull Resource&lt;X&gt; resource)</span><br><span class="line">      throws NoResultEncoderAvailableException &#123;</span><br><span class="line">    ResourceEncoder&lt;X&gt; resourceEncoder = resourceEncoderRegistry.get(resource.getResourceClass());</span><br><span class="line">    if (resourceEncoder != null) &#123;</span><br><span class="line">      return resourceEncoder;</span><br><span class="line">    &#125;</span><br><span class="line">    throw new NoResultEncoderAvailableException(resource.getResourceClass());</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>ResourceEncoder</code>数据类型是从<code>Resource&lt;X&gt;</code>-&gt;<code>File</code>；执行的时机在解析流程之后；</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>最后画一张数据简单的数据装换流程图</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/1/9/168315c11bf18ae7?w=828&amp;h=360&amp;f=png&amp;s=26015" alt=""></p>
+
+    </article>
+    <!-- license  -->
+    
+        <div class="license-wrapper">
+            <p>原文作者：<a href="http://yoursite.com">lilei</a>
+            </p><p>原文链接：<a href="http://yoursite.com/2019/01/09/Glide4-8源码拆解（三）Registry和数据转换流程/">http://yoursite.com/2019/01/09/Glide4-8源码拆解（三）Registry和数据转换流程/</a>
+            </p><p>发表日期：<a href="http://yoursite.com/2019/01/09/Glide4-8源码拆解（三）Registry和数据转换流程/">January 9th 2019, 12:00:00 am</a>
+            </p><p>更新日期：<a href="http://yoursite.com/2019/01/09/Glide4-8源码拆解（三）Registry和数据转换流程/">January 14th 2019, 10:09:51 am</a>
+            </p><p>版权声明：本文采用<a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/">知识共享署名-非商业性使用 4.0 国际许可协议</a>进行许可</p>
+        </div>
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2019/01/13/Glide4-8源码拆解（四）Bitmap解析之下采样浅析/" title="Glide4.8源码拆解（四）Bitmap解析之下采样浅析">
+                    <div class="nextTitle">Glide4.8源码拆解（四）Bitmap解析之下采样浅析</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2019/01/04/Glide4-8源码拆解（二）核心加载流程/" title="Glide4.8源码拆解（二）核心加载流程">
+                    <div class="prevTitle">Glide4.8源码拆解（二）核心加载流程</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:zzdxit@gmail.com" class="iconfont-archer email" title="email"></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/HitenDev" class="iconfont-archer github" target="_blank" title="github"></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title="wechat">
+                  
+                  <img class="profile-qr" src="/assets/example_qr.png">
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从Registry开始"><span class="toc-number">2.</span> <span class="toc-text">从Registry开始</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模块简要分析"><span class="toc-number">3.</span> <span class="toc-text">模块简要分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#ModelLoader"><span class="toc-number">3.1.</span> <span class="toc-text">ModelLoader</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ResourceDecoder"><span class="toc-number">3.2.</span> <span class="toc-text">ResourceDecoder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Encoder和ResourceEncoder"><span class="toc-number">3.3.</span> <span class="toc-text">Encoder和ResourceEncoder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DataRewinder"><span class="toc-number">3.4.</span> <span class="toc-text">DataRewinder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ResourceTranscoder"><span class="toc-number">3.5.</span> <span class="toc-text">ResourceTranscoder</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#加载-解析-数据转换流程"><span class="toc-number">4.</span> <span class="toc-text">加载/解析 数据转换流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#getModelLoader-分析"><span class="toc-number">4.1.</span> <span class="toc-text">getModelLoader()分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LoadPath-分析"><span class="toc-number">4.2.</span> <span class="toc-text">LoadPath()分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结："><span class="toc-number">4.3.</span> <span class="toc-text">总结：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#写缓存数据转换流程"><span class="toc-number">5.</span> <span class="toc-text">写缓存数据转换流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#总结"><span class="toc-number">5.1.</span> <span class="toc-text">总结</span></a></li></ol></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 26
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href="/2019/01/13/Glide4-8源码拆解（四）Bitmap解析之下采样浅析/">Glide4.8源码拆解（四）Bitmap解析之下采样浅析</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span><a class="archive-post-title" href="/2019/01/09/Glide4-8源码拆解（三）Registry和数据转换流程/">Glide4.8源码拆解（三）Registry和数据转换流程</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/04</span><a class="archive-post-title" href="/2019/01/04/Glide4-8源码拆解（二）核心加载流程/">Glide4.8源码拆解（二）核心加载流程</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/03</span><a class="archive-post-title" href="/2019/01/03/Glide4-8源码拆解（一）基本调用流程/">Glide4.8源码拆解（一）基本调用流程</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/30</span><a class="archive-post-title" href="/2018/03/30/WindowManager调用流程源码分析/">WindowManager调用流程源码分析</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/29</span><a class="archive-post-title" href="/2018/03/29/Activity启动流程源码分析/">Activity启动流程源码分析</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2017 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/14</span><a class="archive-post-title" href="/2017/04/14/Android-Gradle-搞定Groovy闭包这一篇就够了/">[Android Gradle] 搞定Groovy闭包这一篇就够了</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span><a class="archive-post-title" href="/2017/01/17/Git分支管理策略浅识/">Git分支管理策略浅识</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2016 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/02</span><a class="archive-post-title" href="/2016/12/02/自定义头部悬停的下拉刷新控件/">自定义头部悬停的下拉刷新控件</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span><a class="archive-post-title" href="/2016/12/01/你是否留意过“位运算”/"><基础>你是否留意过“位运算”</基础></a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/28</span><a class="archive-post-title" href="/2016/11/28/解惑requestDisallowInterceptTouchEvent/">解惑requestDisallowInterceptTouchEvent</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/25</span><a class="archive-post-title" href="/2016/11/25/Kotlin转Java记录/">Kotlin转Java记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/24</span><a class="archive-post-title" href="/2016/11/24/初探Android6-0权限库PermissionsDispatcher/">初探Android6.0权限库PermissionsDispatcher</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span><a class="archive-post-title" href="/2016/08/05/由CSDN博主猝死引发的思考/">由CSDN博主猝死引发的思考</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/01</span><a class="archive-post-title" href="/2016/08/01/retrofit源码解析1-md/">retrofit2.0源码解析（一）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/31</span><a class="archive-post-title" href="/2016/07/31/回顾反省与计划/"><总结> 回顾、反省与计划</总结></a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/26</span><a class="archive-post-title" href="/2016/07/26/项目重构总结-架构设计/">项目重构总结-架构版</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/25</span><a class="archive-post-title" href="/2016/07/25/从反射分析HashMap存储原理/">从反射分析HashMap存储原理</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/27</span><a class="archive-post-title" href="/2016/06/27/初探AOP在Android中的使用/">初探AOP在Android中的使用</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/20</span><a class="archive-post-title" href="/2016/05/20/解读官方MVP架构/">解读官方MVP架构</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/14</span><a class="archive-post-title" href="/2016/05/14/Android6-0权限检测总结/">Android6.0运行时权限总结</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/22</span><a class="archive-post-title" href="/2016/04/22/我为什么使用RxJava/">我为什么要使用RxJava</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2015 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/22</span><a class="archive-post-title" href="/2015/12/22/Android中简单实现比例布局/">Android中简单实现比例布局</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/11</span><a class="archive-post-title" href="/2015/10/11/解决ListView footView不能完全隐藏/">解决ListView FootView不能完全隐藏</a>
+        </li>
+    
+    </ul></div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="Android"><span class="iconfont-archer">&#xe606;</span>Android</span>
+    
+        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
+    
+        <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
+    
+        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
+    
+        <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
+    
+        <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
+    
+        <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
+    
+        <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
+    
+        <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
+    
+        <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
+    
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
+    
+        <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
+    
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
+    
+        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
+    
+        <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
+    
+        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
+    
+        <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
+    
+        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
+    
+        <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
+    
+        <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
+    
+        <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br>
+    1、请确保node版本大于6.2<br>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "lilei"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+
