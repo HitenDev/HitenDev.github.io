@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="lilei">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="lilei">
+    
+    <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Glide4.8源码拆解（五）BitmapPool从入门到放弃 · Hiten&#39;s Blog.</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin="">
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin="">
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/">Hiten&#39;s Blog.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">Glide4.8源码拆解（五）BitmapPool从入门到放弃</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href="/">Hiten's Blog.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            Glide4.8源码拆解（五）BitmapPool从入门到放弃
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class="post-intro-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="源码分析">源码分析</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Glide">Glide</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">4.8k</span>阅读时长: <span class="post-count reading-time">21 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/01/15</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Bitmap加载不当导致内存占用过大或者内存抖动，可能是每个Android工程师无法逃避的问题，如何合理的管理Bitmap内存，几乎成了各位必备的功课；好在Android官方早已经为我们提供了解决思路；</p>
+<p>本章主要内容： </p>
+<ul>
+<li><code>Bitmap</code>内存管理和复用的简介</li>
+<li><code>LruBitmapPool</code>的基本分析</li>
+<li><code>AttributeStrategy</code>关键逻辑分析</li>
+<li><code>SizeConfigStrategy</code>关键逻辑分析</li>
+<li><code>GroupedLinkedMap</code>源码细致分析</li>
+<li><code>MemorySizeCalculator</code>对size的基本计算</li>
+</ul>
+<a id="more"></a>
+<h2 id="Bitmap内存管理和复用"><a href="#Bitmap内存管理和复用" class="headerlink" title="Bitmap内存管理和复用"></a>Bitmap内存管理和复用</h2><p>参考<a href="https://developer.android.com/topic/performance/graphics/manage-memory" target="_blank" rel="noopener">Managing Bitmap Memory</a>文档：</p>
+<p><strong>Android对Bitmap的内存管理</strong></p>
+<blockquote>
+<p>在Android2.2或更低的版本中，当发生垃圾回收时，线程都会暂停执行。这会导致延迟，降低程序性能。Android2.3增加了并发的垃圾回收机制，这意味着当图片对象不再被引用时所占用的内存空间立即就会被回收。</p>
+</blockquote>
+<blockquote>
+<p>在Android2.3.3或更低版本中，Bitmap的像素数据是存储在Native内存中，它和Bitmap对象本身是分开来的，Bitmap对象本身是存储在Java虚拟机堆内存中。存储在本地内存中的像素数据的释放是不可预知的，这样就有可能导致应用短暂的超过其内存限制而崩溃。Android3.0之后，Bitmap像素数据和它本身都存储在Java虚拟机的堆内存中。到了Android8.0及其以后，Bitmap有重新存储到Native堆中。</p>
+</blockquote>
+<p>在Android2.3.3或更低版本中，调用<code>recycle()</code>方法来尝试对Bitmap进行回收；</p>
+<p>在Android3.0或者更高的版本中，使用<code>BitmapFactory.Options.inBitmap</code>来尝试对Bitmap进行复用，但是复用Bitmap是有条件限制的；</p>
+<p><strong>复用Bitmap的限制</strong><br><a href="https://developer.android.com/reference/android/graphics/BitmapFactory.Options#inBitmap" target="_blank" rel="noopener">参考官方文档</a></p>
+<ul>
+<li>首先Bitmap必须是mutable，可以通过<code>BitmapFactory.Options</code>设置;</li>
+<li>在Android4.4版本之前，仅支持jpg、png图片，且size大小一样，且 <code>inSampleSize=1</code>的Bitmap才可以复用，inPreferredConfig需要设置成与目标Config一致；</li>
+<li>在Android4.4之后的版本，只要内存大小不小于需求的Bitmap都可以复用.</li>
+<li>Bitmap.Config.HARDWARE不需要复用；</li>
+</ul>
+<p>既然想复用Bitmap，就需要有集合来存储这些Bitmap，在Glide中，<code>BitmapPool</code>就是干这事的。</p>
+<h2 id="Glide中的BitmapPool"><a href="#Glide中的BitmapPool" class="headerlink" title="Glide中的BitmapPool"></a>Glide中的BitmapPool</h2><p><code>BitmapPool</code>是Glide中对Bitmap复用进行统一管理的接口，原则上所有需要创建Bitmap的操作，都要经过它来进行获取，BitmapPool的类关系图如下：<br>（缺个图）</p>
+<ul>
+<li><p><code>BitmapPool</code>是一个接口，实现类有<code>BitmapPoolAdapter</code>和<code>LruBitmapPool</code>这两个;</p>
+</li>
+<li><p><code>BitmapPoolAdapter</code>是一个空壳子，根本没有做实际意义上的缓存操作；</p>
+</li>
+<li><p><code>LruBitmapPool</code>采用<strong>策略模式</strong>，它自身不处理具体逻辑，真正的逻辑在<code>LruPoolStrategy</code>中；</p>
+</li>
+</ul>
+<h2 id="LruBitmapPool"><a href="#LruBitmapPool" class="headerlink" title="LruBitmapPool"></a>LruBitmapPool</h2><p>LruBitmapPool是策略的执行者，也是缓存大小的控制者；</p>
+<p><strong>LruBitmapPool.java</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><span class="line">public class LruBitmapPool implements BitmapPool&#123;</span><br><span class="line">  //构造方法</span><br><span class="line">  public LruBitmapPool(long maxSize) &#123;</span><br><span class="line">    this(maxSize, getDefaultStrategy(), getDefaultAllowedConfigs());</span><br><span class="line">  &#125;</span><br><span class="line"> //构造方法</span><br><span class="line">  LruBitmapPool(long maxSize, LruPoolStrategy strategy, Set&lt;Bitmap.Config&gt; allowedConfigs) &#123;</span><br><span class="line">    this.initialMaxSize = maxSize;</span><br><span class="line">    this.maxSize = maxSize;</span><br><span class="line">    this.strategy = strategy;</span><br><span class="line">    this.allowedConfigs = allowedConfigs;</span><br><span class="line">    this.tracker = new NullBitmapTracker();</span><br><span class="line">  &#125; </span><br><span class="line">  //put方法</span><br><span class="line">  public synchronized void put(Bitmap bitmap) &#123;</span><br><span class="line">    if (bitmap == null) &#123;</span><br><span class="line">      throw new NullPointerException(&quot;Bitmap must not be null&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    if (bitmap.isRecycled()) &#123;</span><br><span class="line">      throw new IllegalStateException(&quot;Cannot pool recycled bitmap&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    //如果bitmap不是Mutable或者bitmap尺寸大于最大尺寸，或者不允许缓存</span><br><span class="line">    if (!bitmap.isMutable() || strategy.getSize(bitmap) &gt; maxSize</span><br><span class="line">        || !allowedConfigs.contains(bitmap.getConfig())) &#123;</span><br><span class="line">        //直接回收bitmap</span><br><span class="line">      bitmap.recycle();</span><br><span class="line">      return;</span><br><span class="line">    &#125;</span><br><span class="line">    //通过策略获取bitmap size</span><br><span class="line">    final int size = strategy.getSize(bitmap);</span><br><span class="line">    strategy.put(bitmap);//添加进lruCache</span><br><span class="line">    tracker.add(bitmap);</span><br><span class="line">    //计算put数量和currentSize</span><br><span class="line">    puts++;</span><br><span class="line">    currentSize += size;</span><br><span class="line">    if (Log.isLoggable(TAG, Log.VERBOSE)) &#123;</span><br><span class="line">      Log.v(TAG, &quot;Put bitmap in pool=&quot; + strategy.logBitmap(bitmap));</span><br><span class="line">    &#125;</span><br><span class="line">    dump();</span><br><span class="line">    evict();//可能会触发淘汰</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">//获取能够缓存的config</span><br><span class="line">private static Set&lt;Bitmap.Config&gt; getDefaultAllowedConfigs() &#123;</span><br><span class="line">    //获取所有config</span><br><span class="line">    Set&lt;Bitmap.Config&gt; configs = new HashSet&lt;&gt;(Arrays.asList(Bitmap.Config.values()));</span><br><span class="line">    if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.KITKAT) &#123;</span><br><span class="line">      configs.add(null);</span><br><span class="line">    &#125;</span><br><span class="line">    if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O) &#123;</span><br><span class="line">        //Bitmap.Config.HARDWARE是8.0之后才有的，不允许缓存</span><br><span class="line">      configs.remove(Bitmap.Config.HARDWARE);</span><br><span class="line">    &#125;</span><br><span class="line">    return Collections.unmodifiableSet(configs);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">//获取脏数据，可能返回空</span><br><span class="line">private synchronized Bitmap getDirtyOrNull(</span><br><span class="line">      int width, int height, @Nullable Bitmap.Config config) &#123;</span><br><span class="line">    assertNotHardwareConfig(config);</span><br><span class="line">    //从策略中获取</span><br><span class="line">    final Bitmap result = strategy.get(width, height, config != null ? config : DEFAULT_CONFIG);</span><br><span class="line">    if (result == null) &#123;</span><br><span class="line">      //没有获取到，misses数量+1</span><br><span class="line">      misses++;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      hits++;//命中+1</span><br><span class="line">      currentSize -= strategy.getSize(result);//currentSize减少</span><br><span class="line">      tracker.remove(result);</span><br><span class="line">      normalize(result);</span><br><span class="line">    &#125;</span><br><span class="line">    dump();</span><br><span class="line">    return result;</span><br><span class="line">  &#125;</span><br><span class="line">//将缓存整理到size大小以内</span><br><span class="line">private synchronized void trimToSize(long size) &#123;</span><br><span class="line">    while (currentSize &gt; size) &#123;//判断条件</span><br><span class="line">      final Bitmap removed = strategy.removeLast();//调用策略的方法</span><br><span class="line">      if (removed == null) &#123;</span><br><span class="line">        if (Log.isLoggable(TAG, Log.WARN)) &#123;</span><br><span class="line">          Log.w(TAG, &quot;Size mismatch, resetting&quot;);</span><br><span class="line">          dumpUnchecked();</span><br><span class="line">        &#125;</span><br><span class="line">        currentSize = 0;</span><br><span class="line">        return;</span><br><span class="line">      &#125;</span><br><span class="line">      tracker.remove(removed);</span><br><span class="line">      currentSize -= strategy.getSize(removed);</span><br><span class="line">      evictions++;</span><br><span class="line">      if (Log.isLoggable(TAG, Log.DEBUG)) &#123;</span><br><span class="line">        Log.d(TAG, &quot;Evicting bitmap=&quot; + strategy.logBitmap(removed));</span><br><span class="line">      &#125;</span><br><span class="line">      dump();</span><br><span class="line">      removed.recycle();//被淘汰的bitmap执行回收</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    //获取擦除掉像素的Bitmap</span><br><span class="line">    public Bitmap get(int width, int height, Bitmap.Config config) &#123;</span><br><span class="line">    Bitmap result = getDirtyOrNull(width, height, config);</span><br><span class="line">    if (result != null) &#123;</span><br><span class="line">      result.eraseColor(Color.TRANSPARENT);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      result = createBitmap(width, height, config);</span><br><span class="line">    &#125;</span><br><span class="line">    return result;</span><br><span class="line">  &#125;</span><br><span class="line">    </span><br><span class="line">    //直接获取携带脏数据Bitmap</span><br><span class="line">    public Bitmap getDirty(int width, int height, Bitmap.Config config) &#123;</span><br><span class="line">    Bitmap result = getDirtyOrNull(width, height, config);</span><br><span class="line">    if (result == null) &#123;</span><br><span class="line">      result = createBitmap(width, height, config);</span><br><span class="line">    &#125;</span><br><span class="line">    return result;</span><br><span class="line">  &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p><code>LruBitmapPool</code>主要方法：</p>
+<p><code>构造方法</code>：需要传入<code>maxSize</code>，这个是控制缓存大小的必要参数；</p>
+<p><code>put()</code>：将Bitmap进行缓存，如果不满足缓存条件，执行回收；</p>
+<p><code>getDirtyOrNull()</code>：从缓存中获取Bitmap，可能返回空；</p>
+<p><code>trimToSize()</code>：对内存重新整理，防止超出目标size；</p>
+<p><code>get()</code>：获取一个全透明像素的bitmap，不为空；</p>
+<p><code>getDirty()</code>：直接获取，如果取自缓存，可能包含脏数据，不为空；</p>
+<p>其中操作缓存的核心方法在<code>strategy</code>中，<code>LruPoolStrategy</code>也是一个抽象的策略接口，真正策略的实现类是<code>SizeConfigStrategy</code>和<code>AttributeStrategy</code>;</p>
+<h2 id="LruPoolStrategy"><a href="#LruPoolStrategy" class="headerlink" title="LruPoolStrategy"></a>LruPoolStrategy</h2><p><strong>LruPoolStrategy.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">interface LruPoolStrategy &#123;</span><br><span class="line">  //put操作</span><br><span class="line">  void put(Bitmap bitmap);</span><br><span class="line">  </span><br><span class="line">  //get操作</span><br><span class="line">  @Nullable</span><br><span class="line">  Bitmap get(int width, int height, Bitmap.Config config);</span><br><span class="line"></span><br><span class="line">  @Nullable</span><br><span class="line">  Bitmap removeLast();</span><br><span class="line"></span><br><span class="line">  String logBitmap(Bitmap bitmap);</span><br><span class="line"></span><br><span class="line">  String logBitmap(int width, int height, Bitmap.Config config);</span><br><span class="line"> </span><br><span class="line">  int getSize(Bitmap bitmap);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>通过调用<code>getDefaultStrategy()</code>方法获得LruPoolStrategy实例：</p>
+<p><strong>getDefaultStrategy()</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">private static LruPoolStrategy getDefaultStrategy() &#123;</span><br><span class="line">    final LruPoolStrategy strategy;</span><br><span class="line">    if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.KITKAT) &#123;</span><br><span class="line">      strategy = new SizeConfigStrategy();</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      strategy = new AttributeStrategy();</span><br><span class="line">    &#125;</span><br><span class="line">    return strategy;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>SizeConfigStrategy</code>是针对Android4.4及其以上版本的策略，<code>AttributeStrategy</code>则是低版本的策略；</p>
+<p>首先来看低版本的策略：</p>
+<h3 id="AttributeStrategy"><a href="#AttributeStrategy" class="headerlink" title="AttributeStrategy"></a>AttributeStrategy</h3><p><strong>AttributeStrategy.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">class AttributeStrategy implements LruPoolStrategy &#123;</span><br><span class="line">  private final KeyPool keyPool = new KeyPool();//KeyPool</span><br><span class="line">  private final GroupedLinkedMap&lt;Key, Bitmap&gt; groupedMap = new GroupedLinkedMap&lt;&gt;();//真正的LRU CACHE</span><br><span class="line">  @Override</span><br><span class="line">  public void put(Bitmap bitmap) &#123;</span><br><span class="line">    //获取Key</span><br><span class="line">    final Key key = keyPool.get(bitmap.getWidth(), bitmap.getHeight(), bitmap.getConfig());</span><br><span class="line">    //保存</span><br><span class="line">    groupedMap.put(key, bitmap);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @Override</span><br><span class="line">  public Bitmap get(int width, int height, Bitmap.Config config) &#123;</span><br><span class="line">    //获取Key</span><br><span class="line">    final Key key = keyPool.get(width, height, config);</span><br><span class="line">    //取出</span><br><span class="line">    return groupedMap.get(key);</span><br><span class="line">  &#125;</span><br><span class="line">  //移除末尾的元素</span><br><span class="line">  @Override</span><br><span class="line">  public Bitmap removeLast() &#123;</span><br><span class="line">    return groupedMap.removeLast();</span><br><span class="line">  &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>AttributeStrategy</code>重写接口定义的方法，其中<code>GroupedLinkedMap</code>是真正实现Lru逻辑的集合，值得注意的是<code>Key</code>的获取在<code>KeyPool</code>中，<code>Key</code>作为对入参<code>int width, int height, Bitmap.Config config</code>的封装，也是Lru缓存的键；</p>
+<p>AttributeStrategy.Key重写<code>equals()</code>方法和<code>hashCode()</code>方法，其中<code>hashCode()</code>是用来识别Lru内部<code>LinkedHashMap</code>中的<code>bucket</code>，<code>equal()</code>是真正的对比;</p>
+<p><strong>AttributeStrategy.Key</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean equals(Object o) &#123;</span><br><span class="line">      if (o instanceof Key) &#123;</span><br><span class="line">        Key other = (Key) o;</span><br><span class="line">        //判断相等的条件是width、heigth一一对应相等且config相等</span><br><span class="line">        return width == other.width &amp;&amp; height == other.height &amp;&amp; config == other.config;</span><br><span class="line">      &#125;</span><br><span class="line">      return false;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public int hashCode() &#123;</span><br><span class="line">      //hashCode的生成也是根据width、height、config.hashCode()</span><br><span class="line">      int result = width;</span><br><span class="line">      result = 31 * result + height;</span><br><span class="line">      result = 31 * result + (config != null ? config.hashCode() : 0);</span><br><span class="line">      return result;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>AttributeStrategy</code>这个策略的核心目的，就是在缓存的<code>Key</code>上面做对比，只有缓存中的Bitmap同时满足<code>width</code>、<code>height</code>、<code>config</code>相等才能命中；</p>
+<h3 id="SizeConfigStrategy"><a href="#SizeConfigStrategy" class="headerlink" title="SizeConfigStrategy"></a>SizeConfigStrategy</h3><p>上面说了<code>AttributeStrategy</code>是面向低于Android4.4版本的Bitmap缓存策略，<code>SizeConfigStrategy</code>则是面向高版本的，从文章开头的部分我们知道，高版本的<code>inBitmap</code>限制没有这么严格，至少在尺寸这一块是放开了，只有内存大小不小于需求就行；下面看看代码怎么实现的：</p>
+<p><strong>SizeConfigStrategy.java</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">public class SizeConfigStrategy implements LruPoolStrategy &#123;</span><br><span class="line"></span><br><span class="line">  private static final int MAX_SIZE_MULTIPLE = 8;</span><br><span class="line">  private final KeyPool keyPool = new KeyPool();</span><br><span class="line">  private final GroupedLinkedMap&lt;Key, Bitmap&gt; groupedMap = new GroupedLinkedMap&lt;&gt;();</span><br><span class="line">  private final Map&lt;Bitmap.Config, NavigableMap&lt;Integer, Integer&gt;&gt; sortedSizes = new HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">  @Override</span><br><span class="line">  public void put(Bitmap bitmap) &#123;</span><br><span class="line">    //获取bitmap的像素占用字节数</span><br><span class="line">    int size = Util.getBitmapByteSize(bitmap);</span><br><span class="line">    //获取key</span><br><span class="line">    Key key = keyPool.get(size, bitmap.getConfig());</span><br><span class="line">    //保存到LRU</span><br><span class="line">    groupedMap.put(key, bitmap);</span><br><span class="line">    //获取sizeConfig Map</span><br><span class="line">    NavigableMap&lt;Integer, Integer&gt; sizes = getSizesForConfig(bitmap.getConfig());</span><br><span class="line">    //保存键值对，键是字节数大小，值是总共有多少个</span><br><span class="line">    Integer current = sizes.get(key.size);</span><br><span class="line">    sizes.put(key.size, current == null ? 1 : current + 1);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  public Bitmap get(int width, int height, Bitmap.Config config) &#123;</span><br><span class="line">    //获取字节数</span><br><span class="line">    int size = Util.getBitmapByteSize(width, height, config);</span><br><span class="line">    //获取最优的key</span><br><span class="line">    Key bestKey = findBestKey(size, config);</span><br><span class="line">    //从LRU中获取</span><br><span class="line">    Bitmap result = groupedMap.get(bestKey);</span><br><span class="line">    if (result != null) &#123;</span><br><span class="line">      //操作sizeConfig集合，做减1操作或者移除</span><br><span class="line">      decrementBitmapOfSize(bestKey.size, result);</span><br><span class="line">      //重新计算Bitmap宽高和config</span><br><span class="line">      result.reconfigure(width, height,</span><br><span class="line">          result.getConfig() != null ? result.getConfig() : Bitmap.Config.ARGB_8888);</span><br><span class="line">    &#125;</span><br><span class="line">    return result;</span><br><span class="line">  &#125;</span><br><span class="line">  //获取SizesForConfig Map</span><br><span class="line">  private NavigableMap&lt;Integer, Integer&gt; getSizesForConfig(Bitmap.Config config) &#123;</span><br><span class="line">    NavigableMap&lt;Integer, Integer&gt; sizes = sortedSizes.get(config);</span><br><span class="line">    if (sizes == null) &#123;</span><br><span class="line">      //treeMap</span><br><span class="line">      sizes = new TreeMap&lt;&gt;();</span><br><span class="line">      sortedSizes.put(config, sizes);</span><br><span class="line">    &#125;</span><br><span class="line">    return sizes;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  //Key的组成</span><br><span class="line">   static final class Key&#123;</span><br><span class="line">    @Override</span><br><span class="line">    public boolean equals(Object o) &#123;</span><br><span class="line">      if (o instanceof Key) &#123;</span><br><span class="line">        Key other = (Key) o;</span><br><span class="line">        return size == other.size</span><br><span class="line">            &amp;&amp; Util.bothNullOrEqual(config, other.config);</span><br><span class="line">      &#125;</span><br><span class="line">      return false;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    @Override</span><br><span class="line">    public int hashCode() &#123;</span><br><span class="line">      int result = size;</span><br><span class="line">      result = 31 * result + (config != null ? config.hashCode() : 0);</span><br><span class="line">      return result;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>SizeConfigStrategy</code>和<code>AttributeStrategy</code>有很多相似之处，但是复杂的多，相同的是都是用<code>GroupedLinkedMap</code>作为Lru存储，不同之处是对于<code>Key</code>的获取以及多出一个辅助集合<code>NavigableMap</code>；<code>Key</code>的获取已经不依赖<code>Width</code>和<code>Height</code>了，而是<code>size</code>，它是Bitmap占用的字节数，<code>Key</code>的<code>hashCode()</code>和<code>equals()</code>依赖的是<code>size</code>和<code>config</code>;</p>
+<p><code>SizeConfigStrategy</code>最关键的方法是<code>getBestKey()</code>，它的作用是获取最合适的Key；</p>
+<p><strong>SizeConfigStrategy.findBestKey()</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">//获取最适合的Key</span><br><span class="line">private Key findBestKey(int size, Bitmap.Config config) &#123;</span><br><span class="line">    //从pool里取出，肯定不为空</span><br><span class="line">    Key result = keyPool.get(size, config);</span><br><span class="line">    //获取匹配的Config,一般只有一个匹配</span><br><span class="line">    for (Bitmap.Config possibleConfig : getInConfigs(config)) &#123;</span><br><span class="line">    //获取sizesForConfig</span><br><span class="line">      NavigableMap&lt;Integer, Integer&gt; sizesForPossibleConfig = getSizesForConfig(possibleConfig);</span><br><span class="line">      //获取不比size小的可能缓存的size，ceiling方法相当于是数学上的进一法</span><br><span class="line">      Integer possibleSize = sizesForPossibleConfig.ceilingKey(size);</span><br><span class="line">      //命中的size不能大于目标size的8倍，可能是担心浪费内存；</span><br><span class="line">      if (possibleSize != null &amp;&amp; possibleSize &lt;= size * MAX_SIZE_MULTIPLE) &#123;</span><br><span class="line">        //`size`不相等或者`config`不相等，此处的判断等于是判断了`!Key.equals()`逻辑，这时候才降低维度获取相近的key</span><br><span class="line">        if (possibleSize != size</span><br><span class="line">            || (possibleConfig == null ? config != null : !possibleConfig.equals(config))) &#123;</span><br><span class="line">          //接受相近的缓存key，第一步创建的key放入队列</span><br><span class="line">          keyPool.offer(result);</span><br><span class="line">          //命中的key，他的size和目标相近但是肯定不完全一样</span><br><span class="line">          result = keyPool.get(possibleSize, possibleConfig);</span><br><span class="line">        &#125;</span><br><span class="line">        break;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return result;</span><br><span class="line">  &#125;</span><br><span class="line">  //获取能匹配上的config</span><br><span class="line">  private static Bitmap.Config[] getInConfigs(Bitmap.Config requested) &#123;</span><br><span class="line">    if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O) &#123;</span><br><span class="line">      if (Bitmap.Config.RGBA_F16.equals(requested)) &#123;</span><br><span class="line">        return RGBA_F16_IN_CONFIGS;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    switch (requested) &#123;</span><br><span class="line">      case ARGB_8888:</span><br><span class="line">        return ARGB_8888_IN_CONFIGS;</span><br><span class="line">      case RGB_565:</span><br><span class="line">        return RGB_565_IN_CONFIGS;</span><br><span class="line">      case ARGB_4444:</span><br><span class="line">        return ARGB_4444_IN_CONFIGS;</span><br><span class="line">      case ALPHA_8:</span><br><span class="line">        return ALPHA_8_IN_CONFIGS;</span><br><span class="line">      default:</span><br><span class="line">        return new Bitmap.Config[] &#123; requested &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  //8888能匹配8888，大于等于Android O 能匹配RGBA_F16</span><br><span class="line">  private static final Bitmap.Config[] ARGB_8888_IN_CONFIGS;</span><br><span class="line">  static &#123;</span><br><span class="line">    Bitmap.Config[] result =</span><br><span class="line">        new Bitmap.Config[] &#123;</span><br><span class="line">            Bitmap.Config.ARGB_8888,</span><br><span class="line">            null,</span><br><span class="line">        &#125;;</span><br><span class="line">    if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O) &#123;</span><br><span class="line">      result = Arrays.copyOf(result, result.length + 1);</span><br><span class="line">      result[result.length - 1] = Config.RGBA_F16;</span><br><span class="line">    &#125;</span><br><span class="line">    ARGB_8888_IN_CONFIGS = result;</span><br><span class="line">  &#125;</span><br><span class="line">  //RGBA_F16_IN_CONFIGS和ARGB_8888_IN_CONFIGS一样</span><br><span class="line">  private static final Bitmap.Config[] RGBA_F16_IN_CONFIGS = ARGB_8888_IN_CONFIGS;</span><br><span class="line">  //565匹配565</span><br><span class="line">  private static final Bitmap.Config[] RGB_565_IN_CONFIGS =</span><br><span class="line">      new Bitmap.Config[] &#123; Bitmap.Config.RGB_565 &#125;;</span><br><span class="line">  //4444匹配4444</span><br><span class="line">  private static final Bitmap.Config[] ARGB_4444_IN_CONFIGS =</span><br><span class="line">      new Bitmap.Config[] &#123; Bitmap.Config.ARGB_4444 &#125;;</span><br><span class="line">  //ALPHA_8匹配ALPHA_8</span><br><span class="line">  private static final Bitmap.Config[] ALPHA_8_IN_CONFIGS =</span><br><span class="line">      new Bitmap.Config[] &#123; Bitmap.Config.ALPHA_8 &#125;;</span><br></pre></td></tr></table></figure></p>
+<p><code>getBestKey()</code>主要是通过<code>getInConfigs()</code>拿到能匹配到的<code>sizesForPossibleConfig</code>，通过辅助集合<code>NavigableMap</code>拿到size相近的<code>possibleSize</code>；</p>
+<ul>
+<li><p>能匹配的第一个条件是possibleSize要小于等于<code>size * MAX_SIZE_MULTIPLE</code>,<code>MAX_SIZE_MULTIPLE</code>默认是8；如果大于8对内存的利用率很低，没有必要强制匹配缓存；</p>
+</li>
+<li><p>如果<code>sizesForPossibleConfig</code>和<code>possibleSize</code>有一个不和目标相等，就可以复用，否则说明两者的key肯定相等(参考<code>Key.equals()</code>方法)，两者相等没有必须再进行经纬度的匹配，直接返回就行；</p>
+</li>
+</ul>
+<p><strong>辅助Map</strong></p>
+<p>在回头看看这个<code>NavigableMap</code>，通过调用<code>getSizesForConfig()</code>得到一个<code>TreeMap</code>，这个Map保存了每个缓存的Bitmap的size和相同size的count，在<code>getBestKey()</code>方法中调用<code>ceilingKey(size)</code>方法，<code>TreeMap</code>默认会对key进行自然排序，<code>ceilingKey(size)</code>函数的意义是返回一个和size最接近的不小于size的key，正好符合内存复用的价值；而</p>
+<p>疑问：为啥要用Map来保存size和该size对应的count，count有何用？</p>
+<p>SizeConfigStrategy中有这么一个方法：<code>decrementBitmapOfSize()</code>；<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">private void decrementBitmapOfSize(Integer size, Bitmap removed) &#123;</span><br><span class="line">    Bitmap.Config config = removed.getConfig();</span><br><span class="line">    NavigableMap&lt;Integer, Integer&gt; sizes = getSizesForConfig(config);</span><br><span class="line">    Integer current = sizes.get(size);</span><br><span class="line">    if (current == null) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">    if (current == 1) &#123;</span><br><span class="line">      //移除掉该条数据</span><br><span class="line">      sizes.remove(size);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      //减1</span><br><span class="line">      sizes.put(size, current - 1);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure></p>
+<p>该方法调用时机是当<code>Bitmap</code>从是缓存池中取出或者移除时，执行内容：操作该map，被移除的Bitmap对应的size减1或者把当前key移除，只有移除掉，在<code>getBestKey()</code>调用<code>ceilingKey(size)</code>时才知道该size在缓存中是否存在；</p>
+<h2 id="GroupedLinkedMap"><a href="#GroupedLinkedMap" class="headerlink" title="GroupedLinkedMap"></a>GroupedLinkedMap</h2><p>BitmapPool真正实现LruCache功能的是<code>GroupedLinkedMap</code>，这个类的功能跟<code>LinkedHashMap</code>很相似但又不同，相同的是都是利用链表来记住数据访问顺序，不同的是该类把相同key的value保存到一个数组中；<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br></pre></td><td class="code"><pre><span class="line">class GroupedLinkedMap&lt;K extends Poolable, V&gt; &#123;</span><br><span class="line">  //LinkedEntry是存入Map的节点，同时是一个双向链表，同时还是持有一个数组</span><br><span class="line">  private static class LinkedEntry&lt;K, V&gt; &#123;</span><br><span class="line">    @Synthetic final K key;//key</span><br><span class="line">    private List&lt;V&gt; values;//value数组</span><br><span class="line">    LinkedEntry&lt;K, V&gt; next;//链表下一个节点</span><br><span class="line">    LinkedEntry&lt;K, V&gt; prev;//链表上一个节点 </span><br><span class="line">    //构造</span><br><span class="line">    LinkedEntry() &#123;</span><br><span class="line">      this(null);</span><br><span class="line">    &#125;</span><br><span class="line">     //构造</span><br><span class="line">    LinkedEntry(K key) &#123;</span><br><span class="line">      next = prev = this;</span><br><span class="line">      this.key = key;</span><br><span class="line">    &#125;</span><br><span class="line">    //移除数组的最后一个元素</span><br><span class="line">    @Nullable</span><br><span class="line">    public V removeLast() &#123;</span><br><span class="line">      final int valueSize = size();</span><br><span class="line">      return valueSize &gt; 0 ? values.remove(valueSize - 1) : null;</span><br><span class="line">    &#125;</span><br><span class="line">    //数组的长度</span><br><span class="line">    public int size() &#123;</span><br><span class="line">      return values != null ? values.size() : 0;</span><br><span class="line">    &#125;</span><br><span class="line">    //添加到数组</span><br><span class="line">    public void add(V value) &#123;</span><br><span class="line">      if (values == null) &#123;</span><br><span class="line">        values = new ArrayList&lt;&gt;();</span><br><span class="line">      &#125;</span><br><span class="line">      values.add(value);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  //头节点</span><br><span class="line">  private final LinkedEntry&lt;K, V&gt; head = new LinkedEntry&lt;&gt;();</span><br><span class="line">  </span><br><span class="line">  //存储key和entry的HashMap</span><br><span class="line">  private final Map&lt;K, LinkedEntry&lt;K, V&gt;&gt; keyToEntry = new HashMap&lt;&gt;();</span><br><span class="line">  </span><br><span class="line">  //放入</span><br><span class="line">  public void put(K key, V value) &#123;</span><br><span class="line">    LinkedEntry&lt;K, V&gt; entry = keyToEntry.get(key);</span><br><span class="line">    if (entry == null) &#123;</span><br><span class="line">      //创建结点</span><br><span class="line">      entry = new LinkedEntry&lt;&gt;(key);</span><br><span class="line">      //放到链表尾部</span><br><span class="line">      makeTail(entry);  </span><br><span class="line">       //放到hashMap中</span><br><span class="line">      keyToEntry.put(key, entry);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      key.offer();//keyPool的操作</span><br><span class="line">    &#125;</span><br><span class="line">    //放入entry数组中</span><br><span class="line">    entry.add(value);</span><br><span class="line">  &#125;</span><br><span class="line">  //获取操作</span><br><span class="line">  public V get(K key) &#123;</span><br><span class="line">    //从HashMap中查找</span><br><span class="line">    LinkedEntry&lt;K, V&gt; entry = keyToEntry.get(key);</span><br><span class="line">    if (entry == null) &#123;</span><br><span class="line">    //如果不存在，创建结点，放到hashMap中</span><br><span class="line">      entry = new LinkedEntry&lt;&gt;(key);</span><br><span class="line">      keyToEntry.put(key, entry);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      key.offer();//keyPool的操作</span><br><span class="line">    &#125;</span><br><span class="line">    //放到链表头部</span><br><span class="line">    makeHead(entry);</span><br><span class="line">    return entry.removeLast();//返回数组的最后一个</span><br><span class="line">  &#125;</span><br><span class="line">  //设成链表头(其实就是head的下一个)</span><br><span class="line">  private void makeHead(LinkedEntry&lt;K, V&gt; entry) &#123;</span><br><span class="line">    removeEntry(entry);</span><br><span class="line">    entry.prev = head;</span><br><span class="line">    entry.next = head.next;</span><br><span class="line">    updateEntry(entry);</span><br><span class="line">  &#125;</span><br><span class="line">  //设成链表尾(其实就是head的上一个)</span><br><span class="line">  private void makeTail(LinkedEntry&lt;K, V&gt; entry) &#123;</span><br><span class="line">    //把自己从链表中移除</span><br><span class="line">    removeEntry(entry);</span><br><span class="line">    //绑定自身的关系</span><br><span class="line">    entry.prev = head.prev;</span><br><span class="line">    entry.next = head;</span><br><span class="line">    //绑定自身前后节点与自己的关系</span><br><span class="line">    updateEntry(entry);</span><br><span class="line">  &#125;</span><br><span class="line">  //更新节点，把当前节点的上一个的next指向自己，下一个的perv指向自己，完成双向链表</span><br><span class="line">  private static &lt;K, V&gt; void updateEntry(LinkedEntry&lt;K, V&gt; entry) &#123;</span><br><span class="line">    entry.next.prev = entry;</span><br><span class="line">    entry.prev.next = entry;</span><br><span class="line">  &#125;</span><br><span class="line">  //删除当前节点，把自己上一个的next指向下一个，把自己下一个的prev指向上一个</span><br><span class="line">  private static &lt;K, V&gt; void removeEntry(LinkedEntry&lt;K, V&gt; entry) &#123;</span><br><span class="line">    entry.prev.next = entry.next;</span><br><span class="line">    entry.next.prev = entry.prev;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  //移除队尾的元素</span><br><span class="line">  public V removeLast() &#123;</span><br><span class="line">    //获取队尾节点</span><br><span class="line">    LinkedEntry&lt;K, V&gt; last = head.prev;</span><br><span class="line">    //这一块的whild循环有意思</span><br><span class="line">    while (!last.equals(head)) &#123;</span><br><span class="line">      //移除改节点数组的最后一个</span><br><span class="line">      V removed = last.removeLast();</span><br><span class="line">      if (removed != null) &#123;//如果不为空直接返回</span><br><span class="line">        return removed;</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">        //如果走到这里，说明last节点底下的数组为空，所以根本没有移除掉数据，第一件事就是干掉这个节点</span><br><span class="line">        removeEntry(last);</span><br><span class="line">        keyToEntry.remove(last.key);</span><br><span class="line">        last.key.offer();</span><br><span class="line">      &#125;</span><br><span class="line">      //走到这一步还是因为last节点底下的数组为空，继续探寻它的上一个节点，直到能return出去为止</span><br><span class="line">      last = last.prev;</span><br><span class="line">    &#125;</span><br><span class="line">    return null;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>GroupedLinkedMap</code>的代码量并不大，我在代码里做了比较详细的注释，如果有解释不当之处，还请留言交流；</p>
+<h2 id="BitmapPool缓存大小的计算"><a href="#BitmapPool缓存大小的计算" class="headerlink" title="BitmapPool缓存大小的计算"></a>BitmapPool缓存大小的计算</h2><p>首先，<code>BitmapPool</code>相对Glide对象是单例，在<code>GlideBuilder.build()</code>中创建，构造方法中需要传<code>maxSize</code>，<code>maxSize</code>的计算规则是从<code>MemorySizeCalculator.getBitmapPoolSize()</code>获得；</p>
+<p><strong>GlideBuilder</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//BitmapPool的创建</span><br><span class="line"> if (bitmapPool == null) &#123;</span><br><span class="line">    //通过memorySizeCalculator获取bitmapPoolSize</span><br><span class="line">      int size = memorySizeCalculator.getBitmapPoolSize();</span><br><span class="line">      if (size &gt; 0) &#123;</span><br><span class="line">        bitmapPool = new LruBitmapPool(size);</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">        bitmapPool = new BitmapPoolAdapter();</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>通过memorySizeCalculator获取<code>size</code>,<br>如果<code>size</code>等于0时，创建<code>BitmapPoolAdapter</code>，否则创建<code>LruBitmapPool</code>，什么时候情况下<code>size</code>等于0？我们还是看一些<code>memorySizeCalculator</code>的定义；</p>
+<p><strong>MemorySizeCalculator</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">//构造方法，Builder模式</span><br><span class="line">MemorySizeCalculator(MemorySizeCalculator.Builder builder) &#123;</span><br><span class="line">    this.context = builder.context;</span><br><span class="line">    //得到arrayPoolSize</span><br><span class="line">    arrayPoolSize =</span><br><span class="line">        isLowMemoryDevice(builder.activityManager)</span><br><span class="line">            ? builder.arrayPoolSizeBytes / LOW_MEMORY_BYTE_ARRAY_POOL_DIVISOR</span><br><span class="line">            : builder.arrayPoolSizeBytes;</span><br><span class="line">    //最大总共内存缓存size</span><br><span class="line">    int maxSize =</span><br><span class="line">        getMaxSize(</span><br><span class="line">            builder.activityManager, builder.maxSizeMultiplier, builder.lowMemoryMaxSizeMultiplier);</span><br><span class="line">    //屏幕宽度</span><br><span class="line">    int widthPixels = builder.screenDimensions.getWidthPixels();</span><br><span class="line">     //屏幕高度</span><br><span class="line">    int heightPixels = builder.screenDimensions.getHeightPixels();</span><br><span class="line">     //屏幕像素数，一个像素按照4字节算</span><br><span class="line">    int screenSize = widthPixels * heightPixels * BYTES_PER_ARGB_8888_PIXEL;</span><br><span class="line">    //目标bitmap池缓存Size</span><br><span class="line">    int targetBitmapPoolSize = Math.round(screenSize * builder.bitmapPoolScreens);</span><br><span class="line">    //目标内存缓存size</span><br><span class="line">    int targetMemoryCacheSize = Math.round(screenSize * builder.memoryCacheScreens);</span><br><span class="line">    //可用内存size</span><br><span class="line">    int availableSize = maxSize - arrayPoolSize;</span><br><span class="line">    //如果算出来的size相加小于可用内存，直接赋值</span><br><span class="line">    if (targetMemoryCacheSize + targetBitmapPoolSize &lt;= availableSize) &#123;</span><br><span class="line">      memoryCacheSize = targetMemoryCacheSize;</span><br><span class="line">      bitmapPoolSize = targetBitmapPoolSize;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        //按比例重新分配memoryCacheSize和bitmapPoolSize</span><br><span class="line">      float part = availableSize / (builder.bitmapPoolScreens + builder.memoryCacheScreens);</span><br><span class="line">      memoryCacheSize = Math.round(part * builder.memoryCacheScreens);</span><br><span class="line">      bitmapPoolSize = Math.round(part * builder.bitmapPoolScreens);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>首先，<code>MemorySizeCalculator</code>是Builder模式，主要的参数是在<code>MemorySizeCalculator.Builder</code>中生成，在<code>MemorySizeCalculator</code>构造方法中对<code>Glide</code>所有内存缓存的计算，这包括<code>arrayPool</code>缓存的大小，<code>bitmapPool</code>缓存的大小，<code>memoryCache</code>缓存的大小。</p>
+<p>我们主要讨论BitmapPool的size计算，在构造方法中，<code>targetBitmapPoolSize</code>的计算规则是屏幕尺寸的像素大小 * <code>builder.bitmapPoolScreens</code>；<br>其次<code>MemorySizeCalculator</code>还会根据<code>builder</code>的配置得到最大的缓存容量<code>maxSize</code>；<br>最后，会重新计算<code>targetBitmapPoolSize</code>,使其不超出最大容量；</p>
+<p>接下来看一下<code>MemorySizeCalculator.Builder</code>中对<code>bitmapPoolScreens</code>的计算:</p>
+<p><strong>MemorySizeCalculator.Builder</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">public static final class Builder &#123;</span><br><span class="line"></span><br><span class="line">static final int BITMAP_POOL_TARGET_SCREENS =</span><br><span class="line">        Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.O ? 4 : 1;</span><br><span class="line"></span><br><span class="line">float bitmapPoolScreens = BITMAP_POOL_TARGET_SCREENS;</span><br><span class="line"></span><br><span class="line">public Builder(Context context) &#123;</span><br><span class="line">      this.context = context;</span><br><span class="line">      activityManager =</span><br><span class="line">          (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);</span><br><span class="line">      screenDimensions =</span><br><span class="line">          new DisplayMetricsScreenDimensions(context.getResources().getDisplayMetrics());</span><br><span class="line"></span><br><span class="line">      // On Android O+ Bitmaps are allocated natively, ART is much more efficient at managing</span><br><span class="line">      // garbage and we rely heavily on HARDWARE Bitmaps, making Bitmap re-use much less important.</span><br><span class="line">      // We prefer to preserve RAM on these devices and take the small performance hit of not</span><br><span class="line">      // re-using Bitmaps and textures when loading very small images or generating thumbnails.</span><br><span class="line">      if (Build.VERSION.SDK_INT &gt;= Build.VERSION_CODES.O &amp;&amp; isLowMemoryDevice(activityManager)) &#123;</span><br><span class="line">        //在Android O上面，低内存的手机bitmapPoolScreens设置为0</span><br><span class="line">        bitmapPoolScreens = 0;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>bitmapPoolScreens</code>的值在这三种情况：</p>
+<ul>
+<li>如果设备小于Android O，取值<strong>4</strong>;</li>
+<li>如果设备大于等于Android O，低内存手机，取值<strong>0</strong>;</li>
+<li>如果设备大于等于Android O，非低内存手机，取值<strong>1</strong>;</li>
+</ul>
+<p>至于为啥要取值<strong>0</strong>，Glide的解释是Android O上面Bitmap内存的申请在native，ART虚拟机对垃圾回收非常高效，而且我们可以用设置Bitmap<code>Config.HARDWARE</code>，所以对于Bitmap的缓存不是那么的重要。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>随着Android各个版本对Bitmap的不断进化，Glide也在不断的适应新的特性，高版本对Bitmap的复用也在不断地放松，或许有一天，我们不再为<code>Bitmap</code>内存问题所困扰，是不是就可以放弃这令人头大的Pool;</p>
+
+    </article>
+    <!-- license  -->
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2019/01/13/Glide4-8源码拆解（四）Bitmap解析之下采样浅析/" title="Glide4.8源码拆解（四）Bitmap解析之下采样浅析">
+                    <div class="prevTitle">Glide4.8源码拆解（四）Bitmap解析之下采样浅析</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:zzdxit@gmail.com" class="iconfont-archer email" title="email"></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/HitenDev" class="iconfont-archer github" target="_blank" title="github"></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title="wechat">
+                  
+                  <img class="profile-qr" src="/assets/example_qr.png">
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            
+                <a href="https://juejin.im/user/595a16125188250d944c6997" class="iconfont-archer juejin" target="_blank" title="juejin"></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Bitmap内存管理和复用"><span class="toc-number">2.</span> <span class="toc-text">Bitmap内存管理和复用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Glide中的BitmapPool"><span class="toc-number">3.</span> <span class="toc-text">Glide中的BitmapPool</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LruBitmapPool"><span class="toc-number">4.</span> <span class="toc-text">LruBitmapPool</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#LruPoolStrategy"><span class="toc-number">5.</span> <span class="toc-text">LruPoolStrategy</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#AttributeStrategy"><span class="toc-number">5.1.</span> <span class="toc-text">AttributeStrategy</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SizeConfigStrategy"><span class="toc-number">5.2.</span> <span class="toc-text">SizeConfigStrategy</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GroupedLinkedMap"><span class="toc-number">6.</span> <span class="toc-text">GroupedLinkedMap</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BitmapPool缓存大小的计算"><span class="toc-number">7.</span> <span class="toc-text">BitmapPool缓存大小的计算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#总结"><span class="toc-number">8.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 27
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span><a class="archive-post-title" href="/2019/01/15/Glide4-8源码拆解（五）BitmapPool从入门到放弃/">Glide4.8源码拆解（五）BitmapPool从入门到放弃</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href="/2019/01/13/Glide4-8源码拆解（四）Bitmap解析之下采样浅析/">Glide4.8源码拆解（四）Bitmap解析之下采样浅析</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span><a class="archive-post-title" href="/2019/01/09/Glide4-8源码拆解（三）Registry和数据转换流程/">Glide4.8源码拆解（三）Registry和数据转换流程</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/04</span><a class="archive-post-title" href="/2019/01/04/Glide4-8源码拆解（二）核心加载流程/">Glide4.8源码拆解（二）核心加载流程</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/03</span><a class="archive-post-title" href="/2019/01/03/Glide4-8源码拆解（一）基本调用流程/">Glide4.8源码拆解（一）基本调用流程</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/30</span><a class="archive-post-title" href="/2018/03/30/WindowManager调用流程源码分析/">WindowManager调用流程源码分析</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/29</span><a class="archive-post-title" href="/2018/03/29/Activity启动流程源码分析/">Activity启动流程源码分析</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2017 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/14</span><a class="archive-post-title" href="/2017/04/14/Android-Gradle-搞定Groovy闭包这一篇就够了/">[Android Gradle] 搞定Groovy闭包这一篇就够了</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span><a class="archive-post-title" href="/2017/01/17/Git分支管理策略浅识/">Git分支管理策略浅识</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2016 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/02</span><a class="archive-post-title" href="/2016/12/02/自定义头部悬停的下拉刷新控件/">自定义头部悬停的下拉刷新控件</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span><a class="archive-post-title" href="/2016/12/01/你是否留意过“位运算”/"><基础>你是否留意过“位运算”</基础></a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/28</span><a class="archive-post-title" href="/2016/11/28/解惑requestDisallowInterceptTouchEvent/">解惑requestDisallowInterceptTouchEvent</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/25</span><a class="archive-post-title" href="/2016/11/25/Kotlin转Java记录/">Kotlin转Java记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/24</span><a class="archive-post-title" href="/2016/11/24/初探Android6-0权限库PermissionsDispatcher/">初探Android6.0权限库PermissionsDispatcher</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span><a class="archive-post-title" href="/2016/08/05/由CSDN博主猝死引发的思考/">由CSDN博主猝死引发的思考</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/01</span><a class="archive-post-title" href="/2016/08/01/retrofit源码解析1-md/">retrofit2.0源码解析（一）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/31</span><a class="archive-post-title" href="/2016/07/31/回顾反省与计划/"><总结> 回顾、反省与计划</总结></a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/26</span><a class="archive-post-title" href="/2016/07/26/项目重构总结-架构设计/">项目重构总结-架构版</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/25</span><a class="archive-post-title" href="/2016/07/25/从反射分析HashMap存储原理/">从反射分析HashMap存储原理</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/27</span><a class="archive-post-title" href="/2016/06/27/初探AOP在Android中的使用/">初探AOP在Android中的使用</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/20</span><a class="archive-post-title" href="/2016/05/20/解读官方MVP架构/">解读官方MVP架构</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/14</span><a class="archive-post-title" href="/2016/05/14/Android6-0权限检测总结/">Android6.0运行时权限总结</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/22</span><a class="archive-post-title" href="/2016/04/22/我为什么使用RxJava/">我为什么要使用RxJava</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2015 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/22</span><a class="archive-post-title" href="/2015/12/22/Android中简单实现比例布局/">Android中简单实现比例布局</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/11</span><a class="archive-post-title" href="/2015/10/11/解决ListView footView不能完全隐藏/">解决ListView FootView不能完全隐藏</a>
+        </li>
+    
+    </ul></div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="Android"><span class="iconfont-archer">&#xe606;</span>Android</span>
+    
+        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
+    
+        <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
+    
+        <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
+    
+        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
+    
+        <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
+    
+        <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
+    
+        <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
+    
+        <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
+    
+        <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
+    
+        <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
+    
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
+    
+        <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
+    
+        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
+    
+        <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
+    
+        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
+    
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
+    
+        <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
+    
+        <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
+    
+        <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
+    
+        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br>
+    1、请确保node版本大于6.2<br>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "lilei"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+

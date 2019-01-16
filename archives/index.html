@@ -346,6 +346,48 @@
     
     
     <article class="index-post">
+        <a class="abstract-title" href="/2019/01/15/Glide4-8源码拆解（五）BitmapPool从入门到放弃/">
+            
+                <span>Glide4.8源码拆解（五）BitmapPool从入门到放弃</span>
+        </a>
+        <div class="abstract-content">
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Bitmap加载不当导致内存占用过大或者内存抖动，可能是每个Android工程师无法逃避的问题，如何合理的管理Bitmap内存，几乎成了各位必备的功课；好在Android官方早已经为我们提供了解决思路；</p>
+<p>本章主要内容： </p>
+<ul>
+<li><code>Bitmap</code>内存管理和复用的简介</li>
+<li><code>LruBitmapPool</code>的基本分析</li>
+<li><code>AttributeStrategy</code>关键逻辑分析</li>
+<li><code>SizeConfigStrategy</code>关键逻辑分析</li>
+<li><code>GroupedLinkedMap</code>源码细致分析</li>
+<li><code>MemorySizeCalculator</code>对size的基本计算</li>
+</ul>
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/01/15</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class="abstract-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="源码分析">源码分析</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Glide">Glide</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href="/2019/01/13/Glide4-8源码拆解（四）Bitmap解析之下采样浅析/">
             
                 <span>Glide4.8源码拆解（四）Bitmap解析之下采样浅析</span>
@@ -682,35 +724,6 @@
         <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
     
         <a class="post-tag" href="javascript:void(0);" data-tags="自定义控件">自定义控件</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/12/01/你是否留意过“位运算”/">
-            
-                <span>&lt;基础&gt;你是否留意过“位运算”</span>
-        </a>
-        <div class="abstract-content">
-            <p>长时间阅读Android SDK源码，会发现Google喜欢用位运算，伴随的是代码中会定义一堆int类型的常量，乍一看很懵逼，特别是所在View相关的类里边，比如这些常量你可熟悉：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">static final int FLAG_CLIP_CHILDREN = 0x1;</span><br><span class="line"></span><br><span class="line">private static final int FLAG_CLIP_TO_PADDING = 0x2;</span><br><span class="line"></span><br><span class="line">static final int FLAG_INVALIDATE_REQUIRED  = 0x4;</span><br><span class="line"></span><br><span class="line">private static final int FLAG_RUN_ANIMATION = 0x8;</span><br><span class="line"></span><br><span class="line">static final int FLAG_ANIMATION_DONE = 0x10;</span><br><span class="line"></span><br><span class="line">private static final int FLAG_PADDING_NOT_NULL = 0x20;</span><br><span class="line"></span><br><span class="line">private static final int FLAG_ANIMATION_CACHE = 0x40;</span><br><span class="line"></span><br><span class="line">static final int FLAG_OPTIMIZE_INVALIDATE = 0x80;</span><br><span class="line"></span><br><span class="line">static final int FLAG_CLEAR_TRANSFORMATION = 0x100;</span><br></pre></td></tr></table></figure></p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/12/01</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="基础">基础</a>
     
 </div>
             
@@ -1178,9 +1191,20 @@
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 26
+        Total : 27
         </div>
         <!-- search  -->
         
@@ -1193,6 +1217,11 @@
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span><a class="archive-post-title" href="/2019/01/15/Glide4-8源码拆解（五）BitmapPool从入门到放弃/">Glide4.8源码拆解（五）BitmapPool从入门到放弃</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -1367,13 +1396,13 @@
     
         <span class="sidebar-tag-name" data-tags="Android"><span class="iconfont-archer">&#xe606;</span>Android</span>
     
-        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
-    
-        <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
+        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
     
         <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
     
-        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
+        <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
+    
+        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
     
         <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
     
@@ -1381,29 +1410,29 @@
     
         <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
     
-        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
-    
         <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
     
         <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
     
         <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
     
-        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
-    
-        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
-    
-        <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
     
         <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
+    
+        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
     
         <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
     
         <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
     
-        <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
+    
+        <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
     
         <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
+    
+        <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
     
         <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
     
