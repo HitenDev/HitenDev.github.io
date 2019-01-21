@@ -346,6 +346,38 @@
     
     
     <article class="index-post">
+        <a class="abstract-title" href="/2016/12/02/自定义头部悬停的下拉刷新控件/">
+            
+                <span>自定义头部悬停的下拉刷新控件</span>
+        </a>
+        <div class="abstract-content">
+            <h1 id="VRefreshLayout"><a href="#VRefreshLayout" class="headerlink" title="VRefreshLayout"></a>VRefreshLayout</h1><p>一个竖直方向的下拉刷新控件，支持自定义Header，可配置参数，最重要的特点是<strong>刷新时头部置顶显示，且不影响列表滑动</strong>；</p>
+<h2 id="为什么要做头部置顶显示"><a href="#为什么要做头部置顶显示" class="headerlink" title="为什么要做头部置顶显示"></a>为什么要做头部置顶显示</h2><p>现在越来越多的App下拉刷新时是置顶显示的，大家可以看<code>手机京东</code>,<code>天猫商城</code>,<code>小米商城</code>,<code>汽车之家</code>等APP，我们在下拉刷新时，头部的刷新视图是保持显示的，这样在滚动列表的时候，用户可以知道当前正在刷新状态，而传统的下拉刷新库，比如<a href="https://github.com/chrisbanes/Android-PullToRefresh" target="_blank" rel="noopener">Android-PullToRefresh</a>和<a href="https://github.com/liaohuqiu/android-Ultra-Pull-To-Refresh" target="_blank" rel="noopener">android-Ultra-Pull-To-Refresh</a>，是不支持的头部置顶显示的，用户往下翻看时，刷新状态就可能被隐藏；google的SwpieRefreshLayout是置顶层显示的，但是它的内容区域的不会跟着动的，且可定制性太差。</p>
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/12/02</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class="abstract-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="自定义控件">自定义控件</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href="/2016/12/01/你是否留意过“位运算”/">
             
                 <span>&lt;基础&gt;你是否留意过“位运算”</span>
@@ -634,45 +666,6 @@
             <div class="abstract-tags">
     
         <a class="post-tag" href="javascript:void(0);" data-tags="总结">总结</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/07/26/项目重构总结-架构设计/">
-            
-                <span>项目重构总结-架构版</span>
-        </a>
-        <div class="abstract-content">
-            <p>题外话：去年十二月份进行封闭式开发，我就打算对代码进行重构，重构的原因是代码层次不清晰，<br>Activity职责太多，Activity不仅要获取接口数据，还要对接口数据进行缓存，代码中充斥中各种数据状态判断以及层层回调，<br>更重要的是这样写不便于单独修改某一个接口实现，也不便于测试，更不便于mock数据，mock数据不依赖于接口返回，能自测很多状态切换逻辑，是多么重要。</p>
-<p>我想要的效果：</p>
-<ul>
-<li>数据调用者（Activity或Fragment）不需要知道数据来自网络还是缓存，直接拿到解析好的Entity使用即可，但调用者能强制获取网络数据</li>
-<li>不同的接口可以使用不同的缓存方案，比如文件或者数据库</li>
-<li>不动调用者代码，能mock数据，每层之间便于测试</li>
-<li>层与层之间面向接口，低耦合</li>
-</ul>
-<p>站在巨人的肩膀上</p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/07/26</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Java">Java</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="架构">架构</a>
     
 </div>
             
@@ -1151,9 +1144,12 @@
     
     
     
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 27
+        Total : 28
         </div>
         <!-- search  -->
         
@@ -1166,6 +1162,11 @@
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/21</span><a class="archive-post-title" href="/2019/01/21/Android硬件位图填坑之获取硬件画布/">Android硬件位图填坑之获取硬件画布</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -1345,13 +1346,15 @@
     
         <span class="sidebar-tag-name" data-tags="Android"><span class="iconfont-archer">&#xe606;</span>Android</span>
     
-        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
-    
         <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
+    
+        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
+    
+        <span class="sidebar-tag-name" data-tags="Bitmap"><span class="iconfont-archer">&#xe606;</span>Bitmap</span>
     
         <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
     
-        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
+        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
     
         <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
     
@@ -1359,31 +1362,31 @@
     
         <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
     
-        <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
-    
-        <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
     
         <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
-    
-        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
     
         <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
     
         <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
     
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
+    
         <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
+    
+        <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
+    
+        <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
     
         <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
     
-        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
-    
         <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
     
-        <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
+        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
     
         <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
     
-        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
+        <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>

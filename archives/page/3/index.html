@@ -346,6 +346,45 @@
     
     
     <article class="index-post">
+        <a class="abstract-title" href="/2016/07/26/项目重构总结-架构设计/">
+            
+                <span>项目重构总结-架构版</span>
+        </a>
+        <div class="abstract-content">
+            <p>题外话：去年十二月份进行封闭式开发，我就打算对代码进行重构，重构的原因是代码层次不清晰，<br>Activity职责太多，Activity不仅要获取接口数据，还要对接口数据进行缓存，代码中充斥中各种数据状态判断以及层层回调，<br>更重要的是这样写不便于单独修改某一个接口实现，也不便于测试，更不便于mock数据，mock数据不依赖于接口返回，能自测很多状态切换逻辑，是多么重要。</p>
+<p>我想要的效果：</p>
+<ul>
+<li>数据调用者（Activity或Fragment）不需要知道数据来自网络还是缓存，直接拿到解析好的Entity使用即可，但调用者能强制获取网络数据</li>
+<li>不同的接口可以使用不同的缓存方案，比如文件或者数据库</li>
+<li>不动调用者代码，能mock数据，每层之间便于测试</li>
+<li>层与层之间面向接口，低耦合</li>
+</ul>
+<p>站在巨人的肩膀上</p>
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/07/26</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class="abstract-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Java">Java</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="架构">架构</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href="/2016/07/25/从反射分析HashMap存储原理/">
             
                 <span>从反射分析HashMap存储原理</span>
@@ -1035,9 +1074,12 @@
     
     
     
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 27
+        Total : 28
         </div>
         <!-- search  -->
         
@@ -1050,6 +1092,11 @@
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/21</span><a class="archive-post-title" href="/2019/01/21/Android硬件位图填坑之获取硬件画布/">Android硬件位图填坑之获取硬件画布</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -1229,13 +1276,15 @@
     
         <span class="sidebar-tag-name" data-tags="Android"><span class="iconfont-archer">&#xe606;</span>Android</span>
     
-        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
-    
         <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
+    
+        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
+    
+        <span class="sidebar-tag-name" data-tags="Bitmap"><span class="iconfont-archer">&#xe606;</span>Bitmap</span>
     
         <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
     
-        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
+        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
     
         <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
     
@@ -1243,31 +1292,31 @@
     
         <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
     
-        <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
-    
-        <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
     
         <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
-    
-        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
     
         <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
     
         <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
     
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
+    
         <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
+    
+        <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
+    
+        <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
     
         <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
     
-        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
-    
         <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
     
-        <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
+        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
     
         <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
     
-        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
+        <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>

@@ -346,67 +346,27 @@
     
     
     <article class="index-post">
-        <a class="abstract-title" href="/2016/07/26/项目重构总结-架构设计/">
+        <a class="abstract-title" href="/2019/01/21/Android硬件位图填坑之获取硬件画布/">
             
-                <span>项目重构总结-架构版</span>
+                <span>Android硬件位图填坑之获取硬件画布</span>
         </a>
         <div class="abstract-content">
-            <p>题外话：去年十二月份进行封闭式开发，我就打算对代码进行重构，重构的原因是代码层次不清晰，<br>Activity职责太多，Activity不仅要获取接口数据，还要对接口数据进行缓存，代码中充斥中各种数据状态判断以及层层回调，<br>更重要的是这样写不便于单独修改某一个接口实现，也不便于测试，更不便于mock数据，mock数据不依赖于接口返回，能自测很多状态切换逻辑，是多么重要。</p>
-<p>我想要的效果：</p>
-<ul>
-<li>数据调用者（Activity或Fragment）不需要知道数据来自网络还是缓存，直接拿到解析好的Entity使用即可，但调用者能强制获取网络数据</li>
-<li>不同的接口可以使用不同的缓存方案，比如文件或者数据库</li>
-<li>不动调用者代码，能mock数据，每层之间便于测试</li>
-<li>层与层之间面向接口，低耦合</li>
-</ul>
-<p>站在巨人的肩膀上</p>
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p><code>Hardware Bitmap（硬件位图）</code>是Android8.0加入的新功能，通过设置Bitmap的config为<code>Bitmap.Config.HARDWARE</code>，创建所谓的Hardware Bitmap，它不同与其他<code>Config</code>的Bitmap，Hardware Bitmap对应的像素数据是存储在显存中，并对图片仅在屏幕上绘制的场景做了优化；</p>
+<p>硬件位图的介绍参考<a href="https://muyangmin.github.io/glide-docs-cn/doc/hardwarebitmaps.html" target="_blank" rel="noopener">Glide文档</a></p>
+<h2 id="何如使用Hardware-Bitmap"><a href="#何如使用Hardware-Bitmap" class="headerlink" title="何如使用Hardware Bitmap"></a>何如使用Hardware Bitmap</h2>
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
             <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/07/26</span>
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/01/21</span>
             </div>
             <!-- tags  -->
             
             <div class="abstract-tags">
     
-        <a class="post-tag" href="javascript:void(0);" data-tags="Java">Java</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
     
-        <a class="post-tag" href="javascript:void(0);" data-tags="架构">架构</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/07/25/从反射分析HashMap存储原理/">
-            
-                <span>从反射分析HashMap存储原理</span>
-        </a>
-        <div class="abstract-content">
-            <p>最近发现一篇讲解HashMap的帖子，我开始回顾了尘埃很久的java基础知识，涉及HashMap相关，我可能会说HashMap相当于IOS里的字典，存取键值的，接受null类型的键值，线程不安全的，HashMap是根据key的hashCode存取，底层是Hash表实现，再往下问，比如两个key的hashCode相等怎么办，hashCode如何对应到bucket位置的，bucketIndex一样怎么存取，好像说不下去了，说实在的自己从来没有真正去理解HashMap源码，顿时觉得自己好菜比，于是赶紧看源码，脑补一下自己的无知。</p>
-<p>来一张图</p>
-<p><img src="http://www.myexception.cn/img/2013/01/25/1341191279.png" alt=""></p>
-<p>一言以蔽之，HashMap底层是一个自动扩容数组，数组的每一项的一个单向链表。</p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/07/25</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Java">Java</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="反射">反射</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags="Bitmap">Bitmap</a>
     
 </div>
             
