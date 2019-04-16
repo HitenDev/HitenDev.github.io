@@ -346,6 +346,82 @@
     
     
     <article class="index-post">
+        <a class="abstract-title" href="/2017/04/14/Android-Gradle-搞定Groovy闭包这一篇就够了/">
+            
+                <span>[Android Gradle] 搞定Groovy闭包这一篇就够了</span>
+        </a>
+        <div class="abstract-content">
+            <blockquote>
+<p>努力的人，应该像好色那样好学</p>
+</blockquote>
+<p>做Android开发的同学，对Gradle肯定不陌生，我们用它配置、构建工程，可能还会开发插件来促进我们的开发，我们必须了解Gradle，而不仅限于只会当配置构建工具，我想学习它，于是就有了这一系列的文章。</p>
+<p><strong>看到这篇博客，能可能会学到什么？</strong></p>
+<ul>
+<li>了解Groovy，我们并不需要精通，试着把它当java来写</li>
+<li>理解Groovy闭包，闭包是必须要理解的，特别是delegate</li>
+<li>利用闭包来实现自己的DSL</li>
+</ul>
+<h1 id="开发环境："><a href="#开发环境：" class="headerlink" title="开发环境："></a>开发环境：</h1><p>开发工具：Intellij Ideal<br>jdk版本：jdk1.8<br>sdk版本：groovy sdk 2.4.10<br>具体用Ideal创建groovy的教程，比较简单，自行摸索<br><img src="http://upload-images.jianshu.io/upload_images/869487-7b7fbed1e83f0d3b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="工程如下"></p>
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2017/04/14</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class="abstract-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Gradle">Gradle</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
+        <a class="abstract-title" href="/2017/01/17/Git分支管理策略浅识/">
+            
+                <span>Git分支管理策略浅识</span>
+        </a>
+        <div class="abstract-content">
+            <blockquote>
+<p>崔同学说逃避解决不了问题，那就勇敢面对。</p>
+</blockquote>
+<p>两年前看过阮一峰老师的<a href="http://www.ruanyifeng.com/blog/2012/07/git.html" target="_blank" rel="noopener">文章</a>，认识了git分支管理策略，但那时项目代码是用SVN管理，接触git是因为github，github一直停留在单人单分支的阶段。后来换工作了必须用git，发现分支管理的强大之处，所以写一篇记录一下。</p>
+<p>如何管理好git分支，国外的nvie发表了博客 <a href="http://nvie.com/posts/a-successful-git-branching-model/" target="_blank" rel="noopener">a-successful-git-branching-model</a>, 文章讲解了他是如何让自己的<a href="http://www.oschina.net/p/git" target="_blank" rel="noopener">Git</a>仓库保持整洁，阮一峰老师说的也是基于nvie的思想，推荐大家看完阮老师的文章，好好感悟感悟，然后在再来纠正一下我的理解，哈哈。</p>
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2017/01/17</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class="abstract-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Git">Git</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href="/2016/12/02/自定义头部悬停的下拉刷新控件/">
             
                 <span>自定义头部悬停的下拉刷新控件</span>
@@ -597,75 +673,6 @@
             <div class="abstract-tags">
     
         <a class="post-tag" href="javascript:void(0);" data-tags="生活思考">生活思考</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/08/01/retrofit源码解析1-md/">
-            
-                <span>retrofit2.0源码解析（一）</span>
-        </a>
-        <div class="abstract-content">
-            <p>题外话</p>
-<p><em>第一次听说retrofit框架，还是同窗hanks推荐，SOHO的大字依旧发着光，hanks早已不在望京上班，<a href="https://github.com/hanks-zyh" target="_blank" rel="noopener">hanks的github</a></em></p>
-<blockquote>
-<p>Retrofit，一个类型安全的http客户端，适用于Android和Java</p>
-</blockquote>
-<p>分析源码之前，首先在github上download<a href="https://github.com/square/retrofit" target="_blank" rel="noopener">源码</a>，用IDEA打开编译。<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/08/01</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="源码解析">源码解析</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/07/31/回顾反省与计划/">
-            
-                <span>&lt;总结&gt; 回顾、反省与计划</span>
-        </a>
-        <div class="abstract-content">
-            <blockquote>
-<p><em>这个七月，全国多地都下暴雨，伴随灾情不断，我不忍看新闻报道，愿一切安好！</em></p>
-</blockquote>
-<h2 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h2><p>很久很久没在CSDN写博客了，或者说几乎没怎么写，这一停，就是一年半，这一年半里经历了深圳三月行，北京找工作，996工作制，封闭式开发，直到昨晚我打算提出离职，我才想起来回顾这一切。</p>
-<p>这一年半里，我所在的两家公司都是小的创业公司，今年创业公司死了好多，能活下来的都是英雄，庆幸这两家公司都活的很好。作为技术人，我冒昧的来谈谈在小公司的好与坏：<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/07/31</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="总结">总结</a>
     
 </div>
             
@@ -1147,9 +1154,67 @@
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 28
+        Total : 30
         </div>
         <!-- search  -->
         
@@ -1162,6 +1227,16 @@
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/18</span><a class="archive-post-title" href="/2019/03/18/一波Flutter酷炫特效来袭，持续更新/">一波Flutter酷炫特效来袭，持续更新</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/16</span><a class="archive-post-title" href="/2019/03/16/Flutter交互实战－即刻App探索页下拉＆拖拽效果/">Flutter交互实战－即刻App探索页下拉＆拖拽效果</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -1346,6 +1421,8 @@
     
         <span class="sidebar-tag-name" data-tags="Android"><span class="iconfont-archer">&#xe606;</span>Android</span>
     
+        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
+    
         <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
     
         <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
@@ -1354,29 +1431,27 @@
     
         <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
     
-        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
-    
         <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
     
         <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
     
         <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
     
-        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
-    
         <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
+    
+        <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
+    
+        <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
+    
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
     
         <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
     
         <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
     
-        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
-    
         <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
     
-        <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
-    
-        <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
     
         <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
     

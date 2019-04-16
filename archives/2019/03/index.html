@@ -346,32 +346,21 @@
     
     
     <article class="index-post">
-        <a class="abstract-title" href="/2016/08/01/retrofit源码解析1-md/">
+        <a class="abstract-title" href="/2019/03/18/一波Flutter酷炫特效来袭，持续更新/">
             
-                <span>retrofit2.0源码解析（一）</span>
+                <span>一波Flutter酷炫特效来袭，持续更新</span>
         </a>
         <div class="abstract-content">
-            <p>题外话</p>
-<p><em>第一次听说retrofit框架，还是同窗hanks推荐，SOHO的大字依旧发着光，hanks早已不在望京上班，<a href="https://github.com/hanks-zyh" target="_blank" rel="noopener">hanks的github</a></em></p>
-<blockquote>
-<p>Retrofit，一个类型安全的http客户端，适用于Android和Java</p>
-</blockquote>
-<p>分析源码之前，首先在github上download<a href="https://github.com/square/retrofit" target="_blank" rel="noopener">源码</a>，用IDEA打开编译。<br>
-        </p></div>
+            前言实现UI和交互是大前端开发者的必备技能，也是掌握Flutter开发的重点；在下学习Flutter之际，实现了几种客户端上常见的酷炫UI特效，虽说是用Flutter造原生的轮子，但Flutter跨平台的特性是原生不能比拟的，更何况还有不弱的性能表现。本文主要是介绍Flutter特效库flutter_effects的基本情况和使用；
+
+项目介绍 flutter_effects：是多个Flutter package工程组成，目标是用纯Flutter来实现炫酷的UI特效，支持android和ios运行；目前项目刚处于起步阶段，欢迎大家提出建议和问题反馈，如果你有好的想法，欢迎提出需求或者一起...
+        </div>
         <div class="abstract-post-meta">
             <!-- date  -->
             <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/08/01</span>
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/03/18</span>
             </div>
             <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="源码解析">源码解析</a>
-    
-</div>
             
         </div>
     </article>
@@ -382,300 +371,29 @@
     
     
     <article class="index-post">
-        <a class="abstract-title" href="/2016/07/31/回顾反省与计划/">
+        <a class="abstract-title" href="/2019/03/16/Flutter交互实战－即刻App探索页下拉＆拖拽效果/">
             
-                <span>&lt;总结&gt; 回顾、反省与计划</span>
+                <span>Flutter交互实战－即刻App探索页下拉＆拖拽效果</span>
         </a>
         <div class="abstract-content">
-            <blockquote>
-<p><em>这个七月，全国多地都下暴雨，伴随灾情不断，我不忍看新闻报道，愿一切安好！</em></p>
-</blockquote>
-<h2 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h2><p>很久很久没在CSDN写博客了，或者说几乎没怎么写，这一停，就是一年半，这一年半里经历了深圳三月行，北京找工作，996工作制，封闭式开发，直到昨晚我打算提出离职，我才想起来回顾这一切。</p>
-<p>这一年半里，我所在的两家公司都是小的创业公司，今年创业公司死了好多，能活下来的都是英雄，庆幸这两家公司都活的很好。作为技术人，我冒昧的来谈谈在小公司的好与坏：<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/07/31</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="总结">总结</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/07/26/项目重构总结-架构设计/">
-            
-                <span>项目重构总结-架构版</span>
-        </a>
-        <div class="abstract-content">
-            <p>题外话：去年十二月份进行封闭式开发，我就打算对代码进行重构，重构的原因是代码层次不清晰，<br>Activity职责太多，Activity不仅要获取接口数据，还要对接口数据进行缓存，代码中充斥中各种数据状态判断以及层层回调，<br>更重要的是这样写不便于单独修改某一个接口实现，也不便于测试，更不便于mock数据，mock数据不依赖于接口返回，能自测很多状态切换逻辑，是多么重要。</p>
-<p>我想要的效果：</p>
-<ul>
-<li>数据调用者（Activity或Fragment）不需要知道数据来自网络还是缓存，直接拿到解析好的Entity使用即可，但调用者能强制获取网络数据</li>
-<li>不同的接口可以使用不同的缓存方案，比如文件或者数据库</li>
-<li>不动调用者代码，能mock数据，每层之间便于测试</li>
-<li>层与层之间面向接口，低耦合</li>
-</ul>
-<p>站在巨人的肩膀上</p>
+            Flutter最近比较热门，但是Flutter成体系的文章并不多，前期避免不了踩坑；我这篇文章主要介绍如何使用Flutter实现一个比较复杂的手势交互，顺便分享一下我在使用Flutter过程中遇到的一些小坑，减少大家入坑；
+先睹为快本项目支持ios和android平台，效果如下
+                
+
+对了，顺便分享一下生成gif的小窍门，建议用手机自带录屏功能导出mp4文件到电脑，然后电脑端用ffmpeg命令行处理，控制gif的质量和文件大小，我的建议是分辨率控制在270p，帧率在10左右；
+交互分析看文章的小伙伴最好能手持即刻App)，亲自体验一下探索页的交互，是黄色Lo...
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
             <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/07/26</span>
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/03/16</span>
             </div>
             <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Java">Java</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="架构">架构</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/07/25/从反射分析HashMap存储原理/">
-            
-                <span>从反射分析HashMap存储原理</span>
-        </a>
-        <div class="abstract-content">
-            <p>最近发现一篇讲解HashMap的帖子，我开始回顾了尘埃很久的java基础知识，涉及HashMap相关，我可能会说HashMap相当于IOS里的字典，存取键值的，接受null类型的键值，线程不安全的，HashMap是根据key的hashCode存取，底层是Hash表实现，再往下问，比如两个key的hashCode相等怎么办，hashCode如何对应到bucket位置的，bucketIndex一样怎么存取，好像说不下去了，说实在的自己从来没有真正去理解HashMap源码，顿时觉得自己好菜比，于是赶紧看源码，脑补一下自己的无知。</p>
-<p>来一张图</p>
-<p><img src="http://www.myexception.cn/img/2013/01/25/1341191279.png" alt=""></p>
-<p>一言以蔽之，HashMap底层是一个自动扩容数组，数组的每一项的一个单向链表。</p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/07/25</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Java">Java</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="反射">反射</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/06/27/初探AOP在Android中的使用/">
-            
-                <span>初探AOP在Android中的使用</span>
-        </a>
-        <div class="abstract-content">
-            <p>前些时间在学习Spring时看到AOP，即面向切面编程，这个概念很新鲜，感觉用起来特别牛逼，无奈我是相见恨晚啊，在网上搜一下关于Android AOP的可行方案，大约有两种，一个是阿里的开源项目<a href="https://github.com/alibaba/dexposed" target="_blank" rel="noopener">Dexposed</a>,另一个是<a href="http://www.eclipse.org/aspectj" target="_blank" rel="noopener">AspectJ</a>，在我拜读了看见了邓凡平老师的<a href="http://blog.csdn.net/innost/article/details/49387395" target="_blank" rel="noopener">深入理解Android之AOP</a>后，觉得用AspectJ<br>比较符合Java的本质吧，这个纯属自己的观点，哈哈哈！</p>
-<h2 id="如何集成"><a href="#如何集成" class="headerlink" title="如何集成"></a>如何集成</h2><p>AspectJ的使用核心就是它的编译器，它就做了一件事，将AspectJ的代码在编译期插入目标程序当中，运行时跟在其它地方没什么两样，因此要使用它最关键的就是使用它的编译器去编译代码ajc。ajc会构建目标程序与AspectJ代码的联系，在编译期将AspectJ代码插入被切出的PointCut中，已达到AOP的目的。因此，无论在什么IDE上（如果使用命令行就可以直接使用ajc编译了），问题就是让IDE使用ajc作为编译器编译代码。<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/06/27</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="AOP">AOP</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/05/20/解读官方MVP架构/">
-            
-                <span>解读官方MVP架构</span>
-        </a>
-        <div class="abstract-content">
-            <p>在Android应用开发中采用MVC好还是MVP好的话题，一直都争议不断，现在Android官方也来凑热闹了，官方出了个开源项目，来描绘一幅架构蓝图，该项目主要包括mvp，mvvm，clean架构，其中不乏Dagger2，rxjava等主流框架，项目中使用不同的架构来实现同一个Todo App，<a href="https://github.com/googlesamples/android-architecture" target="_blank" rel="noopener">项目地址：https://github.com/googlesamples/android-architecture</a></p>
-<p>今天先来看看MVP在Todo项目中的使用，<a href="https://github.com/googlesamples/android-architecture/tree/todo-mvp" target="_blank" rel="noopener">项目地址：https://github.com/googlesamples/android-architecture/tree/todo-mvp</a><br>clone工程，编译运行效果：</p>
-<p><img src="http://ww2.sinaimg.cn/large/a4cde5d8jw1f68dcjvltzj20a40fzweo.jpg" alt=""></p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/05/20</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="架构">架构</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/05/14/Android6-0权限检测总结/">
-            
-                <span>Android6.0运行时权限总结</span>
-        </a>
-        <div class="abstract-content">
-            <blockquote>
-<p>Beginning in Android 6.0 (API level 23), users grant permissions to apps while the app is running, not when they install the app. This approach streamlines the app install process, since the user does not need to grant permissions when they install or update the app. It also gives the user more control over the app’s functionality   </p>
-</blockquote>
-<p>上面是引用google官方文档的一段话，google将权限分为两类，一类是一般权限，一类是危险权限<br>一般权限有哪些，参加官方文档<a href="https://developer.android.com/guide/topics/security/normal-permissions.html" target="_blank" rel="noopener">https://developer.android.com/guide/topics/security/normal-permissions.html</a><br>这些是一般的权限，看看那些是你认识的</p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/05/14</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="6">6</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/04/22/我为什么使用RxJava/">
-            
-                <span>我为什么要使用RxJava</span>
-        </a>
-        <div class="abstract-content">
-            <p>接触RxJava半年左右，刚开始我一直在怀疑RxJava在Android中能做什么，上手不易，到处都是Observable让我觉得不习惯，但是研究明白了，就会被他的强大所折服。</p>
-<p>这篇博客是我在项目中对RxJava的切实体会，不是RxJava基础知识讲解，RxJava一步一步讲解，可以看Hi大头鬼的博客。<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/04/22</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="RxJava">RxJava</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2015/12/22/Android中简单实现比例布局/">
-            
-                <span>Android中简单实现比例布局</span>
-        </a>
-        <div class="abstract-content">
-            <p>前些时候阅读过google的iosched项目，发现有个自定义布局类：AspectRatioFrameLayout，这个类的代码很简单，却很有用，<br>就是实现一个高度跟宽度成比例的布局，我觉得在很多实际开发中，都会涉及到这个内容；关于这个保持宽高比的问题，我问了好几个人，<br>甚至在面试别人的时候也问到过，结果是很多人说没有考虑过这个问题，<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2015/12/22</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2015/10/11/解决ListView footView不能完全隐藏/">
-            
-                <span>解决ListView FootView不能完全隐藏</span>
-        </a>
-        <div class="abstract-content">
-            <p>写过Android ListView加载更多功能的朋友可能都知道，我们经常会写一个footView，<br>通过设置ListView的addFootView方法增加尾布局，在列表滑动到底部的时候，触发footViw显示，<br>当没有更多数据的时候，会把footView隐藏。<br>但是在设置footView为gone时，虽然内容隐藏了，但是这块布局还在占着，像是设置成inVisible一样，我总结网上的解决方法，<br>有两种一般性解决方案：<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2015/10/11</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-</div>
             
         </div>
     </article>
     
     <!-- paginator  -->
-    
-    <nav class="page-nav">
-        <a class="extend prev" rel="prev" href="/archives/page/2/">&#60; PREV</a><a class="page-number" href="/archives/">1</a><a class="page-number" href="/archives/page/2/">2</a><span class="page-number current">3</span>
-    </nav>
     
 </main>
             <!-- profile -->

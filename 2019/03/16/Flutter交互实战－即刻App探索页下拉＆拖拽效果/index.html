@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="lilei">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="lilei">
+    
+    <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>Flutter交互实战－即刻App探索页下拉＆拖拽效果 · Hiten&#39;s Blog.</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin="">
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin="">
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/">Hiten&#39;s Blog.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">Flutter交互实战－即刻App探索页下拉＆拖拽效果</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href="/">Hiten's Blog.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            Flutter交互实战－即刻App探索页下拉＆拖拽效果
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">4.8k</span>阅读时长: <span class="post-count reading-time">19 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/03/16</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <p>Flutter最近比较热门，但是Flutter成体系的文章并不多，前期避免不了踩坑；我这篇文章主要介绍如何使用Flutter实现一个比较复杂的手势交互，顺便分享一下我在使用Flutter过程中遇到的一些小坑，减少大家入坑；</p>
+<h1 id="先睹为快"><a href="#先睹为快" class="headerlink" title="先睹为快"></a>先睹为快</h1><p><strong>本项目支持<code>ios</code>和<code>android</code>平台，效果如下</strong></p>
+<figure class="half"><br>    <img src="https://user-gold-cdn.xitu.io/2019/3/2/1693c0f0c51e4d46?w=270&h=480&f=gif&s=649302"><br>    <img src="https://user-gold-cdn.xitu.io/2019/3/2/1693c0f0c50eba63?w=270&h=480&f=gif&s=815557"><br>    <img src="https://user-gold-cdn.xitu.io/2019/3/2/1693c16dc902a8ad?w=270&h=480&f=gif&s=537514"><br>    <img src="https://user-gold-cdn.xitu.io/2019/3/2/1693c16781a4630b?w=270&h=480&f=gif&s=609991"><br></figure>
+
+<p>对了，顺便分享一下生成<code>gif</code>的小窍门，建议用手机自带录屏功能导出<code>mp4</code>文件到电脑，然后电脑端用<code>ffmpeg</code>命令行处理，控制<code>gif</code>的质量和文件大小，我的建议是分辨率控制在270p，帧率在10左右；</p>
+<h1 id="交互分析"><a href="#交互分析" class="headerlink" title="交互分析"></a>交互分析</h1><p>看文章的小伙伴最好能手持<a href="(https://www.ruguoapp.com/">即刻App</a>)，亲自体验一下探索页的交互，是黄色Logo黄色主题色的<a href="https://www.ruguoapp.com/" target="_blank" rel="noopener">即刻</a>，人称‘黄即’；</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/3/2/1693cd83867ed70f?w=720&amp;h=1280&amp;f=png&amp;s=422270" alt=""></p>
+<p>即刻App原版功能有卡片旋转，卡片撤回和卡片自动移除，时间关系暂时没有实现，但核心的功能都在；</p>
+<p>从一个Android开发者的习惯来看待，这个交互可拆分内外两层控件，外层我们需要一个整体下拉的控件，我称为<code>下拉控件</code>；内层我们需要实现一个上、下、左、右四方向拖拽移动的控件，我们称为<code>卡片控件</code>；<code>下拉控件</code>和<code>卡片控件</code>不仅要处理手势，还需要处理子Widget的布局；下面我再分析细节功能：</p>
+<p><strong>下拉控件：</strong></p>
+<ul>
+<li>子控件从上到下竖直摆放，顶部菜单默认隐藏在屏幕外</li>
+<li>下拉手势所有子控件下移，菜单视觉差效果</li>
+<li>支持点击自动展开、收起效果</li>
+</ul>
+<p><strong>卡片控件</strong></p>
+<ul>
+<li>卡片层叠布局，错落有致</li>
+<li>最上层卡片支持手势拖拽</li>
+<li>其他卡片响应拖拽小幅位移</li>
+<li>松手移除卡片</li>
+</ul>
+<h1 id="码上入手"><a href="#码上入手" class="headerlink" title="码上入手"></a>码上入手</h1><h2 id="热身"><a href="#热身" class="headerlink" title="热身"></a>热身</h2><p>套用App开发伎俩，实现上面的交互无非就是控件布局和手势识别。当然Flutter开发也是这些套路，只不过万物皆是Widget，在Flutter中常用的基本布局有<code>Column</code>、<code>Row</code>、<code>Stack</code>等，手势识别有<code>Listener</code>、<code>GestureDetector</code>、<code>RawGestureDetector</code>等，这是本文重点讲解的控件，不限于上面这几个Widget，因为Flutter提供的Widget太多了，重点的控件需要牢记外，其他时候真是现用现查；</p>
+<p>所以下面我们从布局和手势这两个大的技术点，来一一击破功能点；</p>
+<h2 id="布局摆放"><a href="#布局摆放" class="headerlink" title="布局摆放"></a>布局摆放</h2><p>这里所谓的布局，包括Widget的尺寸大小和位置的控制，一般都是父Widget掌管子Widget的命运，Flutter就是一层一层Widget嵌套，不要担心，下面从外到内具体案例讲解；</p>
+<h3 id="下拉控件"><a href="#下拉控件" class="headerlink" title="下拉控件"></a>下拉控件</h3><p>首先我们要实现最外层布局，效果是：子Widget竖直摆放，且最上面的Widget默认需要摆放在屏幕外；</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/3/2/1693c760729f0d2d?w=689&amp;h=511&amp;f=png&amp;s=11114" alt=""></p>
+<p>如上图所示，红色区域是屏幕范围，<code>header</code>是头部隐藏的菜单布局，<code>content</code>是卡片布局的主体；</p>
+<p><strong>先说入的坑</strong></p>
+<p>竖直布局我最先想到的是<code>Column</code>，我想要的效果是<code>content</code>高度和父Widget的高度一致，我首先想到是让<code>Expanded</code>包裹<code>content</code>，结果是content的高度永远等于<code>Column</code>高度减<code>header</code>高度，造成现象就是content高度不填充，或者是挤压现象，如果继续使用<code>Colunm</code>可能就得放弃<code>Expanded</code>，手动给<code>content</code>赋值高度，没准是个办法，但我不愿意手动赋值<code>content</code>的高度，太不优雅了，最后果断弃用<code>Column</code>；</p>
+<p>另一个问题是如何隐藏<code>header</code>，我想到两种方案：</p>
+<ol>
+<li>采用外层<code>Transform</code>包裹整个布局，内层<code>Transform</code>包裹<code>header</code>，然后赋值内层<code>dy =  -headerHeight</code>，随着手势下拉动态，并不改变<code>header</code>的<code>Transform</code>，而是改变最外层<code>Transform</code>的<code>dy</code>；</li>
+<li>动态改变<code>header</code>高度，初始高度为0，随着手势下拉动态计算；</li>
+</ol>
+<p>但是上面这两种都有坑，第一种方式会影响控件的点击事件，<code>onTap</code>方法不会被回调；第二种由于高度在不断改变，会影响<code>header</code>内部子Widget的布局，很难做视觉差的控制；</p>
+<p><strong>最终方案</strong></p>
+<p>最后采用<code>Stack</code>来布局，通过<code>Stack</code>配合<code>Positioned</code>，实现<code>header</code>布局在屏幕外，而且可以做到让<code>content</code>布局填充父Widget;</p>
+<p><strong>PullDragWidget</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">Widget build(BuildContext context) &#123;</span><br><span class="line">  return RawGestureDetector(</span><br><span class="line">      behavior: HitTestBehavior.translucent,</span><br><span class="line">      gestures: _contentGestures,</span><br><span class="line">      child: Stack(</span><br><span class="line">        children: &lt;Widget&gt;[</span><br><span class="line">          Positioned(//content布局</span><br><span class="line">              top: _offsetY,</span><br><span class="line">              bottom: -_offsetY,</span><br><span class="line">              left: 0,</span><br><span class="line">              right: 0,</span><br><span class="line">              child: IgnorePointer(</span><br><span class="line">                ignoring: _opened,</span><br><span class="line">                child: widget.child,</span><br><span class="line">              )),</span><br><span class="line">          Positioned(////header布局</span><br><span class="line">              top: -widget.dragHeight + _offsetY,</span><br><span class="line">              bottom: null,</span><br><span class="line">              left: 0,</span><br><span class="line">              right: 0,</span><br><span class="line">              height: widget.dragHeight,</span><br><span class="line">              child: _headerWidget()),</span><br><span class="line">        ],</span><br><span class="line">      ));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>首先解释一下<code>Positioned</code>的基本用法，<code>top</code>、<code>bottom</code>、<code>height</code>控制高度和位置，而且两两配合使用，<code>top</code>和<code>bottom</code>可以理解成marginTop和marginBottom，<code>height</code>顾名思义是直接Widget的高度，如果<code>top</code>配置<code>bottom</code>，意味着高度等于<code>parentHeight-top-bottom</code>，如果<code>top</code>/<code>bottom</code>配合<code>height</code>使用，高度一般是固定的，当然<code>top</code>和<code>bottom</code>是接受负数的；</p>
+<p>再分析代码，首先<code>_offsetY</code>是下拉距离，是一个改变的量初始值为0，<code>content</code>需要设置<code>top = _offsetY</code>和<code>bottom = -_offsetY</code>，改变的是上下位置，高度不会改变；同理，<code>header</code>是采用<code>top</code>和<code>height</code>控制，高度固定，只需要动态改变<code>top</code>即可；</p>
+<p>用Flutter写布局真的很简单，我极力推崇使用<code>Stack</code>布局，因为它比较灵活，没有太多的限制，用好<code>Stack</code>主要还得用好<code>Positioned</code>，学好它没错；</p>
+<h3 id="卡片控件"><a href="#卡片控件" class="headerlink" title="卡片控件"></a>卡片控件</h3><p>卡片实现的效果就是依次层叠，错落有致，这个很容易想到<code>Stack</code>来实现，当然有了上面踩坑，用<code>Stack</code>算是很轻松了；</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/3/2/1693cb225523c508?w=752&amp;h=553&amp;f=png&amp;s=17025" alt=""></p>
+<p>重叠的效果使用Stack很简单，错落有致的效果实在起来可能性就比较多了，比如可以使用<code>Positioned</code>，也可以包裹<code>Container</code>改变<code>margin</code>或者<code>padding</code>，但是考虑到角度的旋转，我选择使用<code>Transform</code>，因为<code>Transform</code>不仅可以玩转位移，还有角度和缩放等，其内部实际上是操作一个矩阵变换；<code>Transform</code>挺好用，但是在<code>Transform</code>多层嵌套的某些特殊情况下，会存在不响应<code>onTap</code>事件的情况，我想这应该是<code>Transform</code>的bug，拖拽事件暂时没有发现问题，这个是不是bug有待确认，暂时不影响使用；</p>
+<p><strong>CardStackWidget</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">Widget build(BuildContext context) &#123;</span><br><span class="line">  if (widget.cardList == null || widget.cardList.length == 0) &#123;</span><br><span class="line">    return Container();</span><br><span class="line">  &#125;</span><br><span class="line">  List&lt;Widget&gt; children = new List();</span><br><span class="line">  int length = widget.cardList.length;</span><br><span class="line">  int count = (length &gt; widget.cardCount) ? widget.cardCount : length;</span><br><span class="line">  for (int i = 0; i &lt; count; i++) &#123;</span><br><span class="line">    double dx = i == 0 ? _totalDx : -_ratio * widget.offset;</span><br><span class="line">    double dy = i == 0 ? _totalDy : _ratio * widget.offset;</span><br><span class="line">    Widget cardWidget = _CardWidget(</span><br><span class="line">      cardEntity: widget.cardList[i],</span><br><span class="line">      position: i,</span><br><span class="line">      dx: dx,</span><br><span class="line">      dy: dy,</span><br><span class="line">      offset: widget.offset,</span><br><span class="line">    );</span><br><span class="line">    if (i == 0) &#123;</span><br><span class="line">      cardWidget = RawGestureDetector(</span><br><span class="line">        gestures: _cardGestures,</span><br><span class="line">        behavior: HitTestBehavior.deferToChild,</span><br><span class="line">        child: cardWidget,</span><br><span class="line">      );</span><br><span class="line">    &#125;</span><br><span class="line">    children.add(Container(</span><br><span class="line">      child: cardWidget,</span><br><span class="line">      alignment: Alignment.topCenter,</span><br><span class="line">      padding: widget.cardPadding,</span><br><span class="line">    ));</span><br><span class="line">  &#125;</span><br><span class="line">  return Stack(</span><br><span class="line">    children: children.reversed.toList(),</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>_CardWidget</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">Widget build(BuildContext context) &#123;</span><br><span class="line">  return AspectRatio(</span><br><span class="line">    aspectRatio: 0.75,</span><br><span class="line">    child: Transform(</span><br><span class="line">        transform: Matrix4.translationValues(</span><br><span class="line">            dx + (offset * position.toDouble()),</span><br><span class="line">            dy + (-offset * position.toDouble()),</span><br><span class="line">            0),</span><br><span class="line">        child: ClipRRect(</span><br><span class="line">          borderRadius: BorderRadius.circular(10),</span><br><span class="line">          child: Stack(</span><br><span class="line">            fit: StackFit.expand,</span><br><span class="line">            children: &lt;Widget&gt;[</span><br><span class="line">              Image.network(</span><br><span class="line">                cardEntity.picUrl,</span><br><span class="line">                fit: BoxFit.cover,</span><br><span class="line">              ),</span><br><span class="line">              Container(color: const Color(0x5a000000)),</span><br><span class="line">              Container(</span><br><span class="line">                margin: EdgeInsets.all(20),</span><br><span class="line">                alignment: Alignment.center,</span><br><span class="line">                child: Text(</span><br><span class="line">                  cardEntity.text,</span><br><span class="line">                  textAlign: TextAlign.center,</span><br><span class="line">                  style: TextStyle(</span><br><span class="line">                      letterSpacing: 2,</span><br><span class="line">                      fontSize: 22,</span><br><span class="line">                      color: Colors.white,</span><br><span class="line">                      fontWeight: FontWeight.bold),</span><br><span class="line">                  maxLines: 4,</span><br><span class="line">                ),</span><br><span class="line">              )</span><br><span class="line">            ],</span><br><span class="line">          ),</span><br><span class="line">        )),</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>简单总结一下卡片布局代码，<code>CardStackWidget</code>是管理卡片<code>Stack</code>的父控件，负责对每个卡片进行布局，<code>_CardWidget</code>是对单独卡片内部进行布局，总体来说没有什么难点，细节控制逻辑是在对上层<code>_CardWidget</code>和底层<code>_CardWidget</code>偏移量的计算；</p>
+<p>布局的内容就讲这么多，整体来说还是比较简单，所谓的有些坑也不一定算是坑，只是不适应某些应用场景罢了；</p>
+<h2 id="手势识别"><a href="#手势识别" class="headerlink" title="手势识别"></a>手势识别</h2><p>Flutter手势识别最常用的是<code>Listener</code>和<code>GestureDetector</code>这两个Widget，其中<code>Listener</code>主要针对原始触摸点进行处理，<code>GestureDetector</code>已经对原始触摸点加工成了不同的手势；这两个类的方法介绍如下；</p>
+<p><strong>Listener</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">Listener(&#123;</span><br><span class="line">  Key key,</span><br><span class="line">  this.onPointerDown, //手指按下回调</span><br><span class="line">  this.onPointerMove, //手指移动回调</span><br><span class="line">  this.onPointerUp,//手指抬起回调</span><br><span class="line">  this.onPointerCancel,//触摸事件取消回调</span><br><span class="line">  this.behavior = HitTestBehavior.deferToChild, //在命中测试期间如何表现</span><br><span class="line">  Widget child</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></p>
+<p>GestureDetector手势回调：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Property/Callback</th>
+<th style="text-align:center">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">onTapDown</td>
+<td style="text-align:center">用户每次和屏幕交互时都会被调用</td>
+</tr>
+<tr>
+<td style="text-align:center">onTapUp</td>
+<td style="text-align:center">用户停止触摸屏幕时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onTap</td>
+<td style="text-align:center">短暂触摸屏幕时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onTapCancel</td>
+<td style="text-align:center">用户触摸了屏幕，但是没有完成Tap的动作时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onDoubleTap</td>
+<td style="text-align:center">用户在短时间内触摸了屏幕两次</td>
+</tr>
+<tr>
+<td style="text-align:center">onLongPress</td>
+<td style="text-align:center">用户触摸屏幕时间超过500ms时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onVerticalDragDown</td>
+<td style="text-align:center">当一个触摸点开始跟屏幕交互，同时在垂直方向上移动时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onVerticalDragStart</td>
+<td style="text-align:center">当触摸点开始在垂直方向上移动时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onVerticalDragUpdate</td>
+<td style="text-align:center">屏幕上的触摸点位置每次改变时，都会触发这个回调</td>
+</tr>
+<tr>
+<td style="text-align:center">onVerticalDragEnd</td>
+<td style="text-align:center">当用户停止移动，这个拖拽操作就被认为是完成了，就会触发这个回调</td>
+</tr>
+<tr>
+<td style="text-align:center">onVerticalDragCancel</td>
+<td style="text-align:center">用户突然停止拖拽时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onHorizontalDragDown</td>
+<td style="text-align:center">当一个触摸点开始跟屏幕交互，同时在水平方向上移动时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onHorizontalDragStart</td>
+<td style="text-align:center">当触摸点开始在水平方向上移动时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onHorizontalDragUpdate</td>
+<td style="text-align:center">屏幕上的触摸点位置每次改变时，都会触发这个回调</td>
+</tr>
+<tr>
+<td style="text-align:center">onHorizontalDragEnd</td>
+<td style="text-align:center">水平拖拽结束时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onHorizontalDragCancel</td>
+<td style="text-align:center">onHorizontalDragDown没有成功完成时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onPanDown</td>
+<td style="text-align:center">当触摸点开始跟屏幕交互时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onPanStart</td>
+<td style="text-align:center">当触摸点开始移动时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onPanUpdate</td>
+<td style="text-align:center">屏幕上的触摸点位置每次改变时，都会触发这个回调</td>
+</tr>
+<tr>
+<td style="text-align:center">onPanEnd</td>
+<td style="text-align:center">pan操作完成时触发</td>
+</tr>
+<tr>
+<td style="text-align:center">onScaleStart</td>
+<td style="text-align:center">触摸点开始跟屏幕交互时触发，同时会建立一个焦点为1.0</td>
+</tr>
+<tr>
+<td style="text-align:center">onScaleUpdate</td>
+<td style="text-align:center">跟屏幕交互时触发，同时会标示一个新的焦点</td>
+</tr>
+<tr>
+<td style="text-align:center">onScaleEnd</td>
+<td style="text-align:center">触摸点不再跟屏幕有任何交互，同时也表示这个scale手势完成</td>
+</tr>
+</tbody>
+</table>
+<p><code>Listener</code>和<code>GestureDetector</code>如何抉择，首先<code>GestureDetector</code>是基于<code>Listener</code>封装，它解决了大部分手势冲突，我们使用<code>GestureDetector</code>就够用了，但是<code>GestureDetector</code>不是万能的，必要时候需要自定义<code>RawGestureDetector</code>；</p>
+<p>另外一个很重要的概念，Flutter手势事件是一个从内Widget向外Widget的冒泡机制，假设内外Widget同时监听竖直方向的拖拽事件<code>onVerticalDragUpdate</code>，往往都是内层控件获得事件，外层事件被动取消；这样的概念和Android父布局拦截机制就完全不同了；</p>
+<p>虽然Flutter没有外层拦截机制，但是似乎还有一线希望，那就是<code>IgnorePointer</code>和<code>AbsorbPointer</code>Widget，这俩哥们可以忽略或者阻止子Widget树不响应Event；</p>
+<h3 id="手势分析"><a href="#手势分析" class="headerlink" title="手势分析"></a>手势分析</h3><p>基本原理介绍完了，接下来分析案例交互，上面说了我把整体布局拆分成了下拉控件和卡片控件，分析即刻App的拖拽的行为：当下拉控件没有展开下拉菜单时，卡片控件是可以响应上、左、右三个方向的手势，下拉控件只响应一个向下方向的手势；当下拉菜单展开时，卡片不能响应任何手势，下拉控件可以响应竖直方向的所有事件；</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/3/3/169417d41875bbee?w=926&amp;h=626&amp;f=png&amp;s=26189" alt=""></p>
+<p>上图更加形象解释两种状态下的手势响应，下拉控件是父Widget，卡片控件是子Widget，由于子Widget能优先响手势，所以在初始阶段，我们不能让子Widget响应向下的手势；</p>
+<p>由于<code>GestureDetector</code>只封装水平和竖直方向的手势，且两种手势不能同时使用，我们从<code>GestureDetector</code>源码来看，能不能封装一个监听不同四个方向的手势，；</p>
+<p><strong>GestureDetector</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">final Map&lt;Type, GestureRecognizerFactory&gt; gestures = &lt;Type, GestureRecognizerFactory&gt;&#123;&#125;;</span><br><span class="line"></span><br><span class="line">if (onVerticalDragDown != null ||</span><br><span class="line">    onVerticalDragStart != null ||</span><br><span class="line">    onVerticalDragUpdate != null ||</span><br><span class="line">    onVerticalDragEnd != null ||</span><br><span class="line">    onVerticalDragCancel != null) &#123;</span><br><span class="line">  gestures[VerticalDragGestureRecognizer] = GestureRecognizerFactoryWithHandlers&lt;VerticalDragGestureRecognizer&gt;(</span><br><span class="line">    () =&gt; VerticalDragGestureRecognizer(debugOwner: this),</span><br><span class="line">    (VerticalDragGestureRecognizer instance) &#123;</span><br><span class="line">      instance</span><br><span class="line">        ..onDown = onVerticalDragDown</span><br><span class="line">        ..onStart = onVerticalDragStart</span><br><span class="line">        ..onUpdate = onVerticalDragUpdate</span><br><span class="line">        ..onEnd = onVerticalDragEnd</span><br><span class="line">        ..onCancel = onVerticalDragCancel;</span><br><span class="line">    &#125;,</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">return RawGestureDetector(</span><br><span class="line">  gestures: gestures,</span><br><span class="line">  behavior: behavior,</span><br><span class="line">  excludeFromSemantics: excludeFromSemantics,</span><br><span class="line">  child: child,</span><br><span class="line">);</span><br></pre></td></tr></table></figure></p>
+<p><code>GestureDetector</code>最终返回的是<code>RawGestureDetector</code>，其中<code>gestures</code>是一个<code>map</code>，竖直方向的手势在<code>VerticalDragGestureRecognizer</code>这个类；</p>
+<p><strong>VerticalDragGestureRecognizer</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">class VerticalDragGestureRecognizer extends DragGestureRecognizer &#123;</span><br><span class="line">  /// Create a gesture recognizer for interactions in the vertical axis.</span><br><span class="line">  VerticalDragGestureRecognizer(&#123; Object debugOwner &#125;) : super(debugOwner: debugOwner);</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  bool _isFlingGesture(VelocityEstimate estimate) &#123;</span><br><span class="line">    final double minVelocity = minFlingVelocity ?? kMinFlingVelocity;</span><br><span class="line">    final double minDistance = minFlingDistance ?? kTouchSlop;</span><br><span class="line">    return estimate.pixelsPerSecond.dy.abs() &gt; minVelocity &amp;&amp; estimate.offset.dy.abs() &gt; minDistance;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  bool get _hasSufficientPendingDragDeltaToAccept =&gt; _pendingDragOffset.dy.abs() &gt; kTouchSlop;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  Offset _getDeltaForDetails(Offset delta) =&gt; Offset(0.0, delta.dy);</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  double _getPrimaryValueFromOffset(Offset value) =&gt; value.dy;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  String get debugDescription =&gt; &apos;vertical drag&apos;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>VerticalDragGestureRecognizer</code>继承<code>DragGestureRecognizer</code>，大部分逻辑都在<code>DragGestureRecognizer</code>中，我们只关注重写的方法：</p>
+<ul>
+<li><code>_hasSufficientPendingDragDeltaToAccept</code>方法是关键逻辑，控制是否接受该拖拽手势</li>
+<li><code>_getDeltaForDetails</code>返回拖拽进度的dx、dy偏移量</li>
+<li><code>_getPrimaryValueFromOffset</code>返回单方向手势value，不同方向(同时拥有水平和竖直)的可以传null</li>
+<li><code>_isFlingGesture</code>是否该手势的Fling行为</li>
+</ul>
+<h3 id="自定义DragGestureRecognizer"><a href="#自定义DragGestureRecognizer" class="headerlink" title="自定义DragGestureRecognizer"></a>自定义DragGestureRecognizer</h3><p>想实现接受三个方向的手势，自定义<code>DragGestureRecognizer</code>是一个好的思路；我希望接受上、下、左、右四个方向的参数，根据参数不同监听不同的手势行为，照葫芦画瓢自定义一个接受方向的<code>GestureRecognizer</code>：</p>
+<p><strong>DirectionGestureRecognizer</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><span class="line">class DirectionGestureRecognizer extends _DragGestureRecognizer &#123;</span><br><span class="line">  int direction;</span><br><span class="line">  //接受中途变动</span><br><span class="line">  ChangeGestureDirection changeGestureDirection;</span><br><span class="line">  //不同方向</span><br><span class="line">  static int left = 1 &lt;&lt; 1;</span><br><span class="line">  static int right = 1 &lt;&lt; 2;</span><br><span class="line">  static int up = 1 &lt;&lt; 3;</span><br><span class="line">  static int down = 1 &lt;&lt; 4;</span><br><span class="line">  static int all = left | right | up | down;</span><br><span class="line"></span><br><span class="line">  DirectionGestureRecognizer(this.direction,</span><br><span class="line">      &#123;Object debugOwner&#125;)</span><br><span class="line">      : super(debugOwner: debugOwner);</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  bool _isFlingGesture(VelocityEstimate estimate) &#123;</span><br><span class="line">    if (changeGestureDirection != null) &#123;</span><br><span class="line">      direction = changeGestureDirection();</span><br><span class="line">    &#125;</span><br><span class="line">    final double minVelocity = minFlingVelocity ?? kMinFlingVelocity;</span><br><span class="line">    final double minDistance = minFlingDistance ?? kTouchSlop;</span><br><span class="line">    if (_hasAll) &#123;</span><br><span class="line">      return estimate.pixelsPerSecond.distanceSquared &gt; minVelocity &amp;&amp;</span><br><span class="line">          estimate.offset.distanceSquared &gt; minDistance;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      bool result = false;</span><br><span class="line">      if (_hasVertical) &#123;</span><br><span class="line">        result |= estimate.pixelsPerSecond.dy.abs() &gt; minVelocity &amp;&amp;</span><br><span class="line">            estimate.offset.dy.abs() &gt; minDistance;</span><br><span class="line">      &#125;</span><br><span class="line">      if (_hasHorizontal) &#123;</span><br><span class="line">        result |= estimate.pixelsPerSecond.dx.abs() &gt; minVelocity &amp;&amp;</span><br><span class="line">            estimate.offset.dx.abs() &gt; minDistance;</span><br><span class="line">      &#125;</span><br><span class="line">      return result;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  bool get _hasLeft =&gt; _has(DirectionGestureRecognizer.left);</span><br><span class="line"></span><br><span class="line">  bool get _hasRight =&gt; _has(DirectionGestureRecognizer.right);</span><br><span class="line"></span><br><span class="line">  bool get _hasUp =&gt; _has(DirectionGestureRecognizer.up);</span><br><span class="line"></span><br><span class="line">  bool get _hasDown =&gt; _has(DirectionGestureRecognizer.down);</span><br><span class="line">  bool get _hasHorizontal =&gt; _hasLeft || _hasRight;</span><br><span class="line">  bool get _hasVertical =&gt; _hasUp || _hasDown;</span><br><span class="line"></span><br><span class="line">  bool get _hasAll =&gt; _hasLeft &amp;&amp; _hasRight &amp;&amp; _hasUp &amp;&amp; _hasDown;</span><br><span class="line"></span><br><span class="line">  bool _has(int flag) &#123;</span><br><span class="line">    return (direction &amp; flag) != 0;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  bool get _hasSufficientPendingDragDeltaToAccept &#123;</span><br><span class="line">    if (changeGestureDirection != null) &#123;</span><br><span class="line">      direction = changeGestureDirection();</span><br><span class="line">    &#125;</span><br><span class="line">    // if (_hasAll) &#123;</span><br><span class="line">    //   return _pendingDragOffset.distance &gt; kPanSlop;</span><br><span class="line">    // &#125;</span><br><span class="line">    bool result = false;</span><br><span class="line">    if (_hasUp) &#123;</span><br><span class="line">      result |= _pendingDragOffset.dy &lt; -kTouchSlop;</span><br><span class="line">    &#125;</span><br><span class="line">    if (_hasDown) &#123;</span><br><span class="line">      result |= _pendingDragOffset.dy &gt; kTouchSlop;</span><br><span class="line">    &#125;</span><br><span class="line">    if (_hasLeft) &#123;</span><br><span class="line">      result |= _pendingDragOffset.dx &lt; -kTouchSlop;</span><br><span class="line">    &#125;</span><br><span class="line">    if (_hasRight) &#123;</span><br><span class="line">      result |= _pendingDragOffset.dx &gt; kTouchSlop;</span><br><span class="line">    &#125;</span><br><span class="line">    return result;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  Offset _getDeltaForDetails(Offset delta) &#123;</span><br><span class="line">    if (_hasAll || (_hasVertical &amp;&amp; _hasHorizontal)) &#123;</span><br><span class="line">      return delta;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    double dx = delta.dx;</span><br><span class="line">    double dy = delta.dy;</span><br><span class="line"></span><br><span class="line">    if (_hasVertical) &#123;</span><br><span class="line">      dx = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    if (_hasHorizontal) &#123;</span><br><span class="line">      dy = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    Offset offset = Offset(dx, dy);</span><br><span class="line">    return offset;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  double _getPrimaryValueFromOffset(Offset value) &#123;</span><br><span class="line">    return null;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  @override</span><br><span class="line">  String get debugDescription =&gt; &apos;orientation_&apos; + direction.toString();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>由于<code>DragGestureRecognizer</code>的很多方法是私有的，想重新只能copy一份代码出来，然后重写主要的方法，根据不同入参处理不同的手势逻辑；</p>
+<p><strong>注意事项</strong></p>
+<p>敲黑板了，在自定义<code>DragGestureRecognizer</code>时：<code>_getDeltaForDetails</code>返回值表示<code>dx</code>和<code>dy</code>的偏移量，在只存在水平或者只存在竖直方向的情况下，需要将另一个方向的<code>dx</code>或<code>dy</code>置0；</p>
+<p>当前Widget树有且只存在一个手势时，手势判断的逻辑<code>_hasSufficientPendingDragDeltaToAccept</code>可能不会被调用，这时候一定要重写<code>_getDeltaForDetails</code>控制返回<code>dx</code>和<code>dy</code>；</p>
+<p><strong>如何使用</strong></p>
+<p>自定义的<code>DirectionGestureRecognizer</code>可以配置<code>left</code>、<code>right</code>、<code>up</code>、<code>down</code>四个方向的手势，而且支持不同方向的组合；</p>
+<p>比如我们只想监听竖直向下方向，就创建<code>DirectionGestureRecognizer(DirectionGestureRecognizer.down)</code>的手势识别；</p>
+<p>想监听上、左、右的手势，创建<code>DirectionGestureRecognizer(DirectionGestureRecognizer.left | DirectionGestureRecognizer.right | DirectionGestureRecognizer.up)</code>的手势识别；</p>
+<p><code>DirectionGestureRecognizer</code>就像一把磨刀石，刀已经磨锋利，砍材就很轻松了，下面进行控件的手势实现；</p>
+<h3 id="下拉控件手势"><a href="#下拉控件手势" class="headerlink" title="下拉控件手势"></a>下拉控件手势</h3><p><strong>PullDragWidget</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">_contentGestures = &#123;</span><br><span class="line">//向下的手势</span><br><span class="line">  DirectionGestureRecognizer:</span><br><span class="line">      GestureRecognizerFactoryWithHandlers&lt;DirectionGestureRecognizer&gt;(</span><br><span class="line">          () =&gt; DirectionGestureRecognizer(DirectionGestureRecognizer.down),</span><br><span class="line">          (instance) &#123;</span><br><span class="line">    instance.onDown = _onDragDown;</span><br><span class="line">    instance.onStart = _onDragStart;</span><br><span class="line">    instance.onUpdate = _onDragUpdate;</span><br><span class="line">    instance.onCancel = _onDragCancel;</span><br><span class="line">    instance.onEnd = _onDragEnd;</span><br><span class="line">  &#125;),</span><br><span class="line">  //点击的手势</span><br><span class="line">  TapGestureRecognizer:</span><br><span class="line">      GestureRecognizerFactoryWithHandlers&lt;TapGestureRecognizer&gt;(</span><br><span class="line">          () =&gt; TapGestureRecognizer(), (instance) &#123;</span><br><span class="line">    instance.onTap = _onContentTap;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Widget build(BuildContext context) &#123;</span><br><span class="line">  return RawGestureDetector(//返回RawGestureDetector</span><br><span class="line">      behavior: HitTestBehavior.translucent,</span><br><span class="line">      gestures: _contentGestures,//手势在此</span><br><span class="line">      child: Stack(</span><br><span class="line">        children: &lt;Widget&gt;[</span><br><span class="line">          Positioned(</span><br><span class="line">              top: _offsetY,</span><br><span class="line">              bottom: -_offsetY,</span><br><span class="line">              left: 0,</span><br><span class="line">              right: 0,</span><br><span class="line">              child: IgnorePointer(</span><br><span class="line">                ignoring: _opened,</span><br><span class="line">                child: widget.child,</span><br><span class="line">              )),</span><br><span class="line">          Positioned(</span><br><span class="line">              top: -widget.dragHeight + _offsetY,</span><br><span class="line">              bottom: null,</span><br><span class="line">              left: 0,</span><br><span class="line">              right: 0,</span><br><span class="line">              height: widget.dragHeight,</span><br><span class="line">              child: _headerWidget()),</span><br><span class="line">        ],</span><br><span class="line">      ));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>PullDragWidget</code>是下拉拖拽控件，根Widget是一个<code>RawGestureDetector</code>用来监听手势，其中<code>gestures</code>支持向下拖拽和点击两个手势；当下拉控件处于<code>_opened</code>状态说<code>header</code>已经拉下来，此时配合<code>IgnorePointer</code>，禁用子Widget所有的事件监听，自然内部的卡片就响应不了任何事件；</p>
+<h3 id="卡片控件手势"><a href="#卡片控件手势" class="headerlink" title="卡片控件手势"></a>卡片控件手势</h3><p>同下拉控件一样，卡片控件只需要监听其余三个方向的手势，即可完成任务：</p>
+<p><strong>CardStackWidget</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">_cardGestures = &#123;</span><br><span class="line">  DirectionGestureRecognizer://监听上左右三个方向</span><br><span class="line">      GestureRecognizerFactoryWithHandlers&lt;DirectionGestureRecognizer&gt;(</span><br><span class="line">          () =&gt; DirectionGestureRecognizer(DirectionGestureRecognizer.left |</span><br><span class="line">              DirectionGestureRecognizer.right |</span><br><span class="line">              DirectionGestureRecognizer.up), (instance) &#123;</span><br><span class="line">    instance.onDown = _onPanDown;</span><br><span class="line">    instance.onUpdate = _onPanUpdate;</span><br><span class="line">    instance.onEnd = _onPanEnd;</span><br><span class="line">  &#125;),</span><br><span class="line">  TapGestureRecognizer:</span><br><span class="line">      GestureRecognizerFactoryWithHandlers&lt;TapGestureRecognizer&gt;(</span><br><span class="line">          () =&gt; TapGestureRecognizer(), (instance) &#123;</span><br><span class="line">    instance.onTap = _onCardTap;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></p>
+<h3 id="手势答疑"><a href="#手势答疑" class="headerlink" title="手势答疑"></a>手势答疑</h3><ul>
+<li><p>为什么不用 <code>onPanDown</code>  <code>onPanUpdate</code> <code>onPanEnd</code> 来拖动？</p>
+<p>这是掘金评论提的问题，我解答一下：在<code>GestureDetector</code>中有<code>Pan</code>手势和<code>Drag</code>手势，这两个手势都能用处拖拽的场景，但不同的是<code>Drag</code>手势仅限于<code>水平</code>和<code>竖直</code>方向的监听，<code>Pan</code>手势不约束方向任意方向都能监听，除此之外触发条件也不一致，<code>Pan</code>手势的触发条件是滑动动屏幕的距离<code>distance</code>大于<code>kTouchSlop*2</code>，<code>Drag</code>手势的触发条件是<code>dx</code>或者<code>dy</code>大于<code>kTouchSlop</code>，<code>dx</code>、<code>dy</code>和<code>distance</code>形成勾股定理的三个边长；假设同样在监听竖直滑动这种场景，<code>VerticalDrag</code>总是比<code>Pan</code>先触发；如果下拉控件用<code>VerticalDrag</code>卡片控件用<code>Pan</code>，下拉控件会优先获取向上的拖拽，卡片控件就会失去向上拖拽的机会，这就实现不了交互了，退一步即使<code>Pan</code>的触发条件跟<code>VerticalDrag</code>一样，由于Flutter的事件传递是从内到外的，这会导致外层下拉控件完全失去响应机会。以上我的个人理解，如有误导还请大佬评论指正。</p>
+</li>
+</ul>
+<h3 id="手势小结"><a href="#手势小结" class="headerlink" title="手势小结"></a>手势小结</h3><p>分析Flutter手势冒泡的特性，父Widget既没有响应事件的优先权，也没有监听单独方向（<code>left</code>、<code>right</code> 、<code>up</code> 、<code>down</code>）的手势，只能自己想办法自定义<code>GestureRecognizer</code>，把原本<code>Vertical</code>和<code>Horizontal</code>两个方向的手势识别扩展成<code>left</code>、<code>right</code> 、<code>up</code> 、<code>down</code>四个方向，区分开会产生冲突的手势；</p>
+<p>当然也可能有其他的方案来实现该交互的手势识别，条条大路通罗马，我只是抛砖引玉，大家有好的方案可以积极留言提出宝贵意见；</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><p>由于篇幅有限并没有介绍完该交互的所有内容，深表遗憾，总结归纳一下代码中用到的知识点：</p>
+<ul>
+<li><code>Column</code>、<code>Row</code>、<code>Expanded</code>、<code>Stack</code>、<code>Positioned</code>、<code>Transform</code>等Widget的使用；</li>
+<li><code>GestureDetector</code>、<code>RawGestureDetector</code>、<code>IgnorePointer</code>等Widget的使用；</li>
+<li>自定义<code>GestureRecognizer</code>实现自定义手势识别；</li>
+<li><code>AnimationController</code>、<code>Tween</code>等动画的使用；</li>
+<li><code>EventBus</code>的使用；</li>
+</ul>
+<h2 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h2><p>上面章节主要介绍在当前场景下用Flutter布局和手势的实战技巧，其中更深层次手势竞技和分发的源码级分析，有机会再做深入学习和分享；</p>
+<p>另外本篇并不是循序渐进的零基础入门，对刚接触的同学可能感觉有点懵，但是没有关系，建议你<code>clone</code>一份代码跑起来效果，没准就能提起自己学习的兴趣；</p>
+<p><strong>最最后，本篇所有代码都是开源的，你的点赞是对我最大的鼓励。</strong></p>
+<h2 id="项目地址：https-github-com-HitenDev-FlutterDragCard"><a href="#项目地址：https-github-com-HitenDev-FlutterDragCard" class="headerlink" title="项目地址：https://github.com/HitenDev/FlutterDragCard"></a>项目地址：<a href="https://github.com/HitenDev/FlutterDragCard" target="_blank" rel="noopener">https://github.com/HitenDev/FlutterDragCard</a></h2>
+    </article>
+    <!-- license  -->
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2019/03/18/一波Flutter酷炫特效来袭，持续更新/" title="一波Flutter酷炫特效来袭，持续更新">
+                    <div class="nextTitle">一波Flutter酷炫特效来袭，持续更新</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2019/01/21/Android硬件位图填坑之获取硬件画布/" title="Android硬件位图填坑之获取硬件画布">
+                    <div class="prevTitle">Android硬件位图填坑之获取硬件画布</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:zzdxit@gmail.com" class="iconfont-archer email" title="email"></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/HitenDev" class="iconfont-archer github" target="_blank" title="github"></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title="wechat">
+                  
+                  <img class="profile-qr" src="/assets/example_qr.png">
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            
+                <a href="https://juejin.im/user/595a16125188250d944c6997" class="iconfont-archer juejin" target="_blank" title="juejin"></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#先睹为快"><span class="toc-number">1.</span> <span class="toc-text">先睹为快</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#交互分析"><span class="toc-number">2.</span> <span class="toc-text">交互分析</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#码上入手"><span class="toc-number">3.</span> <span class="toc-text">码上入手</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#热身"><span class="toc-number">3.1.</span> <span class="toc-text">热身</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#布局摆放"><span class="toc-number">3.2.</span> <span class="toc-text">布局摆放</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#下拉控件"><span class="toc-number">3.2.1.</span> <span class="toc-text">下拉控件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#卡片控件"><span class="toc-number">3.2.2.</span> <span class="toc-text">卡片控件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#手势识别"><span class="toc-number">3.3.</span> <span class="toc-text">手势识别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#手势分析"><span class="toc-number">3.3.1.</span> <span class="toc-text">手势分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#自定义DragGestureRecognizer"><span class="toc-number">3.3.2.</span> <span class="toc-text">自定义DragGestureRecognizer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#下拉控件手势"><span class="toc-number">3.3.3.</span> <span class="toc-text">下拉控件手势</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#卡片控件手势"><span class="toc-number">3.3.4.</span> <span class="toc-text">卡片控件手势</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#手势答疑"><span class="toc-number">3.3.5.</span> <span class="toc-text">手势答疑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#手势小结"><span class="toc-number">3.3.6.</span> <span class="toc-text">手势小结</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结"><span class="toc-number">4.</span> <span class="toc-text">总结</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#知识点"><span class="toc-number">4.1.</span> <span class="toc-text">知识点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#最后"><span class="toc-number">4.2.</span> <span class="toc-text">最后</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#项目地址：https-github-com-HitenDev-FlutterDragCard"><span class="toc-number">4.3.</span> <span class="toc-text">项目地址：https://github.com/HitenDev/FlutterDragCard</span></a></li></ol></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 30
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/18</span><a class="archive-post-title" href="/2019/03/18/一波Flutter酷炫特效来袭，持续更新/">一波Flutter酷炫特效来袭，持续更新</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/16</span><a class="archive-post-title" href="/2019/03/16/Flutter交互实战－即刻App探索页下拉＆拖拽效果/">Flutter交互实战－即刻App探索页下拉＆拖拽效果</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/21</span><a class="archive-post-title" href="/2019/01/21/Android硬件位图填坑之获取硬件画布/">Android硬件位图填坑之获取硬件画布</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span><a class="archive-post-title" href="/2019/01/15/Glide4-8源码拆解（五）BitmapPool从入门到放弃/">Glide4.8源码拆解（五）BitmapPool从入门到放弃</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href="/2019/01/13/Glide4-8源码拆解（四）Bitmap解析之下采样浅析/">Glide4.8源码拆解（四）Bitmap解析之下采样浅析</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span><a class="archive-post-title" href="/2019/01/09/Glide4-8源码拆解（三）Registry和数据转换流程/">Glide4.8源码拆解（三）Registry和数据转换流程</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/04</span><a class="archive-post-title" href="/2019/01/04/Glide4-8源码拆解（二）核心加载流程/">Glide4.8源码拆解（二）核心加载流程</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/03</span><a class="archive-post-title" href="/2019/01/03/Glide4-8源码拆解（一）基本调用流程/">Glide4.8源码拆解（一）基本调用流程</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/30</span><a class="archive-post-title" href="/2018/03/30/WindowManager调用流程源码分析/">WindowManager调用流程源码分析</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/29</span><a class="archive-post-title" href="/2018/03/29/Activity启动流程源码分析/">Activity启动流程源码分析</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2017 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/14</span><a class="archive-post-title" href="/2017/04/14/Android-Gradle-搞定Groovy闭包这一篇就够了/">[Android Gradle] 搞定Groovy闭包这一篇就够了</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span><a class="archive-post-title" href="/2017/01/17/Git分支管理策略浅识/">Git分支管理策略浅识</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2016 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/02</span><a class="archive-post-title" href="/2016/12/02/自定义头部悬停的下拉刷新控件/">自定义头部悬停的下拉刷新控件</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span><a class="archive-post-title" href="/2016/12/01/你是否留意过“位运算”/"><基础>你是否留意过“位运算”</基础></a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/28</span><a class="archive-post-title" href="/2016/11/28/解惑requestDisallowInterceptTouchEvent/">解惑requestDisallowInterceptTouchEvent</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/25</span><a class="archive-post-title" href="/2016/11/25/Kotlin转Java记录/">Kotlin转Java记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/24</span><a class="archive-post-title" href="/2016/11/24/初探Android6-0权限库PermissionsDispatcher/">初探Android6.0权限库PermissionsDispatcher</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span><a class="archive-post-title" href="/2016/08/05/由CSDN博主猝死引发的思考/">由CSDN博主猝死引发的思考</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/01</span><a class="archive-post-title" href="/2016/08/01/retrofit源码解析1-md/">retrofit2.0源码解析（一）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/31</span><a class="archive-post-title" href="/2016/07/31/回顾反省与计划/"><总结> 回顾、反省与计划</总结></a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/26</span><a class="archive-post-title" href="/2016/07/26/项目重构总结-架构设计/">项目重构总结-架构版</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/25</span><a class="archive-post-title" href="/2016/07/25/从反射分析HashMap存储原理/">从反射分析HashMap存储原理</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/27</span><a class="archive-post-title" href="/2016/06/27/初探AOP在Android中的使用/">初探AOP在Android中的使用</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/20</span><a class="archive-post-title" href="/2016/05/20/解读官方MVP架构/">解读官方MVP架构</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/14</span><a class="archive-post-title" href="/2016/05/14/Android6-0权限检测总结/">Android6.0运行时权限总结</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/22</span><a class="archive-post-title" href="/2016/04/22/我为什么使用RxJava/">我为什么要使用RxJava</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2015 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/22</span><a class="archive-post-title" href="/2015/12/22/Android中简单实现比例布局/">Android中简单实现比例布局</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/11</span><a class="archive-post-title" href="/2015/10/11/解决ListView footView不能完全隐藏/">解决ListView FootView不能完全隐藏</a>
+        </li>
+    
+    </ul></div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="Android"><span class="iconfont-archer">&#xe606;</span>Android</span>
+    
+        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
+    
+        <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
+    
+        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
+    
+        <span class="sidebar-tag-name" data-tags="Bitmap"><span class="iconfont-archer">&#xe606;</span>Bitmap</span>
+    
+        <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
+    
+        <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
+    
+        <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
+    
+        <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
+    
+        <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
+    
+        <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
+    
+        <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
+    
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
+    
+        <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
+    
+        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
+    
+        <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
+    
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
+    
+        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
+    
+        <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
+    
+        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
+    
+        <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
+    
+        <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br>
+    1、请确保node版本大于6.2<br>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "lilei"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+

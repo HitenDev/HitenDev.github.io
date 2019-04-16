@@ -22,7 +22,7 @@
     <meta name="description" content="">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Hiten&#39;s Blog.</title>
+    <title>一波Flutter酷炫特效来袭，持续更新 · Hiten&#39;s Blog.</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -203,12 +203,23 @@
 </head>
 
     
+        <body class="post-body">
+    
     
 <header class="header">
 
     <div class="read-progress"></div>
     <div class="header-sidebar-menu">&#xe775;</div>
     <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/">Hiten&#39;s Blog.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">一波Flutter酷炫特效来袭，持续更新</a>
+            </div>
+    </div>
     
     <a class="home-link" href="/">Hiten's Blog.</a>
 </header>
@@ -220,24 +231,68 @@
 
 
 
+
+height:50vh;
 ">
     
     <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
             
     <div class="site-intro-placeholder"></div>
-    <div class="site-intro-img" style="background-image: url(/)"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
+            
+            一波Flutter酷炫特效来袭，持续更新
+            <!-- 404 -->
             
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
+            
+            <!-- 404 -->
+            
         </p>
         <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">1.1k</span>阅读时长: <span class="post-count reading-time">4 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/03/18</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
         
     </div>
 </div>
@@ -338,345 +393,125 @@
 </script>        
         <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
         <div class="container container-unloaded">
-            <main class="main index-page">
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/08/01/retrofit源码解析1-md/">
-            
-                <span>retrofit2.0源码解析（一）</span>
-        </a>
-        <div class="abstract-content">
-            <p>题外话</p>
-<p><em>第一次听说retrofit框架，还是同窗hanks推荐，SOHO的大字依旧发着光，hanks早已不在望京上班，<a href="https://github.com/hanks-zyh" target="_blank" rel="noopener">hanks的github</a></em></p>
-<blockquote>
-<p>Retrofit，一个类型安全的http客户端，适用于Android和Java</p>
-</blockquote>
-<p>分析源码之前，首先在github上download<a href="https://github.com/square/retrofit" target="_blank" rel="noopener">源码</a>，用IDEA打开编译。<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/08/01</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="源码解析">源码解析</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/07/31/回顾反省与计划/">
-            
-                <span>&lt;总结&gt; 回顾、反省与计划</span>
-        </a>
-        <div class="abstract-content">
-            <blockquote>
-<p><em>这个七月，全国多地都下暴雨，伴随灾情不断，我不忍看新闻报道，愿一切安好！</em></p>
-</blockquote>
-<h2 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h2><p>很久很久没在CSDN写博客了，或者说几乎没怎么写，这一停，就是一年半，这一年半里经历了深圳三月行，北京找工作，996工作制，封闭式开发，直到昨晚我打算提出离职，我才想起来回顾这一切。</p>
-<p>这一年半里，我所在的两家公司都是小的创业公司，今年创业公司死了好多，能活下来的都是英雄，庆幸这两家公司都活的很好。作为技术人，我冒昧的来谈谈在小公司的好与坏：<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/07/31</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="总结">总结</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/07/26/项目重构总结-架构设计/">
-            
-                <span>项目重构总结-架构版</span>
-        </a>
-        <div class="abstract-content">
-            <p>题外话：去年十二月份进行封闭式开发，我就打算对代码进行重构，重构的原因是代码层次不清晰，<br>Activity职责太多，Activity不仅要获取接口数据，还要对接口数据进行缓存，代码中充斥中各种数据状态判断以及层层回调，<br>更重要的是这样写不便于单独修改某一个接口实现，也不便于测试，更不便于mock数据，mock数据不依赖于接口返回，能自测很多状态切换逻辑，是多么重要。</p>
-<p>我想要的效果：</p>
+            <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>实现UI和交互是大前端开发者的必备技能，也是掌握Flutter开发的重点；在下学习Flutter之际，实现了几种客户端上常见的酷炫UI特效，虽说是用Flutter造原生的轮子，但Flutter跨平台的特性是原生不能比拟的，更何况还有不弱的性能表现。本文主要是介绍Flutter特效库<a href="https://github.com/HitenDev/flutter_effects" target="_blank" rel="noopener">flutter_effects</a>的基本情况和使用；</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/3/18/1698f036b32ea205?w=750&amp;h=400&amp;f=png&amp;s=30840" alt=""></p>
+<h1 id="项目介绍"><a href="#项目介绍" class="headerlink" title="项目介绍"></a>项目介绍</h1><p> <a href="https://github.com/HitenDev/flutter_effects" target="_blank" rel="noopener">flutter_effects</a>：是多个Flutter package工程组成，目标是用纯Flutter来实现炫酷的UI特效，支持<code>android</code>和<code>ios</code>运行；目前项目刚处于起步阶段，欢迎大家提出建议和问题反馈，如果你有好的想法，欢迎提出需求或者一起参与进来；</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/3/18/1698ebcfb1181d1d?w=270&h=480&"></p>
+<h2 id="已经实现的功能："><a href="#已经实现的功能：" class="headerlink" title="已经实现的功能："></a>已经实现的功能：</h2><table>
+<thead>
+<tr>
+<th style="text-align:center">类型</th>
+<th style="text-align:center">支持子widget</th>
+<th style="text-align:center">备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">差字缩放</td>
+<td style="text-align:center">文本</td>
+<td style="text-align:center">仅支持字符，不支持富文本</td>
+</tr>
+<tr>
+<td style="text-align:center">边界线条</td>
+<td style="text-align:center">所有</td>
+<td style="text-align:center">-</td>
+</tr>
+<tr>
+<td style="text-align:center">彩虹字体</td>
+<td style="text-align:center">文本</td>
+<td style="text-align:center">当前仅支持文本，富文本待定</td>
+</tr>
+<tr>
+<td style="text-align:center">粒子爆炸</td>
+<td style="text-align:center">所有</td>
+<td style="text-align:center">支持所有widget，包括图片</td>
+</tr>
+<tr>
+<td style="text-align:center">狠狠砸地</td>
+<td style="text-align:center">所有</td>
+<td style="text-align:center">-</td>
+</tr>
+<tr>
+<td style="text-align:center">刮刮卡</td>
+<td style="text-align:center">所有</td>
+<td style="text-align:center">前景需要用canvas绘制</td>
+</tr>
+<tr>
+<td style="text-align:center">更多功能</td>
+<td style="text-align:center">-</td>
+<td style="text-align:center">开发中。。。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="使用介绍"><a href="#使用介绍" class="headerlink" title="使用介绍"></a>使用介绍</h2><h3 id="差字缩放"><a href="#差字缩放" class="headerlink" title="差字缩放"></a>差字缩放</h3><p><img src="https://user-gold-cdn.xitu.io/2019/3/18/1698e67cde670bef?w=668&h=194&f=gif&s=189979"></p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> initState() &#123;</span><br><span class="line">  <span class="keyword">super</span>.initState();</span><br><span class="line">  sentences = [</span><br><span class="line">    <span class="string">"What is design?"</span>,</span><br><span class="line">    <span class="string">"Design is not just"</span>,</span><br><span class="line">    <span class="string">"what it looks like and feels like."</span>,</span><br><span class="line">    <span class="string">"Design is how it works. \n- Steve Jobs"</span>,</span><br><span class="line">    <span class="string">"Older people"</span>,</span><br><span class="line">    <span class="string">"sit down and ask,"</span>,</span><br><span class="line">    <span class="string">"'What is it?'"</span>,</span><br><span class="line">    <span class="string">"but the boy asks,"</span>,</span><br><span class="line">    <span class="string">"What can I do with it?. \n- Steve Jobs"</span>,</span><br><span class="line">    <span class="string">"Swift"</span>,</span><br><span class="line">    <span class="string">"Objective-C"</span>,</span><br><span class="line">    <span class="string">"iPhone"</span>,</span><br><span class="line">    <span class="string">"iPad"</span>,</span><br><span class="line">    <span class="string">"Mac Mini"</span>,</span><br><span class="line">    <span class="string">"MacBook Pro"</span>,</span><br><span class="line">    <span class="string">"Mac Pro"</span>,</span><br><span class="line">    <span class="string">"爱老婆"</span>,</span><br><span class="line">    <span class="string">"老婆和女儿"</span></span><br><span class="line">  ];</span><br><span class="line">&#125;</span><br><span class="line">DiffScaleText(</span><br><span class="line">  text: sentences[diffScaleNext % sentences.length],</span><br><span class="line">  textStyle: TextStyle(fontSize: <span class="number">20</span>, color: Colors.blue),</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><code>DiffScaleText</code>暂时只支持<code>中英文字符</code>，不支持<code>表情和富文本</code>； 参数<code>text</code>控制显示文本，更新下一个只需要改变<code>text</code>然后rebuild即可，不需要手动保存历史<code>text</code>；</p>
+<h3 id="边界线条"><a href="#边界线条" class="headerlink" title="边界线条"></a>边界线条</h3><p><img src="https://user-gold-cdn.xitu.io/2019/3/18/1698e67cde983f2b?w=700&h=220&f=gif&s=145901"> </p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">LineBorderText(</span><br><span class="line">    child: Text(</span><br><span class="line">      <span class="string">"Border Effect"</span>,</span><br><span class="line">      style: TextStyle(fontSize: <span class="number">20</span>),</span><br><span class="line">    ),</span><br><span class="line">    autoAnim: <span class="keyword">true</span>)</span><br></pre></td></tr></table></figure>
+<p><code>LineBorderText</code>支持任意widget作为child，参数<code>autoAnim</code>控制创建时是否自动执行一遍动画；</p>
+<h3 id="彩虹字体"><a href="#彩虹字体" class="headerlink" title="彩虹字体"></a>彩虹字体</h3><p><img src="https://user-gold-cdn.xitu.io/2019/3/18/1698e67cdeb652d8?w=650&h=194&f=gif&s=227053"></p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">RainbowText(colors: [</span><br><span class="line">  Color(<span class="number">0xFFFF2B22</span>),</span><br><span class="line">  Color(<span class="number">0xFFFF7F22</span>),</span><br><span class="line">  Color(<span class="number">0xFFEDFF22</span>),</span><br><span class="line">  Color(<span class="number">0xFF22FF22</span>),</span><br><span class="line">  Color(<span class="number">0xFF22F4FF</span>),</span><br><span class="line">  Color(<span class="number">0xFF5400F7</span>),</span><br><span class="line">], text: <span class="string">"Welcome to BBT"</span>, loop: <span class="keyword">true</span>)</span><br></pre></td></tr></table></figure>
+<p><code>RainbowText</code>暂时支持<code>文字</code>的颜色变换，参数<code>loop</code>控制是否循环执行动画；</p>
+<h3 id="粒子爆炸"><a href="#粒子爆炸" class="headerlink" title="粒子爆炸"></a>粒子爆炸</h3><p><img src="https://user-gold-cdn.xitu.io/2019/3/18/1698e67cdecdf548?w=698&h=232&f=gif&s=356657"></p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">ExplosionWidget(</span><br><span class="line">    tag: <span class="string">"Explosion Text"</span>,</span><br><span class="line">    child: Container(</span><br><span class="line">        alignment: Alignment.center,</span><br><span class="line">        color: Colors.blueAccent,</span><br><span class="line">        child: Text(</span><br><span class="line">          <span class="string">"Explosion Text"</span>,</span><br><span class="line">          style: TextStyle(</span><br><span class="line">              fontSize: <span class="number">20</span>,</span><br><span class="line">              color: Colors.red,</span><br><span class="line">              fontWeight: FontWeight.bold),</span><br><span class="line">        )))</span><br></pre></td></tr></table></figure>
+<p><code>ExplosionWidget</code>支持任意类型的widget作为child，注意参数<code>tag</code>表示<code>child</code>的唯一性，如果改变了<code>child</code>一定要改变<code>tag</code>，否则rebuild不会执行爆炸效果；</p>
+<h3 id="狠狠砸地"><a href="#狠狠砸地" class="headerlink" title="狠狠砸地"></a>狠狠砸地</h3><p> <img src="https://user-gold-cdn.xitu.io/2019/3/18/1698e67cded8477a?w=670&h=190&f=gif&s=236187"> </p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">AnvilEffectWidget(child: Text(</span><br><span class="line">  <span class="string">"👉AnvilEffect👈"</span>,</span><br><span class="line">  style: TextStyle(color: Colors.white, fontSize: <span class="number">20</span>),</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><code>AnvilEffectWidget</code>支持任意类型的widget作为child;</p>
+<h3 id="刮刮卡"><a href="#刮刮卡" class="headerlink" title="刮刮卡"></a>刮刮卡</h3><p><img src="https://user-gold-cdn.xitu.io/2019/3/18/1698e67cdedda4cc?w=692&h=216&f=gif&s=380583"> </p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">ScratchCardWidget(</span><br><span class="line">    strokeWidth: <span class="number">20</span>,</span><br><span class="line">    threshold: <span class="number">0.5</span>,</span><br><span class="line">    foreground: (canvas, size, offset) &#123;</span><br><span class="line">      <span class="keyword">if</span> (_image != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="built_in">double</span> scale;</span><br><span class="line">        <span class="built_in">double</span> dx = <span class="number">0</span>;</span><br><span class="line">        <span class="built_in">double</span> dy = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">if</span> (_image.width * size.height &gt;</span><br><span class="line">            size.width * _image.height) &#123;</span><br><span class="line">          scale = size.height / _image.height;</span><br><span class="line">          dx = (size.width - _image.width * scale) / <span class="number">2</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          scale = size.width / _image.width;</span><br><span class="line">          dy = (size.height - _image.height * scale) / <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        canvas.save();</span><br><span class="line">        canvas.translate(dx, dy);</span><br><span class="line">        canvas.scale(scale, scale);</span><br><span class="line">        canvas.drawImage(_image, Offset(<span class="number">0</span>, <span class="number">0</span>), <span class="keyword">new</span> Paint());</span><br><span class="line">        canvas.restore();</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        canvas.drawRect(</span><br><span class="line">            Rect.fromLTWH(<span class="number">0</span>, <span class="number">0</span>, size.width, size.height),</span><br><span class="line">            Paint()</span><br><span class="line">              ..color = Colors.grey);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    child: Container(</span><br><span class="line">      color: Colors.blueAccent,</span><br><span class="line">      alignment: Alignment.center,</span><br><span class="line">      child: Image.asset(</span><br><span class="line">        <span class="string">"assets/images/icon_sm_sigin_status_three.png"</span>,</span><br><span class="line">        fit: BoxFit.scaleDown, height: <span class="number">20</span>,),</span><br><span class="line">    ))</span><br></pre></td></tr></table></figure>
+<p><code>ScratchCardWidget</code>参数较多，一个一个看：</p>
 <ul>
-<li>数据调用者（Activity或Fragment）不需要知道数据来自网络还是缓存，直接拿到解析好的Entity使用即可，但调用者能强制获取网络数据</li>
-<li>不同的接口可以使用不同的缓存方案，比如文件或者数据库</li>
-<li>不动调用者代码，能mock数据，每层之间便于测试</li>
-<li>层与层之间面向接口，低耦合</li>
+<li><code>strokeWidth</code>  : 手触的宽度；</li>
+<li><code>threshold</code> :  触发清除前景覆盖物的临界值，代码逻辑是计算全透明像素的比例；</li>
+<li><code>foreground</code> : 这个是Function类型，目的是绘制前景覆盖物，也就是刮刮卡的涂层；</li>
+<li><code>child</code> : 这个是刮刮卡的内容，支持任意widget作为child;</li>
+<li><code>(canvas, size, offset){}</code>： <code>foreground</code>对应的<code>Function</code>类型，支持用<code>canvas</code>绘制前景涂层；</li>
 </ul>
-<p>站在巨人的肩膀上</p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/07/26</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Java">Java</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="架构">架构</a>
-    
-</div>
-            
-        </div>
+<h3 id="更多效果会持续更新，请关注flutter-effects；"><a href="#更多效果会持续更新，请关注flutter-effects；" class="headerlink" title="更多效果会持续更新，请关注flutter_effects；"></a>更多效果会持续更新，请关注<a href="https://github.com/HitenDev/flutter_effects" target="_blank" rel="noopener">flutter_effects</a>；</h3><h2 id="下一步计划"><a href="#下一步计划" class="headerlink" title="下一步计划"></a>下一步计划</h2><ul>
+<li><code>优化现有功能</code>：<br>当前功能我用一周的业余时间赶出来的，难免有不当之处，事不在多而在于精，优化性能和api调用可能是比较重要的;</li>
+<li><code>提交到dart pub</code>：提交到pub肯定是便于使用的，在此之前还要对模块进行新的划分，可能要拆分成多个包提交；</li>
+<li><code>事件的引入</code>：当前用rebuild的形式触发动画不算是巧妙的方式；</li>
+<li><code>引入更多功能</code>：有好的效果，我愿一试；</li>
+</ul>
+<h1 id="致谢："><a href="#致谢：" class="headerlink" title="致谢："></a>致谢：</h1><p>本项目实施过程中，部分灵感来自<code>原生代码实现</code>：</p>
+<p>Android粒子爆炸效果：<a href="https://github.com/tyrantgit/ExplosionField" target="_blank" rel="noopener">https://github.com/tyrantgit/ExplosionField</a></p>
+<p>Android酷炫TextView：<a href="https://github.com/hanks-zyh/HTextView" target="_blank" rel="noopener">https://github.com/hanks-zyh/HTextView</a></p>
+<p>感谢上述项目作者<code>hanks</code>和<code>tyrantgit</code>，致谢！</p>
+
     </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/07/25/从反射分析HashMap存储原理/">
-            
-                <span>从反射分析HashMap存储原理</span>
-        </a>
-        <div class="abstract-content">
-            <p>最近发现一篇讲解HashMap的帖子，我开始回顾了尘埃很久的java基础知识，涉及HashMap相关，我可能会说HashMap相当于IOS里的字典，存取键值的，接受null类型的键值，线程不安全的，HashMap是根据key的hashCode存取，底层是Hash表实现，再往下问，比如两个key的hashCode相等怎么办，hashCode如何对应到bucket位置的，bucketIndex一样怎么存取，好像说不下去了，说实在的自己从来没有真正去理解HashMap源码，顿时觉得自己好菜比，于是赶紧看源码，脑补一下自己的无知。</p>
-<p>来一张图</p>
-<p><img src="http://www.myexception.cn/img/2013/01/25/1341191279.png" alt=""></p>
-<p>一言以蔽之，HashMap底层是一个自动扩容数组，数组的每一项的一个单向链表。</p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/07/25</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Java">Java</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="反射">反射</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/06/27/初探AOP在Android中的使用/">
-            
-                <span>初探AOP在Android中的使用</span>
-        </a>
-        <div class="abstract-content">
-            <p>前些时间在学习Spring时看到AOP，即面向切面编程，这个概念很新鲜，感觉用起来特别牛逼，无奈我是相见恨晚啊，在网上搜一下关于Android AOP的可行方案，大约有两种，一个是阿里的开源项目<a href="https://github.com/alibaba/dexposed" target="_blank" rel="noopener">Dexposed</a>,另一个是<a href="http://www.eclipse.org/aspectj" target="_blank" rel="noopener">AspectJ</a>，在我拜读了看见了邓凡平老师的<a href="http://blog.csdn.net/innost/article/details/49387395" target="_blank" rel="noopener">深入理解Android之AOP</a>后，觉得用AspectJ<br>比较符合Java的本质吧，这个纯属自己的观点，哈哈哈！</p>
-<h2 id="如何集成"><a href="#如何集成" class="headerlink" title="如何集成"></a>如何集成</h2><p>AspectJ的使用核心就是它的编译器，它就做了一件事，将AspectJ的代码在编译期插入目标程序当中，运行时跟在其它地方没什么两样，因此要使用它最关键的就是使用它的编译器去编译代码ajc。ajc会构建目标程序与AspectJ代码的联系，在编译期将AspectJ代码插入被切出的PointCut中，已达到AOP的目的。因此，无论在什么IDE上（如果使用命令行就可以直接使用ajc编译了），问题就是让IDE使用ajc作为编译器编译代码。<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/06/27</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="AOP">AOP</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/05/20/解读官方MVP架构/">
-            
-                <span>解读官方MVP架构</span>
-        </a>
-        <div class="abstract-content">
-            <p>在Android应用开发中采用MVC好还是MVP好的话题，一直都争议不断，现在Android官方也来凑热闹了，官方出了个开源项目，来描绘一幅架构蓝图，该项目主要包括mvp，mvvm，clean架构，其中不乏Dagger2，rxjava等主流框架，项目中使用不同的架构来实现同一个Todo App，<a href="https://github.com/googlesamples/android-architecture" target="_blank" rel="noopener">项目地址：https://github.com/googlesamples/android-architecture</a></p>
-<p>今天先来看看MVP在Todo项目中的使用，<a href="https://github.com/googlesamples/android-architecture/tree/todo-mvp" target="_blank" rel="noopener">项目地址：https://github.com/googlesamples/android-architecture/tree/todo-mvp</a><br>clone工程，编译运行效果：</p>
-<p><img src="http://ww2.sinaimg.cn/large/a4cde5d8jw1f68dcjvltzj20a40fzweo.jpg" alt=""></p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/05/20</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="架构">架构</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/05/14/Android6-0权限检测总结/">
-            
-                <span>Android6.0运行时权限总结</span>
-        </a>
-        <div class="abstract-content">
-            <blockquote>
-<p>Beginning in Android 6.0 (API level 23), users grant permissions to apps while the app is running, not when they install the app. This approach streamlines the app install process, since the user does not need to grant permissions when they install or update the app. It also gives the user more control over the app’s functionality   </p>
-</blockquote>
-<p>上面是引用google官方文档的一段话，google将权限分为两类，一类是一般权限，一类是危险权限<br>一般权限有哪些，参加官方文档<a href="https://developer.android.com/guide/topics/security/normal-permissions.html" target="_blank" rel="noopener">https://developer.android.com/guide/topics/security/normal-permissions.html</a><br>这些是一般的权限，看看那些是你认识的</p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/05/14</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="6">6</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/04/22/我为什么使用RxJava/">
-            
-                <span>我为什么要使用RxJava</span>
-        </a>
-        <div class="abstract-content">
-            <p>接触RxJava半年左右，刚开始我一直在怀疑RxJava在Android中能做什么，上手不易，到处都是Observable让我觉得不习惯，但是研究明白了，就会被他的强大所折服。</p>
-<p>这篇博客是我在项目中对RxJava的切实体会，不是RxJava基础知识讲解，RxJava一步一步讲解，可以看Hi大头鬼的博客。<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/04/22</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="RxJava">RxJava</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2015/12/22/Android中简单实现比例布局/">
-            
-                <span>Android中简单实现比例布局</span>
-        </a>
-        <div class="abstract-content">
-            <p>前些时候阅读过google的iosched项目，发现有个自定义布局类：AspectRatioFrameLayout，这个类的代码很简单，却很有用，<br>就是实现一个高度跟宽度成比例的布局，我觉得在很多实际开发中，都会涉及到这个内容；关于这个保持宽高比的问题，我问了好几个人，<br>甚至在面试别人的时候也问到过，结果是很多人说没有考虑过这个问题，<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2015/12/22</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2015/10/11/解决ListView footView不能完全隐藏/">
-            
-                <span>解决ListView FootView不能完全隐藏</span>
-        </a>
-        <div class="abstract-content">
-            <p>写过Android ListView加载更多功能的朋友可能都知道，我们经常会写一个footView，<br>通过设置ListView的addFootView方法增加尾布局，在列表滑动到底部的时候，触发footViw显示，<br>当没有更多数据的时候，会把footView隐藏。<br>但是在设置footView为gone时，虽然内容隐藏了，但是这块布局还在占着，像是设置成inVisible一样，我总结网上的解决方法，<br>有两种一般性解决方案：<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2015/10/11</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-</div>
-            
-        </div>
-    </article>
+    <!-- license  -->
     
     <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2019/03/16/Flutter交互实战－即刻App探索页下拉＆拖拽效果/" title="Flutter交互实战－即刻App探索页下拉＆拖拽效果">
+                    <div class="prevTitle">Flutter交互实战－即刻App探索页下拉＆拖拽效果</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
     
-    <nav class="page-nav">
-        <a class="extend prev" rel="prev" href="/archives/page/2/">&#60; PREV</a><a class="page-number" href="/archives/">1</a><a class="page-number" href="/archives/page/2/">2</a><span class="page-number current">3</span>
-    </nav>
     
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
 </main>
             <!-- profile -->
             
@@ -765,6 +600,24 @@
 </footer>
     </div>
     <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#项目介绍"><span class="toc-number">2.</span> <span class="toc-text">项目介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#已经实现的功能："><span class="toc-number">2.1.</span> <span class="toc-text">已经实现的功能：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#使用介绍"><span class="toc-number">2.2.</span> <span class="toc-text">使用介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#差字缩放"><span class="toc-number">2.2.1.</span> <span class="toc-text">差字缩放</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#边界线条"><span class="toc-number">2.2.2.</span> <span class="toc-text">边界线条</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#彩虹字体"><span class="toc-number">2.2.3.</span> <span class="toc-text">彩虹字体</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#粒子爆炸"><span class="toc-number">2.2.4.</span> <span class="toc-text">粒子爆炸</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#狠狠砸地"><span class="toc-number">2.2.5.</span> <span class="toc-text">狠狠砸地</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#刮刮卡"><span class="toc-number">2.2.6.</span> <span class="toc-text">刮刮卡</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#更多效果会持续更新，请关注flutter-effects；"><span class="toc-number">2.2.7.</span> <span class="toc-text">更多效果会持续更新，请关注flutter_effects；</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#下一步计划"><span class="toc-number">2.3.</span> <span class="toc-text">下一步计划</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#致谢："><span class="toc-number">3.</span> <span class="toc-text">致谢：</span></a></li></ol>
+    </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
     <div class="sidebar sidebar-hide">
@@ -1520,6 +1373,8 @@ jsonContent:
     
     </div>
     <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
      
     </body>
 </html>
