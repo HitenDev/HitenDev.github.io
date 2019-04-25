@@ -357,6 +357,48 @@ height:50vh;
     
     
     <article class="index-post">
+        <a class="abstract-title" href="/2018/03/29/Activity启动流程源码分析/">
+            
+                <span>Activity启动流程源码分析</span>
+        </a>
+        <div class="abstract-content">
+            <p>最近我开始学习framework，不想一上来就研究到c/c++层进程启动原理什么的，首先得从四大组件的启动流程入手学习，所以我决定写几篇博文，来记录整个过程的学习心得。</p>
+<p>关于Activity的启动流程，我准备分成两个部分来写：app进程篇和system进程篇，作为一个应用层开发者，其实掌握前者已经够用了，第二篇作为提高，毕竟多了解一点也没有坏处，就这样吧。</p>
+<p><img src="https://user-gold-cdn.xitu.io/2018/3/29/162704f411b88c60?w=634&amp;h=357&amp;f=jpeg&amp;s=21338" alt=""></p>
+<blockquote>
+<p>本文主要基于<code>android8.1.0_r15</code>代码分支调试分析；</p>
+</blockquote>
+<p> <strong>需要掌握的知识：</strong></p>
+<ul>
+<li>Activity生命周期</li>
+<li>AIDL原理</li>
+<li>Handler机制</li>
+</ul>
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/03/29</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class="abstract-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="源码分析">源码分析</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href="/2017/04/14/Android-Gradle-搞定Groovy闭包这一篇就够了/">
             
                 <span>[Android Gradle] 搞定Groovy闭包这一篇就够了</span>
@@ -661,39 +703,10 @@ height:50vh;
         </div>
     </article>
     
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/08/05/由CSDN博主猝死引发的思考/">
-            
-                <span>由CSDN博主猝死引发的思考</span>
-        </a>
-        <div class="abstract-content">
-            <p>　　今天看到一个不幸的新闻，CSDN博主、年仅26岁的音视频专家雷霄骅或因过度劳累猝死，我感到非常伤心，本是风华正茂的年龄，就这样没了，他的家人该多么伤心，他的才华也化作一缕青烟，他留给我们的只是一篇篇用心血书写的博客。我特意翻看了他的博客，三百多篇原创干货，音视频专家，这些成就是大多数码农可望不可即的。</p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/08/05</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="生活思考">生活思考</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
     <!-- paginator  -->
     
     <nav class="page-nav">
-        <a class="extend prev" rel="prev" href="/">&#60; PREV</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/">NEXT &#62;</a>
+        <a class="extend prev" rel="prev" href="/">&#60; PREV</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/3/">NEXT &#62;</a>
     </nav>
     
 </main>
@@ -1311,10 +1324,9 @@ height:50vh;
     
     
     
-    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 30
+        Total : 31
         </div>
         <!-- search  -->
         
@@ -1327,6 +1339,11 @@ height:50vh;
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span><a class="archive-post-title" href="/2019/04/24/SnapHelper硬核讲解/">SnapHelper硬核讲解</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -1442,12 +1459,12 @@ height:50vh;
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
         </li>
     
     
@@ -1521,11 +1538,9 @@ height:50vh;
     
         <span class="sidebar-tag-name" data-tags="Android"><span class="iconfont-archer">&#xe606;</span>Android</span>
     
-        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
-    
-        <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
-    
         <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
+    
+        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
     
         <span class="sidebar-tag-name" data-tags="Bitmap"><span class="iconfont-archer">&#xe606;</span>Bitmap</span>
     
@@ -1543,25 +1558,27 @@ height:50vh;
     
         <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
     
-        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
+        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
+    
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
     
         <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
     
-        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
     
         <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
-    
-        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
     
         <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
     
         <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
     
-        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
-    
         <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
     
+        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
+    
         <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
+    
+        <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>

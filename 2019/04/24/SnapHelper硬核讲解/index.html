@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="lilei">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="lilei">
+    
+    <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>SnapHelper硬核讲解 · Hiten&#39;s Blog.</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin="">
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin="">
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/">Hiten&#39;s Blog.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">SnapHelper硬核讲解</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href="/">Hiten's Blog.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            SnapHelper硬核讲解
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">4.8k</span>阅读时长: <span class="post-count reading-time">20 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/04/24</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这都9012年了，<code>SnapHelper</code>不是新鲜玩意，为啥我要拿出来解析？首先，Google已经放出 <a href="https://developer.android.google.cn/jetpack/androidx/releases/viewpager2" target="_blank" rel="noopener">Viewpager2</a> 测试版本，该方案计划用<code>RecyclerView</code>替换掉<code>ViewPager</code>；其次，我发现身边很多<code>Android同学</code>对<code>SnapHelper</code>了解并不深；所以，弄懂并熟练使用<code>SnapHelper</code>是必要的；我借着阅读<code>androidx</code>和<code>Viewpager2</code>源码的机会，跟大家仔细梳理一下<code>SnapHelper</code>的原理；</p>
+<h2 id="SnapHelper认识"><a href="#SnapHelper认识" class="headerlink" title="SnapHelper认识"></a>SnapHelper认识</h2><p>我忽然觉得有必要科普一下<code>SnapHelper</code>的基本情况，首先<code>SnapHelper</code>是附加于<code>RecyclerView</code>上面的一个辅助功能，它能让<code>RecyclerView</code>实现类似<code>ViewPager</code>等功能；如果没有<code>SnapHelper</code>，<code>RecyclerView</code>也能很好的使用；但一个普通的<code>RecyclerView</code>在滚动方面和<code>ListView</code>没有特殊的区别，都是给人一种直来直往的感觉，比如我想实现横向滚动左边的子View始终左对齐，或者我用力一滑，惯性滚动最大距离不能超过一屏，这些看似不属于<code>RecyclerView</code>的功能，有了<code>SnapHelper</code>就很好的解决；所以<code>SnapHelper</code>有它存在的价值，它不是<code>RecyclerView</code>核心功能的参与者，但有它就能锦上添花；<br><img src="https://user-gold-cdn.xitu.io/2019/4/23/16a49863eabf652c?w=800&amp;h=416&amp;f=jpeg&amp;s=135569" alt=""></p>
+<h1 id="RecyclerView滚动基础"><a href="#RecyclerView滚动基础" class="headerlink" title="RecyclerView滚动基础"></a>RecyclerView滚动基础</h1><p>在正式介绍<code>SnapHelper</code>之前，先了解一下滚动相关的基础知识点，我把RecyclerView的滚动分为<code>滚动状态</code>和<code>Fling</code>这两类，主要应对的是<code>OnScrollListener</code>和<code>OnFlingListener</code>这两个回调接口；</p>
+<h2 id="滚动状态监听"><a href="#滚动状态监听" class="headerlink" title="滚动状态监听"></a>滚动状态监听</h2><p>下<code>RecyclerVier</code>一共有三种描述滚动的状态：<code>SCROLL_STATE_IDLE</code>、<code>SCROLL_STATE_DRAGGING</code>、<code>SCROLL_STATE_SETTLING</code>，稍微注释一下:</p>
+<ul>
+<li><code>SCROLL_STATE_IDLE</code><ul>
+<li>滚动闲置状态，此时并没有手指滑动或者动画执行</li>
+</ul>
+</li>
+<li><code>SCROLL_STATE_DRAGGING</code><ul>
+<li>滚动拖拽状态，由于用户触摸屏幕产生</li>
+</ul>
+</li>
+<li><code>SCROLL_STATE_SETTLING</code><ul>
+<li>自动滚动状态，此时没有手指触摸，一般是由动画执行滚动到最终位置，包括smoothScrollTo等方法的调用</li>
+</ul>
+</li>
+</ul>
+<p>我们想监听状态的改变，调用<code>addOnScrollListener</code>方法，重写<code>OnScrollListener</code>的回调方法即可，注意<code>OnScrollListener</code>提供的回调数据并不如<code>ViewPager</code>那样详细，甚至是一种缺陷，这在<code>ViewPager2</code>中<code>ScrollEventAdapter</code>类有详细的适配方法，有兴趣的可以看看。</p>
+<p><strong><code>addOnScrollListener</code>方法是接下来分析<code>SnapHelper</code>的重点之一；</strong></p>
+<h2 id="fling行为监听"><a href="#fling行为监听" class="headerlink" title="fling行为监听"></a>fling行为监听</h2><p>承接上文，自然滚动行为底层的要点是处理<code>fling</code>行为，<code>fling</code>是<code>Android View中</code>惯性滚动的代言词，分析代码如下：</p>
+<p><strong>RecyclerView</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">public boolean fling(int velocityX, int velocityY) &#123;</span><br><span class="line">    if (mLayout == null) &#123;</span><br><span class="line">        Log.e(TAG, &quot;Cannot fling without a LayoutManager set. &quot; +</span><br><span class="line">                &quot;Call setLayoutManager with a non-null argument.&quot;);</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">    if (mLayoutFrozen) &#123;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">    final boolean canScrollHorizontal = mLayout.canScrollHorizontally();</span><br><span class="line">    final boolean canScrollVertical = mLayout.canScrollVertically();</span><br><span class="line">    if (!canScrollHorizontal || Math.abs(velocityX) &lt; mMinFlingVelocity) &#123;</span><br><span class="line">        velocityX = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    if (!canScrollVertical || Math.abs(velocityY) &lt; mMinFlingVelocity) &#123;</span><br><span class="line">        velocityY = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    if (velocityX == 0 &amp;&amp; velocityY == 0) &#123;</span><br><span class="line">        // If we don&apos;t have any velocity, return false</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">    //处理嵌套滚动PreFling</span><br><span class="line">    if (!dispatchNestedPreFling(velocityX, velocityY)) &#123;</span><br><span class="line">        final boolean canScroll = canScrollHorizontal || canScrollVertical;</span><br><span class="line">        //处理嵌套滚动Fling</span><br><span class="line">        dispatchNestedFling(velocityX, velocityY, canScroll);</span><br><span class="line">        //优先判断mOnFlingListener的逻辑</span><br><span class="line">        if (mOnFlingListener != null &amp;&amp; mOnFlingListener.onFling(velocityX, velocityY)) &#123;</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        if (canScroll) &#123;</span><br><span class="line">            velocityX = Math.max(-mMaxFlingVelocity, Math.min(velocityX, mMaxFlingVelocity));</span><br><span class="line">            velocityY = Math.max(-mMaxFlingVelocity, Math.min(velocityY, mMaxFlingVelocity));</span><br><span class="line">            //默认的Fling操作</span><br><span class="line">            mViewFlinger.fling(velocityX, velocityY);</span><br><span class="line">            return true;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return false;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在<code>RecyclerView</code>中<code>fling</code>行为流程图如下：</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/23/16a484b6e89e2e9e?w=485&amp;h=499&amp;f=png&amp;s=14169" alt=""></p>
+<p><strong>其中<code>mOnFlingListener</code>是通过<code>setOnFlingListener</code>方法设置，这个方法也是接下来分析<code>SnapHelper</code>的重点之一；</strong></p>
+<h1 id="SnapHelper小觑"><a href="#SnapHelper小觑" class="headerlink" title="SnapHelper小觑"></a>SnapHelper小觑</h1><p><code>SnapHelper</code>顾名思义是<code>Snap</code>+<code>Helper</code>的组合，<code>Snap</code>有移到某位置的含义，<code>Helper</code>译为辅助者，综合场景解释是将<code>RecyclerView</code>移动到某位置的辅助类，这句话看似简单明了，却蕴藏疑问，有两个疑问点需要我们弄明白:</p>
+<p><strong>何时何地触发RecyclerView移动？又要把RecyclerView移到哪个位置？</strong></p>
+<p>带着这两个疑问，我们从<code>SnapHelper</code>的使用和入口方法看起：</p>
+<h2 id="attachToRecyclerView入口"><a href="#attachToRecyclerView入口" class="headerlink" title="attachToRecyclerView入口"></a>attachToRecyclerView入口</h2><p>以<code>PagerSnapHelper</code>为例，SnapHelper的基本使用：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">new PagerSnapHelper().attachToRecyclerView(mRecyclerView);</span><br></pre></td></tr></table></figure></p>
+<p><code>PagerSnapHelper</code>是<code>SnapHelper</code>的子类，，<code>SnapHelper</code>的使用很简单，只需要调用<code>attachToRecyclerView</code>绑定到置顶<code>RecyclerView</code>即可；</p>
+<p><strong>SnapHelper</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">public abstract class SnapHelper extends RecyclerView.OnFlingListener </span><br><span class="line">    //绑定RecyclerView</span><br><span class="line">    public void attachToRecyclerView(@Nullable RecyclerView recyclerView)</span><br><span class="line">            throws IllegalStateException &#123;</span><br><span class="line">        if (mRecyclerView == recyclerView) &#123;</span><br><span class="line">            return; // nothing to do</span><br><span class="line">        &#125;</span><br><span class="line">        if (mRecyclerView != null) &#123;</span><br><span class="line">            destroyCallbacks();//解除历史回调的关系</span><br><span class="line">        &#125;</span><br><span class="line">        mRecyclerView = recyclerView;</span><br><span class="line">        if (mRecyclerView != null) &#123;</span><br><span class="line">            setupCallbacks();//注册回调</span><br><span class="line">            mGravityScroller = new Scroller(mRecyclerView.getContext(),</span><br><span class="line">                    new DecelerateInterpolator());</span><br><span class="line">            snapToTargetExistingView();//移动到制定View</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    //设置回调关系</span><br><span class="line">    private void setupCallbacks() throws IllegalStateException &#123;</span><br><span class="line">        if (mRecyclerView.getOnFlingListener() != null) &#123;</span><br><span class="line">            throw new IllegalStateException(&quot;An instance of OnFlingListener already set.&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">        mRecyclerView.addOnScrollListener(mScrollListener);</span><br><span class="line">        mRecyclerView.setOnFlingListener(this);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //注销回调关系</span><br><span class="line">    private void destroyCallbacks() &#123;</span><br><span class="line">        mRecyclerView.removeOnScrollListener(mScrollListener);</span><br><span class="line">        mRecyclerView.setOnFlingListener(null);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>SnapHelper</code>是一个抽象类，实现了<code>RecyclerView.OnFlingListener</code>接口，入口方法<code>attachToRecyclerView</code>在<code>SnapHelper</code>中定义，该方法主要起到清理、绑定回调关系和初始化位置的作用，在<code>setupCallbacks</code>中设置了<code>addOnScrollListener</code>和<code>setOnFlingListener</code>两种回调；</p>
+<p>上文说过<code>RecyclerView</code>的滚动状态和fling行为的监听，在这里看到<code>SnapHelper</code>对于这两种行为都需要监听，<code>attachToRecyclerView</code>的主要逻辑就是干这个事的，至于如何处理回调之后的事情，且继续往下看；</p>
+<h2 id="SnapHelper处理回调流程"><a href="#SnapHelper处理回调流程" class="headerlink" title="SnapHelper处理回调流程"></a>SnapHelper处理回调流程</h2><p><code>SnapHelper</code>在<code>attachToRecyclerView</code>方法中注册了滚动状态和fling的监听，当监听触发时，如何处理后续的流程，我们先分析<code>滚动状态</code>的回调：</p>
+<h3 id="滚动状态回调处理"><a href="#滚动状态回调处理" class="headerlink" title="滚动状态回调处理"></a>滚动状态回调处理</h3><p>滚动状态的回调接口实例是<code>mScrollListener</code>：</p>
+<p><strong>SnapHelper</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">private final RecyclerView.OnScrollListener mScrollListener =</span><br><span class="line">         new RecyclerView.OnScrollListener() &#123;</span><br><span class="line">             boolean mScrolled = false;</span><br><span class="line"></span><br><span class="line">             @Override</span><br><span class="line">             public void onScrollStateChanged(RecyclerView recyclerView, int newState) &#123;</span><br><span class="line">                 super.onScrollStateChanged(recyclerView, newState);</span><br><span class="line">                 //静止状态且滚动过一段距离，触发snapToTargetExistingView();</span><br><span class="line">                 if (newState == RecyclerView.SCROLL_STATE_IDLE &amp;&amp; mScrolled) &#123;</span><br><span class="line">                     mScrolled = false;</span><br><span class="line">                     //移动到指定的已存在的View</span><br><span class="line">                     snapToTargetExistingView();</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;</span><br><span class="line"></span><br><span class="line">             @Override</span><br><span class="line">             public void onScrolled(RecyclerView recyclerView, int dx, int dy) &#123;</span><br><span class="line">                 if (dx != 0 || dy != 0) &#123;</span><br><span class="line">                     mScrolled = true;</span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;;</span><br></pre></td></tr></table></figure></p>
+<p>逻辑处理的入口在<code>onScrollStateChanged</code>方法中，当<code>newState == RecyclerView.SCROLL_STATE_IDLE</code>且滚动距离不等于0，触发<code>snapToTargetExistingView</code>方法；</p>
+<p><strong>SnapHelper</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">//移动到指定的已存在的View</span><br><span class="line">void snapToTargetExistingView() &#123;</span><br><span class="line">    if (mRecyclerView == null) &#123;</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();</span><br><span class="line">    if (layoutManager == null) &#123;</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    //查找SnapView</span><br><span class="line">    View snapView = findSnapView(layoutManager);</span><br><span class="line">    if (snapView == null) &#123;</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    //计算SnapView的距离</span><br><span class="line">    int[] snapDistance = calculateDistanceToFinalSnap(layoutManager, snapView);</span><br><span class="line">    if (snapDistance[0] != 0 || snapDistance[1] != 0) &#123;</span><br><span class="line">        //调用smoothScrollBy移动到制定位置</span><br><span class="line">        mRecyclerView.smoothScrollBy(snapDistance[0], snapDistance[1]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>snapToTargetExistingView</code>方法顾名思义是移动到指定已存在的View的位置，<code>findSnapView</code>是查到目标的<code>SnapView</code>，<code>calculateDistanceToFinalSnap</code>是计算<code>SnapView</code>到最终位置的距离；由于<code>findSnapView</code>和<code>calculateDistanceToFinalSnap</code>是抽象方法，所以需要子类的具体实现；<br>整理一下<code>滚动状态</code>回调下，<code>SnapHelper</code>的实现流程图如下；</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/23/16a48c27858d4d09?w=444&amp;h=646&amp;f=png&amp;s=23910" alt=""></p>
+<h3 id="Fling结果回调处理"><a href="#Fling结果回调处理" class="headerlink" title="Fling结果回调处理"></a>Fling结果回调处理</h3><p>上文分析<code>SnapHelper</code>实现了<code>RecyclerView.OnFlingListener</code>接口，因此<code>Fling</code>的结果在<code>onFling()</code>方法中实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public boolean onFling(int velocityX, int velocityY) &#123;</span><br><span class="line">    RecyclerView.LayoutManager layoutManager = mRecyclerView.getLayoutManager();</span><br><span class="line">    if (layoutManager == null) &#123;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">    RecyclerView.Adapter adapter = mRecyclerView.getAdapter();</span><br><span class="line">    if (adapter == null) &#123;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">    int minFlingVelocity = mRecyclerView.getMinFlingVelocity();</span><br><span class="line">    return (Math.abs(velocityY) &gt; minFlingVelocity || Math.abs(velocityX) &gt; minFlingVelocity)</span><br><span class="line">            &amp;&amp; snapFromFling(layoutManager, velocityX, velocityY);</span><br><span class="line">&#125;</span><br><span class="line">//处理snap的fling逻辑</span><br><span class="line">private boolean snapFromFling(@NonNull RecyclerView.LayoutManager layoutManager, int velocityX,</span><br><span class="line">        int velocityY) &#123;</span><br><span class="line">        //判断layoutManager要实现ScrollVectorProvider</span><br><span class="line">    if (!(layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) &#123;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">    //创建SmoothScroller</span><br><span class="line">    RecyclerView.SmoothScroller smoothScroller = createScroller(layoutManager);</span><br><span class="line">    if (smoothScroller == null) &#123;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">    //获得snap position</span><br><span class="line">    int targetPosition = findTargetSnapPosition(layoutManager, velocityX, velocityY);</span><br><span class="line">    if (targetPosition == RecyclerView.NO_POSITION) &#123;</span><br><span class="line">        return false;</span><br><span class="line">    &#125;</span><br><span class="line">    //设置position</span><br><span class="line">    smoothScroller.setTargetPosition(targetPosition);</span><br><span class="line">    //启动SmoothScroll</span><br><span class="line">    layoutManager.startSmoothScroll(smoothScroller);</span><br><span class="line">    //返回true拦截掉后续的fling操作</span><br><span class="line">    return true;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//创建Scroller</span><br><span class="line">protected LinearSmoothScroller createSnapScroller(RecyclerView.LayoutManager layoutManager) &#123;</span><br><span class="line">    if (!(layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) &#123;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br><span class="line">    return new LinearSmoothScroller(mRecyclerView.getContext()) &#123;</span><br><span class="line">        @Override</span><br><span class="line">        protected void onTargetFound(View targetView, RecyclerView.State state, Action action) &#123;</span><br><span class="line">            if (mRecyclerView == null) &#123;</span><br><span class="line">                // The associated RecyclerView has been removed so there is no action to take.</span><br><span class="line">                return;</span><br><span class="line">            &#125;</span><br><span class="line">            //计算Snap到目标位置的距离</span><br><span class="line">            int[] snapDistances = calculateDistanceToFinalSnap(mRecyclerView.getLayoutManager(),</span><br><span class="line">                    targetView);</span><br><span class="line">            final int dx = snapDistances[0];</span><br><span class="line">            final int dy = snapDistances[1];</span><br><span class="line">            //计算时间</span><br><span class="line">            final int time = calculateTimeForDeceleration(Math.max(Math.abs(dx), Math.abs(dy)));</span><br><span class="line">            if (time &gt; 0) &#123;</span><br><span class="line">                action.update(dx, dy, time, mDecelerateInterpolator);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        //计算速度</span><br><span class="line">        @Override</span><br><span class="line">        protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) &#123;</span><br><span class="line">            return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>fling流程分析</p>
+<ul>
+<li><p><code>fling</code>的逻辑主要在<code>snapFromFling</code>方法中，完成fling逻辑首先要求<code>layoutManager</code>是<code>ScrollVectorProvider</code>的实现，<strong>为什么要求实现<code>ScrollVectorProvider</code>?</strong>，因为<code>SnapHelper</code>需要知道布局的方向，而<code>ScrollVectorProvider</code>正是该功能的提供者；</p>
+</li>
+<li><p>其次是创建<code>SmoothScroller</code>，主要逻辑是<code>createSnapScroller</code>方法，该方法有默认的实现，主要逻辑是创建一个<code>LinearSmoothScroller</code>，在<code>onTargetFound</code>中调用<code>calculateDistanceToFinalSnap</code>计算距离，然后通过<code>calculateTimeForDeceleration</code>计算动画时间；</p>
+</li>
+<li>然后通过<code>findTargetSnapPosition</code>方法获取目标<code>targetPosition</code>，最后把<code>targetPosition</code>赋值给<code>smoothScroller</code>，通过<code>layoutManager</code>执行该<code>scroller</code>;</li>
+<li>最重要的是<code>snapFromFling</code>要返回<code>true</code>，前文分析过<code>RecyclerView</code>的fling流程，返回<code>true</code>的话，默认的<code>ViewFlinger</code>就不会执行。</li>
+</ul>
+<p>fling逻辑流程图如下</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/23/16a48dfff0d9b195?w=652&amp;h=646&amp;f=png&amp;s=30504" alt=""></p>
+<h2 id="段落小结"><a href="#段落小结" class="headerlink" title="段落小结"></a>段落小结</h2><p><code>SnapHelper</code>对于滚动状态和Fling行为的处理上面已经梳理完毕，我特意画了两个草图，希望让大家有更清晰的认识，如果还不清晰至少得知道怎么用吧，例如我们要自定义<code>SnapHelper</code>，必须要重写的三个方法是：</p>
+<ul>
+<li><code>findSnapView(RecyclerView.LayoutManager layoutManager)</code><ul>
+<li>在滚动状态回调时调用，目的是查找SnapView，注意返回的SnapView必须是LayoutManager已经加载出来的View； </li>
+</ul>
+</li>
+<li><code>calculateDistanceToFinalSnap(RecyclerView.LayoutManager layoutManager, View targetView)</code><ul>
+<li>计算sanpView到指定位置的距离，这是在滚动状态回调和Fling的计算时间工程中使用；</li>
+</ul>
+</li>
+<li><code>findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX,int velocityY)</code><ul>
+<li>查找指定的SnapPosition，这个方法只有在Fling的时候调用；</li>
+</ul>
+</li>
+</ul>
+<p>记住这三个方法，如果想玩转<code>SnapHelper</code>，掌握这个三分方法是迈出的第一步；</p>
+<h1 id="SnapHelper到底怎么玩"><a href="#SnapHelper到底怎么玩" class="headerlink" title="SnapHelper到底怎么玩"></a>SnapHelper到底怎么玩</h1><p>往往知道方法怎么用，却不知道代码怎么写，这是最困惑的，我们以<code>LinearSnapHelper</code>为例，从细节出发，分析自定义<code>SnapHelper</code>的常用思路和关键方法；</p>
+<p>动代码前，先弄清这俩哥们到底解决了啥问题，首先<code>LinearSnapHelper</code>能够让线性排列的列表元素，最中间那颗元素居中显示；下图是<code>LinearSnapHelper</code>的效果展示之一；</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/4/23/16a491504125bdac?w=668&amp;h=311&amp;f=png&amp;s=43257" alt=""></p>
+<h2 id="findSnapView怎么玩"><a href="#findSnapView怎么玩" class="headerlink" title="findSnapView怎么玩"></a>findSnapView怎么玩</h2><p>前面交待过，<code>findSnapView</code>方法是查找<code>SnapView</code>的，何为<code>SnapView</code>，在<code>LinearSnapHelper</code>的应用场景中，屏幕(RecyclerView)中间的<code>View</code>就是<code>SnapView</code>，且看<code>findSnapView</code>方法的实现：</p>
+<p><strong>LinearSnapHelper</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">public View findSnapView(RecyclerView.LayoutManager layoutManager) &#123;</span><br><span class="line">    //横向</span><br><span class="line">    if (layoutManager.canScrollVertically()) &#123;</span><br><span class="line">        return findCenterView(layoutManager, getVerticalHelper(layoutManager));</span><br><span class="line">    &#125; else if (layoutManager.canScrollHorizontally()) &#123;//纵向</span><br><span class="line">        return findCenterView(layoutManager, getHorizontalHelper(layoutManager));</span><br><span class="line">    &#125;</span><br><span class="line">    return null;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@NonNull</span><br><span class="line">private OrientationHelper getVerticalHelper(@NonNull RecyclerView.LayoutManager layoutManager) &#123;</span><br><span class="line">    if (mVerticalHelper == null || mVerticalHelper.mLayoutManager != layoutManager) &#123;</span><br><span class="line">        mVerticalHelper = OrientationHelper.createVerticalHelper(layoutManager);</span><br><span class="line">    &#125;</span><br><span class="line">    return mVerticalHelper;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@NonNull</span><br><span class="line">private OrientationHelper getHorizontalHelper(</span><br><span class="line">        @NonNull RecyclerView.LayoutManager layoutManager) &#123;</span><br><span class="line">    if (mHorizontalHelper == null || mHorizontalHelper.mLayoutManager != layoutManager) &#123;</span><br><span class="line">        mHorizontalHelper = OrientationHelper.createHorizontalHelper(layoutManager);</span><br><span class="line">    &#125;</span><br><span class="line">    return mHorizontalHelper;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>首先，<code>findSnapView</code>中需要判断<code>RecyclerView</code>滚动的方向，然后拿到对应的<code>OrientationHelper</code>,最后通过<code>findCenterView</code>查找到<code>SnapView</code>并返回；</p>
+<p><strong>LinearSnapHelper</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">private View findCenterView(RecyclerView.LayoutManager layoutManager,</span><br><span class="line">        OrientationHelper helper) &#123;</span><br><span class="line">    int childCount = layoutManager.getChildCount();</span><br><span class="line">    if (childCount == 0) &#123;</span><br><span class="line">        return null;</span><br><span class="line">    &#125;</span><br><span class="line">    View closestChild = null;</span><br><span class="line">    final int center;//中间位置</span><br><span class="line">    //判断ClipToPadding逻辑</span><br><span class="line">    if (layoutManager.getClipToPadding()) &#123;</span><br><span class="line">        center = helper.getStartAfterPadding() + helper.getTotalSpace() / 2;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        center = helper.getEnd() / 2;</span><br><span class="line">    &#125;</span><br><span class="line">    int absClosest = Integer.MAX_VALUE;</span><br><span class="line"></span><br><span class="line">    for (int i = 0; i &lt; childCount; i++) &#123;</span><br><span class="line">        final View child = layoutManager.getChildAt(i);</span><br><span class="line">        //child的中间位置</span><br><span class="line">        int childCenter = helper.getDecoratedStart(child) +</span><br><span class="line">                (helper.getDecoratedMeasurement(child) / 2);</span><br><span class="line">        //每个child距离中心位置的差值</span><br><span class="line">        int absDistance = Math.abs(childCenter - center);</span><br><span class="line">        //取距离最小的那个</span><br><span class="line">        if (absDistance &lt; absClosest) &#123;</span><br><span class="line">            absClosest = absDistance;</span><br><span class="line">            closestChild = child;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return closestChild;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>findCenterView()方法是获取屏幕(RecyclerView控件)中间位置最近的那个View当做SnapView，计算的过程稍显复杂其实比较了然，具体注释在代码中标注，容易产生疑惑的是<code>OrientationHelper</code>下面一堆获取位置的方法，这里稍微总结一下：</p>
+<p><strong>OrientationHelper常见方法</strong></p>
+<ul>
+<li>getStartAfterPadding() 获取RecyclerView起始位置，如果padding不为0，则算上padding;</li>
+<li>getTotalSpace() 获取RecyclerView可使用控件，本质上是RecyclerView的尺寸减轻两边的padding;</li>
+<li>getDecoratedStart(View) 获取View的起始位置，如果RecyclerView有padding，则算上padding；</li>
+<li>getDecoratedMeasurement(View) 获取View宽度，如果该view有maring，也会算上；</li>
+</ul>
+<p>总的来说<code>findCenterView</code>并不复杂，最迷惑人的是<code>OrientationHelper</code>的一堆API，在使用时稍加注意，也不是很复杂的；</p>
+<h2 id="calculateDistanceToFinalSnap怎么玩"><a href="#calculateDistanceToFinalSnap怎么玩" class="headerlink" title="calculateDistanceToFinalSnap怎么玩"></a>calculateDistanceToFinalSnap怎么玩</h2><p>首先，<code>calculateDistanceToFinalSnap</code>接受上一步获取的<code>SnapView</code>，需要返回一个<code>int[]</code>，该数组约定长度为2，第0位表示水平方向的距离，第1位表示竖直方向的距离，且看<code>LinearSnapHelper</code>怎么玩；</p>
+<p><strong>LinearSnapHelper</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">public int[] calculateDistanceToFinalSnap(</span><br><span class="line">        @NonNull RecyclerView.LayoutManager layoutManager, @NonNull View targetView) &#123;</span><br><span class="line">    int[] out = new int[2];</span><br><span class="line">    if (layoutManager.canScrollHorizontally()) &#123;//水平</span><br><span class="line">        out[0] = distanceToCenter(layoutManager, targetView,</span><br><span class="line">                getHorizontalHelper(layoutManager));</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        out[0] = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    if (layoutManager.canScrollVertically()) &#123;//竖直</span><br><span class="line">        out[1] = distanceToCenter(layoutManager, targetView,</span><br><span class="line">                getVerticalHelper(layoutManager));</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        out[1] = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    return out;</span><br><span class="line">&#125;</span><br><span class="line">//距离中间位置的距离</span><br><span class="line">private int distanceToCenter(@NonNull RecyclerView.LayoutManager layoutManager,</span><br><span class="line">        @NonNull View targetView, OrientationHelper helper) &#123;</span><br><span class="line">    //targetView的中心位置(距离RecyclerView start为准)</span><br><span class="line">    final int childCenter = helper.getDecoratedStart(targetView) +</span><br><span class="line">            (helper.getDecoratedMeasurement(targetView) / 2);</span><br><span class="line">    final int containerCenter;  //RecyclerView的中心位置</span><br><span class="line">    if (layoutManager.getClipToPadding()) &#123;</span><br><span class="line">        containerCenter = helper.getStartAfterPadding() + helper.getTotalSpace() / 2;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        containerCenter = helper.getEnd() / 2;</span><br><span class="line">    &#125;</span><br><span class="line">    return childCenter - containerCenter;//差距</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>很幸运，<code>calculateDistanceToFinalSnap</code>并没有很复杂的代码，主要是计算方向，然后通过<code>OrientationHelper</code>计算第一步<code>findSnapView</code>得到的<code>SnapView</code>距离中间位置的距离；代码和第一步很相似，注释在代码中；</p>
+<h2 id="findTargetSnapPosition怎么玩"><a href="#findTargetSnapPosition怎么玩" class="headerlink" title="findTargetSnapPosition怎么玩"></a>findTargetSnapPosition怎么玩</h2><p>前面说过，<code>findTargetSnapPosition</code>是处理Fling流程中，计算SnapPosition的关键方法，首先，<code>findTargetSnapPosition</code>接受速度参数<code>velocityX</code>和<code>velocityY</code>，需要返回int类型的<code>position</code>，这个位置对应的是<code>Adapter</code>中的<code>position</code>，并不是<code>LayoutManager</code>和<code>RecyclerView</code>中子View的<code>index</code>；</p>
+<p><strong>LinearSnapHelper</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX,</span><br><span class="line">        int velocityY) &#123;</span><br><span class="line">        //判断是否实现ScrollVectorProvider</span><br><span class="line">    if (!(layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) &#123;</span><br><span class="line">        return RecyclerView.NO_POSITION;</span><br><span class="line">    &#125;</span><br><span class="line">    //获取Adapter中item个数</span><br><span class="line">    final int itemCount = layoutManager.getItemCount();</span><br><span class="line">    if (itemCount == 0) &#123;</span><br><span class="line">        return RecyclerView.NO_POSITION;</span><br><span class="line">    &#125;</span><br><span class="line">    //查找中间SnapView</span><br><span class="line">    final View currentView = findSnapView(layoutManager);</span><br><span class="line">    if (currentView == null) &#123;</span><br><span class="line">        return RecyclerView.NO_POSITION;</span><br><span class="line">    &#125;</span><br><span class="line">    //计算当前View在adapter中的position</span><br><span class="line">    final int currentPosition = layoutManager.getPosition(currentView);</span><br><span class="line">    if (currentPosition == RecyclerView.NO_POSITION) &#123;</span><br><span class="line">        return RecyclerView.NO_POSITION;</span><br><span class="line">    &#125;</span><br><span class="line">    //获取布局方向提供者</span><br><span class="line">    RecyclerView.SmoothScroller.ScrollVectorProvider vectorProvider =</span><br><span class="line">            (RecyclerView.SmoothScroller.ScrollVectorProvider) layoutManager;</span><br><span class="line">    //从当前位置往最后一个元素计算</span><br><span class="line">    PointF vectorForEnd = vectorProvider.computeScrollVectorForPosition(itemCount - 1);</span><br><span class="line">    if (vectorForEnd == null) &#123;</span><br><span class="line">        return RecyclerView.NO_POSITION;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    int vDeltaJump, hDeltaJump;//计算惯性能滚动多少个子View</span><br><span class="line">    if (layoutManager.canScrollHorizontally()) &#123;//水平</span><br><span class="line">        hDeltaJump = estimateNextPositionDiffForFling(layoutManager,</span><br><span class="line">                getHorizontalHelper(layoutManager), velocityX, 0);</span><br><span class="line">        if (vectorForEnd.x &lt; 0) &#123;//竖直为负表示滚动为负方向</span><br><span class="line">            hDeltaJump = -hDeltaJump;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        hDeltaJump = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    if (layoutManager.canScrollVertically()) &#123;//竖直方向</span><br><span class="line">        vDeltaJump = estimateNextPositionDiffForFling(layoutManager,</span><br><span class="line">                getVerticalHelper(layoutManager), 0, velocityY);</span><br><span class="line">        if (vectorForEnd.y &lt; 0) &#123;//竖直为负表示滚动为负方向</span><br><span class="line">            vDeltaJump = -vDeltaJump;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        vDeltaJump = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    //计算水平和竖直方向</span><br><span class="line">    int deltaJump = layoutManager.canScrollVertically() ? vDeltaJump : hDeltaJump;</span><br><span class="line">    if (deltaJump == 0) &#123;</span><br><span class="line">        return RecyclerView.NO_POSITION;</span><br><span class="line">    &#125;</span><br><span class="line">    //计算目标position</span><br><span class="line">    int targetPos = currentPosition + deltaJump;</span><br><span class="line">    if (targetPos &lt; 0) &#123;//边界判断</span><br><span class="line">        targetPos = 0;</span><br><span class="line">    &#125;</span><br><span class="line">    if (targetPos &gt;= itemCount) &#123;//边界判断</span><br><span class="line">        targetPos = itemCount - 1;</span><br><span class="line">    &#125;</span><br><span class="line">    return targetPos;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>计算通过惯性能滚动多少个子View的代码：</p>
+<p><strong>LinearSnapHelper</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">private int estimateNextPositionDiffForFling(RecyclerView.LayoutManager layoutManager,</span><br><span class="line">        OrientationHelper helper, int velocityX, int velocityY) &#123;</span><br><span class="line">    //惯性能滚动多少距离</span><br><span class="line">    int[] distances = calculateScrollDistance(velocityX, velocityY);</span><br><span class="line">    //单个child平均占用多少宽/高像素</span><br><span class="line">    float distancePerChild = computeDistancePerChild(layoutManager, helper);</span><br><span class="line">    if (distancePerChild &lt;= 0) &#123;</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;</span><br><span class="line">    //得到最终的水平/竖直的距离</span><br><span class="line">    int distance =</span><br><span class="line">            Math.abs(distances[0]) &gt; Math.abs(distances[1]) ? distances[0] : distances[1];</span><br><span class="line">    if (distance &gt; 0) &#123;四舍五入得到平均个数</span><br><span class="line">        return (int) Math.floor(distance / distancePerChild);</span><br><span class="line">    &#125; else &#123;//负数的除法特殊处理得到平均个数</span><br><span class="line">        return (int) Math.ceil(distance / distancePerChild);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>计算每个child的平均占用多少宽/高的代码如下：</p>
+<p><strong>LinearSnapHelper</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">private float computeDistancePerChild(RecyclerView.LayoutManager layoutManager,</span><br><span class="line">        OrientationHelper helper) &#123;</span><br><span class="line">    View minPosView = null;</span><br><span class="line">    View maxPosView = null;</span><br><span class="line">    int minPos = Integer.MAX_VALUE;</span><br><span class="line">    int maxPos = Integer.MIN_VALUE;</span><br><span class="line">    int childCount = layoutManager.getChildCount();//获取已经加载的View个数，不是所有adapter中的count</span><br><span class="line">    if (childCount == 0) &#123;</span><br><span class="line">        return INVALID_DISTANCE;</span><br><span class="line">    &#125;</span><br><span class="line">    //计算已加载View中，最start和最end的View和Position</span><br><span class="line">    for (int i = 0; i &lt; childCount; i++) &#123;</span><br><span class="line">        View child = layoutManager.getChildAt(i);</span><br><span class="line">        final int pos = layoutManager.getPosition(child);</span><br><span class="line">        if (pos == RecyclerView.NO_POSITION) &#123;</span><br><span class="line">            continue;</span><br><span class="line">        &#125;</span><br><span class="line">        if (pos &lt; minPos) &#123;</span><br><span class="line">            minPos = pos;</span><br><span class="line">            minPosView = child;</span><br><span class="line">        &#125;</span><br><span class="line">        if (pos &gt; maxPos) &#123;</span><br><span class="line">            maxPos = pos;</span><br><span class="line">            maxPosView = child;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    if (minPosView == null || maxPosView == null) &#123;</span><br><span class="line">        return INVALID_DISTANCE;</span><br><span class="line">    &#125;</span><br><span class="line">    //分别获取最start和最end位置，距RecyclerView起点的距离；</span><br><span class="line">    int start = Math.min(helper.getDecoratedStart(minPosView),</span><br><span class="line">            helper.getDecoratedStart(maxPosView));</span><br><span class="line">    int end = Math.max(helper.getDecoratedEnd(minPosView),</span><br><span class="line">            helper.getDecoratedEnd(maxPosView));</span><br><span class="line">    //得到距离的绝对差值</span><br><span class="line">    int distance = end - start;</span><br><span class="line">    if (distance == 0) &#123;</span><br><span class="line">        return INVALID_DISTANCE;</span><br><span class="line">    &#125;</span><br><span class="line">    //计算平均宽/高</span><br><span class="line">    return 1f * distance / ((maxPos - minPos) + 1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>LinearSnapHelper</code>的<code>findTargetSnapPosition</code>方法着实不简单，但是条理清晰逻辑严谨，考虑的比较周全，上面代码我做了比较详细的注释，相信肯定有同学不爱看代码，我也是，所以我用文字重新梳理一下上述代码逻辑和关键点；</p>
+<ul>
+<li><p><code>findTargetSnapPosition</code>方法逻辑流程总结：</p>
+<ul>
+<li>首先通过<code>findSnapView()</code>活动当前的<code>centerView</code>;</li>
+<li>通过<code>ScrollVectorProvider</code>是否是reverseLayout，布局方向;</li>
+<li>通过<code>estimateNextPositionDiffForFling</code>方法获取该惯性能产生多少个子child的平移，或者理解成该惯性能让RecyclerView滚动多远个子child的距离；</li>
+<li>通过当前的<code>centerView</code>下标，加上惯性产生的平移，计算出最终要落地的下标；</li>
+<li>边界判断</li>
+</ul>
+</li>
+<li><p><code>estimateNextPositionDiffForFling</code>方法逻辑流程总结：</p>
+<ul>
+<li>通过<code>calculateScrollDistance</code>计算惯性能滚动多远距离；</li>
+<li>通过<code>computeDistancePerChild</code>计算平均一个child占多大尺寸；</li>
+<li>距离除以尺寸，四舍五入得到个数并返回；</li>
+</ul>
+</li>
+<li><code>computeDistancePerChild</code>方法逻辑流程总结：<ul>
+<li>获取layoutManager已经加载的所有子View;</li>
+<li>获取最start和最end的view和下标；</li>
+<li>分别计算最start和最end的View的start和end值；</li>
+<li>计算平均值并返回；</li>
+</ul>
+</li>
+</ul>
+<p>终于是把<code>LinearSnapHelper</code>的核心逻辑讲完了，纵观整个类，主要逻辑还是在<code>findTargetSnapPosition</code>这里，趁热打铁，我必须跟大家分享一下<code>PagerSnapHelper</code>是如何玩转这个方法的；</p>
+<h2 id="PagerSnapHelper似乎更简单"><a href="#PagerSnapHelper似乎更简单" class="headerlink" title="PagerSnapHelper似乎更简单"></a>PagerSnapHelper似乎更简单</h2><p><code>pagerSnapHelper</code>同样也实现了<code>SnapHelper</code>的三个方法，下面先看<code>findTargetSnapPosition</code>:</p>
+<p><strong>PagerSnapHelper</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX,</span><br><span class="line">        int velocityY) &#123;</span><br><span class="line">    final int itemCount = layoutManager.getItemCount();//获取adapter中所有的itemcount</span><br><span class="line">    if (itemCount == 0) &#123;</span><br><span class="line">        return RecyclerView.NO_POSITION;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    View mStartMostChildView = null;//获取最start的View</span><br><span class="line">    if (layoutManager.canScrollVertically()) &#123;</span><br><span class="line">        mStartMostChildView = findStartView(layoutManager, getVerticalHelper(layoutManager));</span><br><span class="line">    &#125; else if (layoutManager.canScrollHorizontally()) &#123;</span><br><span class="line">        mStartMostChildView = findStartView(layoutManager, getHorizontalHelper(layoutManager));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (mStartMostChildView == null) &#123;</span><br><span class="line">        return RecyclerView.NO_POSITION;</span><br><span class="line">    &#125;</span><br><span class="line">    //最start的View当前centerposition</span><br><span class="line">    final int centerPosition = layoutManager.getPosition(mStartMostChildView);</span><br><span class="line">    if (centerPosition == RecyclerView.NO_POSITION) &#123;</span><br><span class="line">        return RecyclerView.NO_POSITION;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    final boolean forwardDirection;//速度判定</span><br><span class="line">    if (layoutManager.canScrollHorizontally()) &#123;</span><br><span class="line">        forwardDirection = velocityX &gt; 0;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        forwardDirection = velocityY &gt; 0;</span><br><span class="line">    &#125;</span><br><span class="line">    boolean reverseLayout = false;//是否是reverseLayout，布局方向</span><br><span class="line">    if ((layoutManager instanceof RecyclerView.SmoothScroller.ScrollVectorProvider)) &#123;</span><br><span class="line">        RecyclerView.SmoothScroller.ScrollVectorProvider vectorProvider =</span><br><span class="line">                (RecyclerView.SmoothScroller.ScrollVectorProvider) layoutManager;</span><br><span class="line">        PointF vectorForEnd = vectorProvider.computeScrollVectorForPosition(itemCount - 1);</span><br><span class="line">        if (vectorForEnd != null) &#123;</span><br><span class="line">            reverseLayout = vectorForEnd.x &lt; 0 || vectorForEnd.y &lt; 0;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return reverseLayout</span><br><span class="line">            ? (forwardDirection ? centerPosition - 1 : centerPosition)下标要买+1 or -1，要么保持不变</span><br><span class="line">            : (forwardDirection ? centerPosition + 1 : centerPosition);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>众所周知，<code>ViewPager</code>的翻页要么是保持不变，要么是下一页/上一页，上面<code>findTargetSnapPosition</code>方法就是主要的实现逻辑，其中判定是否翻页的条件由<code>forwardDirection</code>来控制，直接对比速度&gt;0，用户想轻松滑到下一页是比较easy的，以至于上面代码量少到不敢相信；</p>
+<p>至于<code>findSnapView</code>和<code>distanceToCenter</code>方法，同样是获取屏幕(RecyclerView)中间的View，计算<code>distanceToCenter</code>，跟<code>LinearSnapHelper</code>如出一辙；</p>
+<h2 id="PagerSnapHelper注意事项"><a href="#PagerSnapHelper注意事项" class="headerlink" title="PagerSnapHelper注意事项"></a>PagerSnapHelper注意事项</h2><p><code>PagerSnapHelper</code>设计之初是就是适用于一屏(RecyclerView范围内)显示单个<code>child</code>的，如果有一屏显示多个<code>child</code>的需求，<code>PagerSnapHelper</code>并不适用；其实在实际开发中这种需求还是挺多的，当然github上早已经有大神写过一个库，实现了几个常用的<code>SnapHelper</code>场景，<a href="https://github.com/rubensousa/RecyclerViewSnap" target="_blank" rel="noopener">github传送门</a>；当然这个库并不能满足所有的需求，有机会再跟大家分享更有意义的<code>SnapHelper</code>实战；</p>
+<h1 id="结尾：明明是玩了一场接力赛"><a href="#结尾：明明是玩了一场接力赛" class="headerlink" title="结尾：明明是玩了一场接力赛"></a>结尾：明明是玩了一场接力赛</h1><p>什么玩意，接力赛？没有错。<code>SnapHelper</code>在运行过程中，<code>RecyclerView</code>的状态可能会经历这样<code>DRAGGING-&gt;SETTLING-&gt;IDLE-&gt;SETTLING-&gt;IDLE</code>甚至更多状态，我称之为接力赛，为什么会这个样子？拿<code>LinearSnapHelper</code>来说，前期手势拖拽，肯定是玩<code>DRAGGING</code>状态，一旦撒手加之惯性，会进入<code>SETTLING</code>状态，然后<code>fling()</code>方法会计算<code>snapPosition</code>并指示<code>SmoothScrooler</code>滚动到<code>snapPosition</code>位置，滚动完毕会进入<code>IDLE</code>状态，注意<code>SmoothScrooler</code>滚动结束的位置相对于<code>RecyclerView</code>的start位置的，而<code>LinearSnapHelper</code>要求中间对齐，此时必然会触发<code>snapToTargetExistingView()</code>方法，做最后的调整，所谓最后的调整是通过<code>snapToTargetExistingView</code>调用<code>smoothScrollBy</code>，而结束条件通常是<code>calculateDistanceToFinalSnap()</code>返回[0,0]，这就是我所说的接力赛；</p>
+<p><strong>陷阱:</strong> 一旦<code>calculateDistanceToFinalSnap()</code>返回值计算错误，有可能造成<code>RecyclerView</code>进入<code>smoothScroolBy</code>的魔鬼循环局面，直到滚动到头/尾才会结束；</p>
+
+    </article>
+    <!-- license  -->
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2019/03/18/一波Flutter酷炫特效来袭，持续更新/" title="一波Flutter酷炫特效来袭，持续更新">
+                    <div class="prevTitle">一波Flutter酷炫特效来袭，持续更新</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:zzdxit@gmail.com" class="iconfont-archer email" title="email"></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/HitenDev" class="iconfont-archer github" target="_blank" title="github"></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title="wechat">
+                  
+                  <img class="profile-qr" src="/assets/example_qr.png">
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            
+                <a href="https://juejin.im/user/595a16125188250d944c6997" class="iconfont-archer juejin" target="_blank" title="juejin"></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#SnapHelper认识"><span class="toc-number">1.1.</span> <span class="toc-text">SnapHelper认识</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#RecyclerView滚动基础"><span class="toc-number">2.</span> <span class="toc-text">RecyclerView滚动基础</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#滚动状态监听"><span class="toc-number">2.1.</span> <span class="toc-text">滚动状态监听</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fling行为监听"><span class="toc-number">2.2.</span> <span class="toc-text">fling行为监听</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SnapHelper小觑"><span class="toc-number">3.</span> <span class="toc-text">SnapHelper小觑</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#attachToRecyclerView入口"><span class="toc-number">3.1.</span> <span class="toc-text">attachToRecyclerView入口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#SnapHelper处理回调流程"><span class="toc-number">3.2.</span> <span class="toc-text">SnapHelper处理回调流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#滚动状态回调处理"><span class="toc-number">3.2.1.</span> <span class="toc-text">滚动状态回调处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Fling结果回调处理"><span class="toc-number">3.2.2.</span> <span class="toc-text">Fling结果回调处理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#段落小结"><span class="toc-number">3.3.</span> <span class="toc-text">段落小结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SnapHelper到底怎么玩"><span class="toc-number">4.</span> <span class="toc-text">SnapHelper到底怎么玩</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#findSnapView怎么玩"><span class="toc-number">4.1.</span> <span class="toc-text">findSnapView怎么玩</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#calculateDistanceToFinalSnap怎么玩"><span class="toc-number">4.2.</span> <span class="toc-text">calculateDistanceToFinalSnap怎么玩</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#findTargetSnapPosition怎么玩"><span class="toc-number">4.3.</span> <span class="toc-text">findTargetSnapPosition怎么玩</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PagerSnapHelper似乎更简单"><span class="toc-number">4.4.</span> <span class="toc-text">PagerSnapHelper似乎更简单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PagerSnapHelper注意事项"><span class="toc-number">4.5.</span> <span class="toc-text">PagerSnapHelper注意事项</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#结尾：明明是玩了一场接力赛"><span class="toc-number">5.</span> <span class="toc-text">结尾：明明是玩了一场接力赛</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 31
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span><a class="archive-post-title" href="/2019/04/24/SnapHelper硬核讲解/">SnapHelper硬核讲解</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/18</span><a class="archive-post-title" href="/2019/03/18/一波Flutter酷炫特效来袭，持续更新/">一波Flutter酷炫特效来袭，持续更新</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/16</span><a class="archive-post-title" href="/2019/03/16/Flutter交互实战－即刻App探索页下拉＆拖拽效果/">Flutter交互实战－即刻App探索页下拉＆拖拽效果</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/21</span><a class="archive-post-title" href="/2019/01/21/Android硬件位图填坑之获取硬件画布/">Android硬件位图填坑之获取硬件画布</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span><a class="archive-post-title" href="/2019/01/15/Glide4-8源码拆解（五）BitmapPool从入门到放弃/">Glide4.8源码拆解（五）BitmapPool从入门到放弃</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href="/2019/01/13/Glide4-8源码拆解（四）Bitmap解析之下采样浅析/">Glide4.8源码拆解（四）Bitmap解析之下采样浅析</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span><a class="archive-post-title" href="/2019/01/09/Glide4-8源码拆解（三）Registry和数据转换流程/">Glide4.8源码拆解（三）Registry和数据转换流程</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/04</span><a class="archive-post-title" href="/2019/01/04/Glide4-8源码拆解（二）核心加载流程/">Glide4.8源码拆解（二）核心加载流程</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/03</span><a class="archive-post-title" href="/2019/01/03/Glide4-8源码拆解（一）基本调用流程/">Glide4.8源码拆解（一）基本调用流程</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/30</span><a class="archive-post-title" href="/2018/03/30/WindowManager调用流程源码分析/">WindowManager调用流程源码分析</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/29</span><a class="archive-post-title" href="/2018/03/29/Activity启动流程源码分析/">Activity启动流程源码分析</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2017 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/14</span><a class="archive-post-title" href="/2017/04/14/Android-Gradle-搞定Groovy闭包这一篇就够了/">[Android Gradle] 搞定Groovy闭包这一篇就够了</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span><a class="archive-post-title" href="/2017/01/17/Git分支管理策略浅识/">Git分支管理策略浅识</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2016 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/02</span><a class="archive-post-title" href="/2016/12/02/自定义头部悬停的下拉刷新控件/">自定义头部悬停的下拉刷新控件</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span><a class="archive-post-title" href="/2016/12/01/你是否留意过“位运算”/"><基础>你是否留意过“位运算”</基础></a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/28</span><a class="archive-post-title" href="/2016/11/28/解惑requestDisallowInterceptTouchEvent/">解惑requestDisallowInterceptTouchEvent</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/25</span><a class="archive-post-title" href="/2016/11/25/Kotlin转Java记录/">Kotlin转Java记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/24</span><a class="archive-post-title" href="/2016/11/24/初探Android6-0权限库PermissionsDispatcher/">初探Android6.0权限库PermissionsDispatcher</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span><a class="archive-post-title" href="/2016/08/05/由CSDN博主猝死引发的思考/">由CSDN博主猝死引发的思考</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/01</span><a class="archive-post-title" href="/2016/08/01/retrofit源码解析1-md/">retrofit2.0源码解析（一）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/31</span><a class="archive-post-title" href="/2016/07/31/回顾反省与计划/"><总结> 回顾、反省与计划</总结></a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/26</span><a class="archive-post-title" href="/2016/07/26/项目重构总结-架构设计/">项目重构总结-架构版</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/25</span><a class="archive-post-title" href="/2016/07/25/从反射分析HashMap存储原理/">从反射分析HashMap存储原理</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/27</span><a class="archive-post-title" href="/2016/06/27/初探AOP在Android中的使用/">初探AOP在Android中的使用</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/20</span><a class="archive-post-title" href="/2016/05/20/解读官方MVP架构/">解读官方MVP架构</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/14</span><a class="archive-post-title" href="/2016/05/14/Android6-0权限检测总结/">Android6.0运行时权限总结</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/22</span><a class="archive-post-title" href="/2016/04/22/我为什么使用RxJava/">我为什么要使用RxJava</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2015 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/22</span><a class="archive-post-title" href="/2015/12/22/Android中简单实现比例布局/">Android中简单实现比例布局</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/11</span><a class="archive-post-title" href="/2015/10/11/解决ListView footView不能完全隐藏/">解决ListView FootView不能完全隐藏</a>
+        </li>
+    
+    </ul></div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="Android"><span class="iconfont-archer">&#xe606;</span>Android</span>
+    
+        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
+    
+        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
+    
+        <span class="sidebar-tag-name" data-tags="Bitmap"><span class="iconfont-archer">&#xe606;</span>Bitmap</span>
+    
+        <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
+    
+        <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
+    
+        <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
+    
+        <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
+    
+        <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
+    
+        <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
+    
+        <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
+    
+        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
+    
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
+    
+        <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
+    
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
+    
+        <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
+    
+        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
+    
+        <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
+    
+        <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
+    
+        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
+    
+        <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
+    
+        <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br>
+    1、请确保node版本大于6.2<br>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "lilei"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+

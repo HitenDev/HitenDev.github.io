@@ -22,7 +22,7 @@
     <meta name="description" content="">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Android6.0运行时权限总结 · Hiten&#39;s Blog.</title>
+    <title>Hiten&#39;s Blog.</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -203,23 +203,12 @@
 </head>
 
     
-        <body class="post-body">
-    
     
 <header class="header">
 
     <div class="read-progress"></div>
     <div class="header-sidebar-menu">&#xe775;</div>
     <!-- post页的toggle banner  -->
-    
-    <div class="banner">
-            <div class="blog-title">
-                <a href="/">Hiten&#39;s Blog.</a>
-            </div>
-            <div class="post-title">
-                <a href="#" class="post-name">Android6.0运行时权限总结</a>
-            </div>
-    </div>
     
     <a class="home-link" href="/">Hiten's Blog.</a>
 </header>
@@ -231,76 +220,24 @@
 
 
 
-
-height:50vh;
 ">
     
     <!-- 主页  -->
-    
-    
-    <!-- 404页  -->
             
     <div class="site-intro-placeholder"></div>
-    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-img" style="background-image: url(/)"></div>
     <div class="site-intro-meta">
         <!-- 标题  -->
         <h1 class="intro-title">
             <!-- 主页  -->
-            
-            Android6.0运行时权限总结
-            <!-- 404 -->
             
         </h1>
         <!-- 副标题 -->
         <p class="intro-subtitle">
             <!-- 主页副标题  -->
             
-            
-            <!-- 404 -->
-            
         </p>
         <!-- 文章页meta -->
-        
-            <div class="post-intros">
-                <!-- 文章页标签  -->
-                
-                    <div class="post-intro-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="6">6</a>
-    
-</div>
-                
-                
-                    <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">769</span>阅读时长: <span class="post-count reading-time">3 min</span></span>
-                    </div>
-                
-                <div class="post-intro-meta">
-                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
-                    <span class="post-intro-time">2016/05/14</span>
-                    
-                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
-                        <span class="iconfont-archer">&#xe602;</span>
-                        <span id="busuanzi_value_page_pv"></span>
-                    </span>
-                    
-                    <span class="shareWrapper">
-                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
-                        <span class="shareText">Share</span>
-                        <ul class="shareList">
-                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
-                                <div class="share-qrcode"></div>
-                            </li>
-                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
-                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
-                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
-                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
-                        </ul>
-                    </span>
-                </div>
-            </div>
         
     </div>
 </div>
@@ -401,76 +338,43 @@ height:50vh;
 </script>        
         <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
         <div class="container container-unloaded">
-            <main class="main post-page">
-    <article class="article-entry">
-        <blockquote>
-<p>Beginning in Android 6.0 (API level 23), users grant permissions to apps while the app is running, not when they install the app. This approach streamlines the app install process, since the user does not need to grant permissions when they install or update the app. It also gives the user more control over the app’s functionality   </p>
-</blockquote>
-<p>上面是引用google官方文档的一段话，google将权限分为两类，一类是一般权限，一类是危险权限<br>一般权限有哪些，参加官方文档<a href="https://developer.android.com/guide/topics/security/normal-permissions.html" target="_blank" rel="noopener">https://developer.android.com/guide/topics/security/normal-permissions.html</a><br>这些是一般的权限，看看那些是你认识的</p>
-<a id="more"></a>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">ACCESS_LOCATION_EXTRA_COMMANDS</span><br><span class="line">ACCESS_NETWORK_STATE</span><br><span class="line">ACCESS_NOTIFICATION_POLICY</span><br><span class="line">ACCESS_WIFI_STATE</span><br><span class="line">BLUETOOTH</span><br><span class="line">BLUETOOTH_ADMIN</span><br><span class="line">BROADCAST_STICKY</span><br><span class="line">CHANGE_NETWORK_STATE</span><br><span class="line">CHANGE_WIFI_MULTICAST_STATE</span><br><span class="line">CHANGE_WIFI_STATE</span><br><span class="line">DISABLE_KEYGUARD</span><br><span class="line">EXPAND_STATUS_BAR</span><br><span class="line">GET_PACKAGE_SIZE</span><br><span class="line">INSTALL_SHORTCUT</span><br><span class="line">INTERNET</span><br><span class="line">KILL_BACKGROUND_PROCESSES</span><br><span class="line">MODIFY_AUDIO_SETTINGS</span><br><span class="line">NFC</span><br><span class="line">READ_SYNC_SETTINGS</span><br><span class="line">READ_SYNC_STATS</span><br><span class="line">RECEIVE_BOOT_COMPLETED</span><br><span class="line">REORDER_TASKS</span><br><span class="line">REQUEST_IGNORE_BATTERY_OPTIMIZATIONS</span><br><span class="line">REQUEST_INSTALL_PACKAGES</span><br><span class="line">SET_ALARM</span><br><span class="line">SET_TIME_ZONE</span><br><span class="line">SET_WALLPAPER</span><br><span class="line">SET_WALLPAPER_HINTS</span><br><span class="line">TRANSMIT_IR</span><br><span class="line">UNINSTALL_SHORTCUT</span><br><span class="line">USE_FINGERPRINT</span><br><span class="line">VIBRATE</span><br><span class="line">WAKE_LOCK</span><br><span class="line">WRITE_SYNC_SETTINGS</span><br></pre></td></tr></table></figure>
-<p>对于危险权限，参考文档：<a href="https://developer.android.com/guide/topics/security/permissions.html#normal-dangerous" target="_blank" rel="noopener">https://developer.android.com/guide/topics/security/permissions.html#normal-dangerous</a></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">Permission Group	Permissions</span><br><span class="line">CALENDAR	</span><br><span class="line">READ_CALENDAR</span><br><span class="line">WRITE_CALENDAR</span><br><span class="line">CAMERA	</span><br><span class="line">CAMERA</span><br><span class="line">CONTACTS	</span><br><span class="line">READ_CONTACTS</span><br><span class="line">WRITE_CONTACTS</span><br><span class="line">GET_ACCOUNTS</span><br><span class="line">LOCATION	</span><br><span class="line">ACCESS_FINE_LOCATION</span><br><span class="line">ACCESS_COARSE_LOCATION</span><br><span class="line">MICROPHONE	</span><br><span class="line">RECORD_AUDIO</span><br><span class="line">PHONE	</span><br><span class="line">READ_PHONE_STATE</span><br><span class="line">CALL_PHONE</span><br><span class="line">READ_CALL_LOG</span><br><span class="line">WRITE_CALL_LOG</span><br><span class="line">ADD_VOICEMAIL</span><br><span class="line">USE_SIP</span><br><span class="line">PROCESS_OUTGOING_CALLS</span><br><span class="line">SENSORS	</span><br><span class="line">BODY_SENSORS</span><br><span class="line">SMS	</span><br><span class="line">SEND_SMS</span><br><span class="line">RECEIVE_SMS</span><br><span class="line">READ_SMS</span><br><span class="line">RECEIVE_WAP_PUSH</span><br><span class="line">RECEIVE_MMS</span><br><span class="line">STORAGE	</span><br><span class="line">READ_EXTERNAL_STORAGE</span><br><span class="line">WRITE_EXTERNAL_STORAGE</span><br></pre></td></tr></table></figure>
-<p>从官网粘贴过来的表格数据格式一塌糊涂，我了个擦擦</p>
-<p> 险权限为毛要分组，googl的一句话：All dangerous Android system permissions belong to permission groups.好吧<br> 分就分吧，注意，授权机制只对6.0以上的机器有效，授权机制如下：</p>
-<p> 如果一个APP申请一个在manifest文件中申明过的危险权限，如果这个权限没被授予，会谈Dialgo提示用户，用户点击确认方可授权<br> 如果一个APP申请一个在manifest文件中申明过的危险权限，如果这个权限被授予过，就直接授予，不用再弹框提醒；<br> 如果APP已经授予过READ_CONTACTS权限，那么申请WRITE_CONTACTS权限时，也会直接授予，就是在一个组里的，只要授予一个了，其他的都授。</p>
-<p>相关API<a href="https://developer.android.com/training/permissions/requesting.html" target="_blank" rel="noopener">参考</a></p>
-<ul>
-<li>检查权限 <blockquote>
-<p>To check if you have a permission, call the ContextCompat.checkSelfPermission() method. For example, this snippet shows how to check if the activity has permission to write to the calendar:</p>
-</blockquote>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// Assume thisActivity is the current activity</span><br><span class="line">int permissionCheck = ContextCompat.checkSelfPermission(thisActivity,</span><br><span class="line">        Manifest.permission.WRITE_CALENDAR);</span><br></pre></td></tr></table></figure>
-<p>方法主要返回值为PackageManager.PERMISSION_GRANTED或者PERMISSION_DENIED，如果返回PERMISSION_GRANTED表示已授权，如果返回PERMISSION_DENIED，表示没有被授权</p>
-<p>解释为什么app需要授权<br><img src="https://developer.android.com/images/training/permissions/request_permission_dialog_2x.png" alt=""></p>
-<ul>
-<li>申请授权</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">// Here, thisActivity is the current activity</span><br><span class="line">if (ContextCompat.checkSelfPermission(thisActivity,</span><br><span class="line">                Manifest.permission.READ_CONTACTS)</span><br><span class="line">        != PackageManager.PERMISSION_GRANTED) &#123;</span><br><span class="line"></span><br><span class="line">    // 我们需要向用户解释为什么需要这个授权，主要是用户已经拒绝过一次了</span><br><span class="line">    if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity,</span><br><span class="line">            Manifest.permission.READ_CONTACTS)) &#123;</span><br><span class="line"></span><br><span class="line">        // Show an expanation to the user *asynchronously* -- don&apos;t block</span><br><span class="line">        // this thread waiting for the user&apos;s response! After the user</span><br><span class="line">        // sees the explanation, try again to request the permission.</span><br><span class="line"></span><br><span class="line">    &#125; else &#123;</span><br><span class="line"></span><br><span class="line">        //不需要解释，</span><br><span class="line">        //请求权限，请求了权限一个数组</span><br><span class="line">        ActivityCompat.requestPermissions(thisActivity,</span><br><span class="line">                new String[]&#123;Manifest.permission.READ_CONTACTS&#125;,</span><br><span class="line">                MY_PERMISSIONS_REQUEST_READ_CONTACTS);</span><br><span class="line">                </span><br><span class="line">        // MY_PERMISSIONS_REQUEST_READ_CONTACTS 是程序员自己定义的一个常量，在结果回调时判断，类似于startActivityForResult()方法中的requestCode</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>，其实主要有两个方法ActivityCompat.shouldShowRequestPermissionRationale和ActivityCompat.requestPermissions</p>
-<ul>
-<li>处理回调</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void onRequestPermissionsResult(int requestCode,</span><br><span class="line">        String permissions[], int[] grantResults) &#123;</span><br><span class="line">            //grantResults对应于请求权限的那个String[]</span><br><span class="line">    switch (requestCode) &#123;</span><br><span class="line">        //对应刚才那个请求code</span><br><span class="line">        case MY_PERMISSIONS_REQUEST_READ_CONTACTS: &#123;</span><br><span class="line">            // 如果权限取消，数组是空的</span><br><span class="line">            if (grantResults.length &gt; 0</span><br><span class="line">                &amp;&amp; grantResults[0] == PackageManager.PERMISSION_GRANTED) &#123;</span><br><span class="line">              //获取权限成功</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                //获取权限失败</span><br><span class="line">            &#125;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      //其他请求</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>总结：6.0运行权限其实是很简单的API，在项目中也用了起来，下一步可以进行封装，再接再厉！</p>
-
+            <main class="main index-page">
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
+        <a class="abstract-title" href="/2015/10/11/解决ListView footView不能完全隐藏/">
+            
+                <span>解决ListView FootView不能完全隐藏</span>
+        </a>
+        <div class="abstract-content">
+            <p>写过Android ListView加载更多功能的朋友可能都知道，我们经常会写一个footView，<br>通过设置ListView的addFootView方法增加尾布局，在列表滑动到底部的时候，触发footViw显示，<br>当没有更多数据的时候，会把footView隐藏。<br>但是在设置footView为gone时，虽然内容隐藏了，但是这块布局还在占着，像是设置成inVisible一样，我总结网上的解决方法，<br>有两种一般性解决方案：<br>
+        </p></div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2015/10/11</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class="abstract-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
+    
+</div>
+            
+        </div>
     </article>
-    <!-- license  -->
     
     <!-- paginator  -->
-    <ul class="post-paginator">
-        <li class="next">
-            
-                <div class="nextSlogan">Next Post</div>
-                <a href="/2016/05/20/解读官方MVP架构/" title="解读官方MVP架构">
-                    <div class="nextTitle">解读官方MVP架构</div>
-                </a>
-            
-        </li>
-        <li class="previous">
-            
-                <div class="prevSlogan">Previous Post</div>
-                <a href="/2016/04/22/我为什么使用RxJava/" title="我为什么要使用RxJava">
-                    <div class="prevTitle">我为什么要使用RxJava</div>
-                </a>
-            
-        </li>
-    </ul>
-    <!-- 评论插件 -->
-    <!-- 来必力City版安装代码 -->
-
-<!-- City版安装代码已完成 -->
     
+    <nav class="page-nav">
+        <a class="extend prev" rel="prev" href="/archives/page/3/">&#60; PREV</a><a class="page-number" href="/archives/">1</a><a class="page-number" href="/archives/page/2/">2</a><a class="page-number" href="/archives/page/3/">3</a><span class="page-number current">4</span>
+    </nav>
     
-    <!-- partial('_partial/comment/changyan') -->
-    <!--PC版-->
-
-
-    
-    
-
-    <!-- 评论 -->
 </main>
             <!-- profile -->
             
@@ -559,24 +463,6 @@ height:50vh;
 </footer>
     </div>
     <!-- toc -->
-    
-    <div class="toc-wrapper" style=
-    
-
-
-
-
-
-
-
-top:50vh;
-
-    >
-        <div class="toc-catalog">
-            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
-        </div>
-        
-    </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
     <div class="sidebar sidebar-hide">
@@ -1336,8 +1222,6 @@ jsonContent:
     
     </div>
     <!-- async load share.js -->
-    
-        <script src="/scripts/share.js" async></script>    
      
     </body>
 </html>
