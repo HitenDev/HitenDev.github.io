@@ -357,6 +357,125 @@ height:50vh;
     
     
     <article class="index-post">
+        <a class="abstract-title" href="/2019/01/04/Glide4-8源码拆解（二）核心加载流程/">
+            
+                <span>Glide4.8源码拆解（二）核心加载流程</span>
+        </a>
+        <div class="abstract-content">
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在<a href="https://juejin.im/post/5c2c4dba51882565986a27a4" target="_blank" rel="noopener">上一篇</a>文章中介绍了Glide基本的调用流程，总结起来就是<code>Engine</code>是真正加载资源的入口，<code>SingleRequest</code>起到连接<code>RequestManager</code>、<code>Target</code>和<code>Engine</code>的纽带关系，本文将承接上文，探讨Glide的加载流程。</p>
+<p>本章要讨论的内容：</p>
+<ul>
+<li>Engine的工作流程；</li>
+<li>内存缓存ActiveResource原理剖析；</li>
+<li>内存缓存MemoryCache基本原理;</li>
+<li>EngineJob和DecodeJob的工作原理；</li>
+</ul>
+<p>在讨论Engine之前，还是从调用它的地方开始<code>SingleReques.onSizeReady</code></p>
+<h2 id="从Engine开始"><a href="#从Engine开始" class="headerlink" title="从Engine开始"></a>从Engine开始</h2>
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/01/04</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class="abstract-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="源码分析">源码分析</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Glide">Glide</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
+        <a class="abstract-title" href="/2019/01/03/Glide4-8源码拆解（一）基本调用流程/">
+            
+                <span>Glide4.8源码拆解（一）基本调用流程</span>
+        </a>
+        <div class="abstract-content">
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Glide是一款功能强大的图片加载框架，它功能强大，用法简单且易于扩展，同时也是Google推荐的Android平台图片加载库，堪称优秀。</p>
+<h2 id="本章拆解思路"><a href="#本章拆解思路" class="headerlink" title="本章拆解思路"></a>本章拆解思路</h2><p>这算是开篇第一章吧，我准备从入口类和简单的调用流程说起，包括但不限于：</p>
+<ul>
+<li>Glide的构造</li>
+<li>RequestManager和生命周期监听</li>
+<li>Request和配置的收集</li>
+<li>Target以及触发异步加载</li>
+</ul>
+<h2 id="Glide对象初始化"><a href="#Glide对象初始化" class="headerlink" title="Glide对象初始化"></a>Glide对象初始化</h2><h3 id="从with-说起"><a href="#从with-说起" class="headerlink" title="从with()说起"></a>从with()说起</h3><p>为何要从with()方法,明明初始化代码在get()方法中：</p>
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/01/03</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class="abstract-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="源码分析">源码分析</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Glide">Glide</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
+        <a class="abstract-title" href="/2018/03/30/WindowManager调用流程源码分析/">
+            
+                <span>WindowManager调用流程源码分析</span>
+        </a>
+        <div class="abstract-content">
+            <p>前两天写Activity启动流程时挖个坑，ActivityThread调用Activity.resume后，紧接着调用WindowManager.addView()用来正在的显示View，之前讲的很草率，现在感觉有必要写一下WindowManager的调用流程。</p>
+<blockquote>
+<p>本文基于android8.1.0_r15分支分析</p>
+</blockquote>
+<p><strong>WindowManager简单介绍</strong></p>
+<p>首先WindowManager是一个接口继承自ViewManager，它作用是用于窗口的管理，我们平时的使用比较多的是addView方法和LayoutParams参数，addView定义在基类ViewManager中，源码：</p>
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2018/03/30</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class="abstract-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="源码分析">源码分析</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href="/2018/03/29/Activity启动流程源码分析/">
             
                 <span>Activity启动流程源码分析</span>
@@ -585,118 +704,6 @@ height:50vh;
             <div class="abstract-tags">
     
         <a class="post-tag" href="javascript:void(0);" data-tags="Kotlin">Kotlin</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/11/24/初探Android6-0权限库PermissionsDispatcher/">
-            
-                <span>初探Android6.0权限库PermissionsDispatcher</span>
-        </a>
-        <div class="abstract-content">
-            <p>关于Android6.0运行时权限问题，大家应该不会陌生，这个坑我早就傻傻的跳进去过，说一个笑话，api23刚出来不久，在没搞清新特性之前，我就在项目中用上了，发到线上的包因为一个权限忘了判断而崩溃，后来紧急热修复，还特意写了一篇<a href="https://ileelay.github.io/2016/05/14/Android6-0%E6%9D%83%E9%99%90%E6%A3%80%E6%B5%8B%E6%80%BB%E7%BB%93/" target="_blank" rel="noopener">博客</a>来总结，言归正传，那么这个PermissionsDispatcher什么东西；</p>
-<blockquote>
-<p><strong><a href="https://github.com/hotchemi/PermissionsDispatcher" target="_blank" rel="noopener">PermissionsDispatcher</a></strong>是一个用注解方式来处理Android6.0运行时权限的库，旨在高效处理权限问题。</p>
-</blockquote>
-<p><img src="https://raw.githubusercontent.com/hotchemi/PermissionsDispatcher/master/art/logo.png" alt="用它一张图"></p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/11/24</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="运行时编译 6.0权限">运行时编译 6.0权限</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">
-            
-                <span>分享一个RecyclerView的click技巧</span>
-        </a>
-        <div class="abstract-content">
-            <p>如何处理一个RecyclerView列表点击事件，在网上一般能搜到两种方案：</p>
-<ul>
-<li><p>从ViewHolder中得到rootView，然后进行setOnClickListener();</p>
-</li>
-<li><p>实现RecyclerView.OnItemTouchListener接口，从Touch事件中分发出Click事件；</p>
-</li>
-</ul>
-<p>这两种解决方案在网上都有讲解，想了解更多的，可以参考<a href="http://blog.sina.com.cn/s/blog_13d81ef090102wdnv.html" target="_blank" rel="noopener">这篇博客</a>，我在实际开发中，更倾向于第一种方案，因为这种方案比较简单，但是每次还得在ViewHoler中写代码，很多时候点击事件的逻辑应该在activity中实现，这样还得定义用于回调的接口，然后从activity得到viewHoler对象，set事件，作为一个有洁癖的程序员，这是多么邋遢的写法，但更可耻的是，我竟然一直在默默接受了；</p>
-<p>今天在闲逛国外大牛博客时，发现一种封装的技巧，也是基于view的setOnClickListener方法，但不是在viewHolder获取view；</p>
-<p>先看看怎么调用：</p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/11/23</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="view">view</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">
-            
-                <span>OkHttp3中Interceptor的使用心得</span>
-        </a>
-        <div class="abstract-content">
-            <p>在看到这篇文章时，希望你已经阅读过OkHttp对Interceptor的正式介绍，<a href="https://github.com/square/okhttp/wiki/Interceptors" target="_blank" rel="noopener">地址在这里</a>，同时，你还可以知道<a href="https://github.com/square/okhttp/tree/master/okhttp-logging-interceptor" target="_blank" rel="noopener">okhttp-logging-interceptor</a>这个辅助库，当然如果你没有阅读过也并无大碍，这篇文章重在描述使用场景和个人心得；</p>
-<blockquote>
-<p>在去年网上讨论最多的就是OkHttp和Volley的比较，我当时决定把项目中的Volley换成OkHttp2，是因为在弱网环境下测试，OkHttp比较坚强，所以就用它了，并不是对Square的情怀；在一年多的使用中，不论是从2.x版本升到3.x，OkHttp绝对是最好用的库，特别是加之Retrofit，如虎添翼；</p>
-</blockquote>
-<p>这篇文章是讲Interceptor的使用心得，这就根据我所用，总结出这么几点：</p>
-<ul>
-<li>Log输出</li>
-<li>增加公共请求参数</li>
-<li>修改请求头</li>
-<li>加密请求参数</li>
-<li>服务器端错误码处理（时间戳异常为例）</li>
-</ul>
-<p>这几点绝不是全面，但至少是目前很多开发者或多或少都会遇到的问题，Log输出是必须有的，公共参数这是必须有的，请求头加密和参数加密，这个不一定都有；重点是服务端错误码处理，这个放在哪里处理，见仁见智，但是有些比较恶心的错误，比如时间戳异常(请求任何一个服务器接口时必须携带时间戳参数，服务器专门有提供时间戳的接口，这个时间戳要和服务器时间戳同步，容错在5秒，否则就返回时间戳错误)，比如客户端修改系统时间时这一刻又断网了，监听时间变化也没用，又不可能定时去获取，所以何时需要同步，去请求这个接口成了问题，我处理的方案是在Interceptor中过滤结果，当某个接口返回时间戳异常时，不把结果往上返，再执行一次时间戳接口，如果获取成功，传入参数并重构之前的请求，如果获取失败，把之前时间戳异常的接果返回。</p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/11/23</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="okhttp 网络">okhttp 网络</a>
     
 </div>
             
@@ -1324,9 +1331,22 @@ height:50vh;
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 31
+        Total : 34
         </div>
         <!-- search  -->
         
@@ -1339,6 +1359,21 @@ height:50vh;
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/19</span><a class="archive-post-title" href="/2019/05/19/【ViewPager2避坑系列】瞬间暴增数个Fragment/">【ViewPager2避坑系列】瞬间暴增数个Fragment</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/15</span><a class="archive-post-title" href="/2019/05/15/Fragment新功能，setMaxLifecycle了解一下/">Fragment新功能，setMaxLifecycle了解一下</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/14</span><a class="archive-post-title" href="/2019/05/14/ViewPager2重大更新，支持offscreenPageLimit/">ViewPager2重大更新，支持offscreenPageLimit</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -1459,12 +1494,12 @@ height:50vh;
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
         </li>
     
     
@@ -1538,6 +1573,8 @@ height:50vh;
     
         <span class="sidebar-tag-name" data-tags="Android"><span class="iconfont-archer">&#xe606;</span>Android</span>
     
+        <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
+    
         <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
     
         <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
@@ -1546,39 +1583,37 @@ height:50vh;
     
         <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
     
-        <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
-    
         <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
+    
+        <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
     
         <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
     
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
+    
         <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
+    
+        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
+    
+        <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
     
         <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
     
         <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
     
-        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
-    
-        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
+        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
     
         <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
     
-        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
-    
-        <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
-    
-        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
-    
         <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
     
-        <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
     
         <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
     
         <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
     
-        <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
+        <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>

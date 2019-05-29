@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.8.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="lilei">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="lilei">
+    
+    <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>【ViewPager2避坑系列】瞬间暴增数个Fragment · Hiten&#39;s Blog.</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin="">
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin="">
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/">Hiten&#39;s Blog.</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">【ViewPager2避坑系列】瞬间暴增数个Fragment</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href="/">Hiten's Blog.</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            【ViewPager2避坑系列】瞬间暴增数个Fragment
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>字数统计: <span class="post-count word-count">1.8k</span>阅读时长: <span class="post-count reading-time">7 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/05/19</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近我在关注<code>ViewPager2</code>的使用，期间一直基于官方的Demo调试<a href="https://github.com/googlesamples/android-viewpager2" target="_blank" rel="noopener">android-viewpager2</a>，今天遇到一个奇葩的问题，捉摸了半天最终找到原因，原来是Demo中布局的问题，事后感觉有必要分享一下这个过程，一来可以巩固View测量的知识，二来希望大家能避开这个坑；</p>
+<p><strong>阅读指南</strong></p>
+<ul>
+<li>代码基于<a href="https://github.com/googlesamples/android-viewpager2" target="_blank" rel="noopener">android-viewpager2</a>，看官老爷最好能下载源码亲身体会；</li>
+</ul>
+<h1 id="入坑现场"><a href="#入坑现场" class="headerlink" title="入坑现场"></a>入坑现场</h1><p>为了观察<code>Fragment</code>的生命周期，我事先在<code>CardFragment</code>类中，对生命周期方法进行埋点Log；</p>
+<p><strong>异常发生的操作步骤：</strong></p>
+<p>横屏进入<code>CardFragmentActivity</code>或者<code>CardFragmentActivity</code>竖屏切到横屏，控制台瞬间打印多个Fragment的生命周期Log，场面让人惊呆；</p>
+<p><strong>CardFragmentActivity横屏下布局</strong></p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/19/16ad08887e47a9f4?w=2060&amp;h=934&amp;f=png&amp;s=189085" alt=""></p>
+<p><strong>控制台Log输出</strong></p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/19/16ad0584bdcb6774?w=1770&amp;h=1166&amp;f=png&amp;s=491985" alt=""></p>
+<p>由于Log太长，一屏根本截不完，反正就是很多个<code>Fragment</code>经历了<code>onCreate</code>-&gt;<code>onDestory</code>的所有过程；</p>
+<p>操作前，只有<code>Fragment2</code>创建并显示，理论上旋转屏幕之后，只有<code>Fragment2</code>销毁并重建，不会调用其他<code>Fragment</code>；现在问题发生在了，旋转之后有一堆<code>Fragment</code>创建并且销毁，最终保留的也只有<code>Fragment2</code>，这肯定是个Bug，虽然发生在一行代码都没有改的官方Demo上;</p>
+<h1 id="初步原因MATCH-PARENT计算失效"><a href="#初步原因MATCH-PARENT计算失效" class="headerlink" title="初步原因MATCH_PARENT计算失效"></a>初步原因<code>MATCH_PARENT计算失效</code></h1><p><code>ViewPager2</code>目前只支持<code>ItemView</code>的布局参数是<code>MATCH_PARENT</code>，就是填充父布局的效果；由于<code>ViewPager2</code>是基于<code>RecyclerView</code>，理论上每个<code>ItemView</code>一定会是<code>MATCH_PARENT</code>，控制一屏只加载一个<code>Item</code>，但是一旦<code>MATCH_PARENT</code>计算失效，那么<code>ViewPager2</code>基本上就是<code>RecyclerView</code>的效果，瞬间多个<code>Fragment</code>是可以解释通的；</p>
+<h2 id="ViewPager2测量流程"><a href="#ViewPager2测量流程" class="headerlink" title="ViewPager2测量流程"></a><code>ViewPager2</code>测量流程</h2><p><strong>ViewPager2</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) &#123;</span><br><span class="line">    //测量mRecyclerView</span><br><span class="line">    measureChild(mRecyclerView, widthMeasureSpec, heightMeasureSpec);</span><br><span class="line">    int width = mRecyclerView.getMeasuredWidth();</span><br><span class="line">    int height = mRecyclerView.getMeasuredHeight();</span><br><span class="line">    int childState = mRecyclerView.getMeasuredState();</span><br><span class="line">    //宽高计算</span><br><span class="line">    width += getPaddingLeft() + getPaddingRight();</span><br><span class="line">    height += getPaddingTop() + getPaddingBottom();</span><br><span class="line">    //宽高约束</span><br><span class="line">    width = Math.max(width, getSuggestedMinimumWidth());</span><br><span class="line">    height = Math.max(height, getSuggestedMinimumHeight());</span><br><span class="line">    //设置自身高度</span><br><span class="line">    setMeasuredDimension(resolveSizeAndState(width, widthMeasureSpec, childState),</span><br><span class="line">            resolveSizeAndState(height, heightMeasureSpec,</span><br><span class="line">                    childState &lt;&lt; MEASURED_HEIGHT_STATE_SHIFT));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>ViewPager2.onMeasure()</code>优先计算<code>mRecyclerView</code>的尺寸，所以关注的重点转移到<code>RecyclerView.onMeasure()</code>上，<code>RecyclerView</code>对<code>子View</code>的计算和布局逻辑在<code>LayoutManager</code>中，所以本例子重要看<code>LinearLayoutManager</code>,<code>LayoutManager</code>对子View计算的方法是<code>measureChildWithMargins()</code>，下面看一下<code>measureChildWithMargins()</code>方法的调用栈；</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/19/16ad074521497d2f?w=1132&amp;h=652&amp;f=png&amp;s=177504" alt=""></p>
+<p>主要分析<code>measureChildWithMargins()</code>代码：</p>
+<p><strong>RecyclerView.LayoutManager</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">public void measureChildWithMargins(@NonNull View child, int widthUsed, int heightUsed) &#123;</span><br><span class="line">    final LayoutParams lp = (LayoutParams) child.getLayoutParams();</span><br><span class="line">    //获取当前View的Decor(传统理解的分割线)尺寸</span><br><span class="line">    final Rect insets = mRecyclerView.getItemDecorInsetsForChild(child);</span><br><span class="line">    widthUsed += insets.left + insets.right;</span><br><span class="line">    heightUsed += insets.top + insets.bottom;</span><br><span class="line">    //获取宽测量信息</span><br><span class="line">    final int widthSpec = getChildMeasureSpec(getWidth(), getWidthMode(),</span><br><span class="line">            getPaddingLeft() + getPaddingRight()</span><br><span class="line">                    + lp.leftMargin + lp.rightMargin + widthUsed, lp.width,</span><br><span class="line">            canScrollHorizontally());</span><br><span class="line">    //获取高测量信息</span><br><span class="line">    final int heightSpec = getChildMeasureSpec(getHeight(), getHeightMode(),</span><br><span class="line">            getPaddingTop() + getPaddingBottom()</span><br><span class="line">                    + lp.topMargin + lp.bottomMargin + heightUsed, lp.height,</span><br><span class="line">           canScrollVertically());</span><br><span class="line">    //如果需要测量，调用child的测量方法</span><br><span class="line">    if (shouldMeasureChild(child, widthSpec, heightSpec, lp)) &#123;</span><br><span class="line">        child.measure(widthSpec, heightSpec);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>获取宽高测量信息的代码:</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">public static int getChildMeasureSpec(int parentSize, int parentMode, int padding,</span><br><span class="line">        int childDimension, boolean canScroll) &#123;</span><br><span class="line">    int size = Math.max(0, parentSize - padding);</span><br><span class="line">    int resultSize = 0;</span><br><span class="line">    int resultMode = 0;</span><br><span class="line">    if (canScroll) &#123;</span><br><span class="line">        if (childDimension &gt;= 0) &#123;</span><br><span class="line">            resultSize = childDimension;</span><br><span class="line">            resultMode = MeasureSpec.EXACTLY;</span><br><span class="line">        &#125; else if (childDimension == LayoutParams.MATCH_PARENT) &#123;</span><br><span class="line">            switch (parentMode) &#123;</span><br><span class="line">                case MeasureSpec.AT_MOST:</span><br><span class="line">                case MeasureSpec.EXACTLY:</span><br><span class="line">                    resultSize = size;</span><br><span class="line">                    resultMode = parentMode;</span><br><span class="line">                    break;</span><br><span class="line">                case MeasureSpec.UNSPECIFIED:</span><br><span class="line">                    resultSize = 0;</span><br><span class="line">                    resultMode = MeasureSpec.UNSPECIFIED;</span><br><span class="line">                    break;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; else if (childDimension == LayoutParams.WRAP_CONTENT) &#123;</span><br><span class="line">            resultSize = 0;</span><br><span class="line">            resultMode = MeasureSpec.UNSPECIFIED;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">       //省略</span><br><span class="line">    &#125;</span><br><span class="line">    return MeasureSpec.makeMeasureSpec(resultSize, resultMode);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>分析<code>getChildMeasureSpec()</code>方法，由于<code>ViewPager2</code>强制设置<code>MATCH_PARENT</code>，所以<code>childDimension</code>肯定是<code>MATCH_PARENT</code>，那么<code>resultMode</code>是什么呢，通过断点打印输出，这里的<code>parentMode</code>是<code>MeasureSpec.UNSPECIFIED</code>和<code>MeasureSpec.EXACTLY</code>交替出现；</p>
+<p>刚开始一直在关注子View计算流程，发现<code>MeasureSpecMode</code>异常，总是出现<code>MeasureSpec.UNSPECIFIED</code>和<code>MeasureSpec.EXACTLY</code>交替，最后直接打印<code>RecyclerView</code>的<code>onMeasure</code>输出；</p>
+<p><strong>RecyclerView.onMeasure输出日志</strong></p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/19/16ad083f858674ea?w=1036&amp;h=494&amp;f=png&amp;s=83689" alt=""></p>
+<p>在竖屏时，<code>widthMeasureMode</code>一直都是1073741824(<code>MATCH_PARENT</code>)，但是横屏状态下，<code>widthMeasureMode</code>在0(<code>UNSPECIFIED</code>)和<code>MATCH_PARENT</code>中徘徊；对比差别就是<code>MeasureMode = UNSPECIFIED</code>，所以问题应该出在<code>MeasureMode = UNSPECIFIED</code>上；</p>
+<h2 id="如何产生的UNSPECIFIED？"><a href="#如何产生的UNSPECIFIED？" class="headerlink" title="如何产生的UNSPECIFIED？"></a>如何产生的<code>UNSPECIFIED</code>？</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;</span><br><span class="line">    xmlns:tools=&quot;http://schemas.android.com/tools&quot;</span><br><span class="line">    android:layout_width=&quot;match_parent&quot;</span><br><span class="line">    android:layout_height=&quot;match_parent&quot;</span><br><span class="line">    android:orientation=&quot;horizontal&quot;</span><br><span class="line">    tools:background=&quot;#FFFFFF&quot;&gt;</span><br><span class="line">    &lt;include layout=&quot;@layout/controls&quot; /&gt;</span><br><span class="line">    &lt;androidx.viewpager2.widget.ViewPager2</span><br><span class="line">        android:id=&quot;@+id/view_pager&quot;</span><br><span class="line">        android:layout_width=&quot;0dp&quot;</span><br><span class="line">        android:layout_height=&quot;match_parent&quot;</span><br><span class="line">        android:layout_weight=&quot;1&quot; /&gt;</span><br><span class="line"></span><br><span class="line">&lt;/LinearLayout&gt;</span><br></pre></td></tr></table></figure>
+<p>整体布局是<code>LinearLayout</code>，在布局里面，<code>ViewPager2 layout_width=&quot;0dp&quot; layout_weight=&quot;1&quot;</code>，可能是<code>width=0dp &amp;&amp; weight=1</code>造成，扒一扒<code>LinearLayout</code>测量代码逻辑；</p>
+<p><strong>LinearLayout</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) &#123;</span><br><span class="line">    if (mOrientation == VERTICAL) &#123;</span><br><span class="line">        measureVertical(widthMeasureSpec, heightMeasureSpec);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        measureHorizontal(widthMeasureSpec, heightMeasureSpec);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p><code>LinearLayout</code>的<code>onMeasure()</code>方法分为竖直方向和水平方向，我们这里选择<code>measureHorizontal()</code>入手；</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/19/16ad09faf1915760?w=1370&amp;h=1038&amp;f=png&amp;s=235004" alt=""></p>
+<p><code>measureHorizontal()</code>方法中通过判断<code>lp.width == 0 &amp;&amp; lp.weight &gt; 0</code>断定是否需要过渡加载<code>useExcessSpace</code>，下面的过渡加载就是采用<code>UNSPECIFIED</code>方式测量；</p>
+<h3 id="为何还要执行一次MATCH-PARENT测量"><a href="#为何还要执行一次MATCH-PARENT测量" class="headerlink" title="为何还要执行一次MATCH_PARENT测量"></a>为何还要执行一次<code>MATCH_PARENT</code>测量</h3><p>这是由于<code>LinearLayout</code>的<code>measureHorizontal()</code>针对过渡加载<code>useExcessSpace</code>的布局，会进行两次测量，第二次就会传递实际的测量模式；</p>
+<h3 id="为何UNSPECIFIED模式下，MATCH-PARENT会失效"><a href="#为何UNSPECIFIED模式下，MATCH-PARENT会失效" class="headerlink" title="为何UNSPECIFIED模式下，MATCH_PARENT会失效"></a>为何<code>UNSPECIFIED</code>模式下，<code>MATCH_PARENT</code>会失效</h3><p>我们暂时只讨论<code>FrameLayout</code>的情况，如果<code>FrameLayout</code>的父布局给该<code>FrameLayout</code>的测量模式是<code>UNSPECIFIED</code>，尺寸是自身的具体宽高，而且该<code>FrameLayout</code>的<code>LayoutParams</code>是<code>MATCH_PARENT</code>，试问<code>FrameLayout</code>能测量出准确的<code>MATCH_PARENT</code>尺寸吗？</p>
+<p><strong>FrameLayout</strong></p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/19/16ad0a9541e12953?w=1796&amp;h=1194&amp;f=png&amp;s=285795" alt=""></p>
+<p><code>FrameLayout</code>会测量所有可见<code>View</code>的尺寸，然后算出最大的尺寸<code>maxWidth</code>和<code>maxHeight</code>，自身尺寸的测量调用<code>setMeasuredDimension()</code>方法，每个<code>Dimension</code>的设置调用<code>resolveSizeAndState(maxWidth, widthMeasureSpec, childState)</code>方法；</p>
+<p><strong>resolveSizeAndState()</strong><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">public static int resolveSizeAndState(int size, int measureSpec, int childMeasuredState) &#123;</span><br><span class="line">    //来自父布局建议的模式和尺寸</span><br><span class="line">    final int specMode = MeasureSpec.getMode(measureSpec);</span><br><span class="line">    final int specSize = MeasureSpec.getSize(measureSpec);</span><br><span class="line">    final int result;</span><br><span class="line">    switch (specMode) &#123;//父布局建议的模式</span><br><span class="line">        case MeasureSpec.AT_MOST:</span><br><span class="line">            if (specSize &lt; size) &#123;</span><br><span class="line">                result = specSize | MEASURED_STATE_TOO_SMALL;</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                result = size;</span><br><span class="line">            &#125;</span><br><span class="line">            break;</span><br><span class="line">        case MeasureSpec.EXACTLY:</span><br><span class="line">            result = specSize;</span><br><span class="line">            break;</span><br><span class="line">        case MeasureSpec.UNSPECIFIED://在这里</span><br><span class="line">        default:</span><br><span class="line">            result = size;//这个size就是传入的size</span><br><span class="line">    &#125;</span><br><span class="line">    return result | (childMeasuredState &amp; MEASURED_STATE_MASK);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>分析<code>resolveSizeAndState()</code>，如果<code>measureSpec</code>的<code>specMode=UNSPECIFIED</code>，结果返回传入的<code>size</code>，在<code>FrameLayout</code>中是<code>maxWidth</code>和<code>maxHeight</code>，而并不是parent给予的specSize；</p>
+<h3 id="为何整体会测量两遍"><a href="#为何整体会测量两遍" class="headerlink" title="为何整体会测量两遍"></a>为何整体会测量两遍</h3><p>这是由于<code>FrameLayout</code>针对<code>MATCH_PARENT</code>的布局，会进行二次测量，第一次测量为了找到最大尺寸<code>maxsize</code>，二次测量把用<code>maxsize</code>从新计算<code>MATCH_PARENT</code>的子View；</p>
+<h1 id="避免入坑"><a href="#避免入坑" class="headerlink" title="避免入坑"></a>避免入坑</h1><p>上诉讲解就是为了说明，<code>UNSPECIFIED</code>会影响<code>MATCH_PARENT</code>的测量，至少在<code>FrameLayout</code>上是影响的，<code>FrameLayout</code>会采取子View的最大尺寸，一旦失去<code>MATCH_PARENT</code>的意义，<code>ViewPager2</code>就失去了<code>ItemView</code>一屏显示一个的特性，所以会出现开头说的<code>瞬间暴增多个Fragment</code>现象；</p>
+<p>由于<code>ViewPager2</code>配合<code>Fragment</code>使用时，根布局是<code>FrameLayout</code>这个无法改变，解决办法就是不允许出现跟滑动方向相同的维度测量上，出现<code>UNSPECIFIED</code>;</p>
+<p>如果父布局是<code>LinearLayout</code>，横向滑动时要避免<code>layout_width=&quot;0dp&quot;和layout_weight=&quot;1&quot;</code>，纵向滑动时要避免<code>layout_height=&quot;0dp&quot;和layout_weight=&quot;1&quot;</code>，代码的解决方案很简单，去掉<code>layout_weight=&quot;1&quot;</code>,吧<code>layout_width</code>设置成<code>match_parent</code>;</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/19/16ad0b806af5e55a?w=2116&amp;h=818&amp;f=png&amp;s=179242" alt=""></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>注意<code>ViewPager2</code>配合<code>Fragment</code>使用时，一旦发现<code>Fragment</code>瞬间暴增的情况，可能是Item尺寸测量的不对，造成这个原因要优先想到<code>UNSPECIFIED</code>，·如果用的<code>LinearLayout</code>可能是<code>layout_weight=&quot;1&quot;</code>的原因，同理，<code>RecyclerView</code>+<code>PagerSnapHelper</code>+<code>match_parent</code>实现一屏一个Item的方案，也存在这个风险；</p>
+
+    </article>
+    <!-- license  -->
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2019/05/15/Fragment新功能，setMaxLifecycle了解一下/" title="Fragment新功能，setMaxLifecycle了解一下">
+                    <div class="prevTitle">Fragment新功能，setMaxLifecycle了解一下</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:zzdxit@gmail.com" class="iconfont-archer email" title="email"></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/HitenDev" class="iconfont-archer github" target="_blank" title="github"></a>
+            
+        
+    
+        
+            
+                <span class="iconfont-archer wechat" title="wechat">
+                  
+                  <img class="profile-qr" src="/assets/example_qr.png">
+                </span>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+            
+                <a href="https://juejin.im/user/595a16125188250d944c6997" class="iconfont-archer juejin" target="_blank" title="juejin"></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#入坑现场"><span class="toc-number">2.</span> <span class="toc-text">入坑现场</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#初步原因MATCH-PARENT计算失效"><span class="toc-number">3.</span> <span class="toc-text">初步原因MATCH_PARENT计算失效</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#ViewPager2测量流程"><span class="toc-number">3.1.</span> <span class="toc-text">ViewPager2测量流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#如何产生的UNSPECIFIED？"><span class="toc-number">3.2.</span> <span class="toc-text">如何产生的UNSPECIFIED？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#为何还要执行一次MATCH-PARENT测量"><span class="toc-number">3.2.1.</span> <span class="toc-text">为何还要执行一次MATCH_PARENT测量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为何UNSPECIFIED模式下，MATCH-PARENT会失效"><span class="toc-number">3.2.2.</span> <span class="toc-text">为何UNSPECIFIED模式下，MATCH_PARENT会失效</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#为何整体会测量两遍"><span class="toc-number">3.2.3.</span> <span class="toc-text">为何整体会测量两遍</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#避免入坑"><span class="toc-number">4.</span> <span class="toc-text">避免入坑</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#总结"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 34
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/19</span><a class="archive-post-title" href="/2019/05/19/【ViewPager2避坑系列】瞬间暴增数个Fragment/">【ViewPager2避坑系列】瞬间暴增数个Fragment</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/15</span><a class="archive-post-title" href="/2019/05/15/Fragment新功能，setMaxLifecycle了解一下/">Fragment新功能，setMaxLifecycle了解一下</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/14</span><a class="archive-post-title" href="/2019/05/14/ViewPager2重大更新，支持offscreenPageLimit/">ViewPager2重大更新，支持offscreenPageLimit</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/24</span><a class="archive-post-title" href="/2019/04/24/SnapHelper硬核讲解/">SnapHelper硬核讲解</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/18</span><a class="archive-post-title" href="/2019/03/18/一波Flutter酷炫特效来袭，持续更新/">一波Flutter酷炫特效来袭，持续更新</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/16</span><a class="archive-post-title" href="/2019/03/16/Flutter交互实战－即刻App探索页下拉＆拖拽效果/">Flutter交互实战－即刻App探索页下拉＆拖拽效果</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/21</span><a class="archive-post-title" href="/2019/01/21/Android硬件位图填坑之获取硬件画布/">Android硬件位图填坑之获取硬件画布</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/15</span><a class="archive-post-title" href="/2019/01/15/Glide4-8源码拆解（五）BitmapPool从入门到放弃/">Glide4.8源码拆解（五）BitmapPool从入门到放弃</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/13</span><a class="archive-post-title" href="/2019/01/13/Glide4-8源码拆解（四）Bitmap解析之下采样浅析/">Glide4.8源码拆解（四）Bitmap解析之下采样浅析</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/09</span><a class="archive-post-title" href="/2019/01/09/Glide4-8源码拆解（三）Registry和数据转换流程/">Glide4.8源码拆解（三）Registry和数据转换流程</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/04</span><a class="archive-post-title" href="/2019/01/04/Glide4-8源码拆解（二）核心加载流程/">Glide4.8源码拆解（二）核心加载流程</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/03</span><a class="archive-post-title" href="/2019/01/03/Glide4-8源码拆解（一）基本调用流程/">Glide4.8源码拆解（一）基本调用流程</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2018 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/30</span><a class="archive-post-title" href="/2018/03/30/WindowManager调用流程源码分析/">WindowManager调用流程源码分析</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/29</span><a class="archive-post-title" href="/2018/03/29/Activity启动流程源码分析/">Activity启动流程源码分析</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2017 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/14</span><a class="archive-post-title" href="/2017/04/14/Android-Gradle-搞定Groovy闭包这一篇就够了/">[Android Gradle] 搞定Groovy闭包这一篇就够了</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span><a class="archive-post-title" href="/2017/01/17/Git分支管理策略浅识/">Git分支管理策略浅识</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2016 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/02</span><a class="archive-post-title" href="/2016/12/02/自定义头部悬停的下拉刷新控件/">自定义头部悬停的下拉刷新控件</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span><a class="archive-post-title" href="/2016/12/01/你是否留意过“位运算”/"><基础>你是否留意过“位运算”</基础></a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/28</span><a class="archive-post-title" href="/2016/11/28/解惑requestDisallowInterceptTouchEvent/">解惑requestDisallowInterceptTouchEvent</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/25</span><a class="archive-post-title" href="/2016/11/25/Kotlin转Java记录/">Kotlin转Java记录</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/24</span><a class="archive-post-title" href="/2016/11/24/初探Android6-0权限库PermissionsDispatcher/">初探Android6.0权限库PermissionsDispatcher</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span><a class="archive-post-title" href="/2016/08/05/由CSDN博主猝死引发的思考/">由CSDN博主猝死引发的思考</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/01</span><a class="archive-post-title" href="/2016/08/01/retrofit源码解析1-md/">retrofit2.0源码解析（一）</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/31</span><a class="archive-post-title" href="/2016/07/31/回顾反省与计划/"><总结> 回顾、反省与计划</总结></a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/26</span><a class="archive-post-title" href="/2016/07/26/项目重构总结-架构设计/">项目重构总结-架构版</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/25</span><a class="archive-post-title" href="/2016/07/25/从反射分析HashMap存储原理/">从反射分析HashMap存储原理</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/27</span><a class="archive-post-title" href="/2016/06/27/初探AOP在Android中的使用/">初探AOP在Android中的使用</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/20</span><a class="archive-post-title" href="/2016/05/20/解读官方MVP架构/">解读官方MVP架构</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/14</span><a class="archive-post-title" href="/2016/05/14/Android6-0权限检测总结/">Android6.0运行时权限总结</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/22</span><a class="archive-post-title" href="/2016/04/22/我为什么使用RxJava/">我为什么要使用RxJava</a>
+        </li>
+    
+    
+    
+    
+    
+        </ul>
+    
+    <div class="archive-year"> 2015 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/22</span><a class="archive-post-title" href="/2015/12/22/Android中简单实现比例布局/">Android中简单实现比例布局</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/11</span><a class="archive-post-title" href="/2015/10/11/解决ListView footView不能完全隐藏/">解决ListView FootView不能完全隐藏</a>
+        </li>
+    
+    </ul></div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="Android"><span class="iconfont-archer">&#xe606;</span>Android</span>
+    
+        <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
+    
+        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
+    
+        <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
+    
+        <span class="sidebar-tag-name" data-tags="Bitmap"><span class="iconfont-archer">&#xe606;</span>Bitmap</span>
+    
+        <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
+    
+        <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
+    
+        <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
+    
+        <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
+    
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
+    
+        <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
+    
+        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
+    
+        <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
+    
+        <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
+    
+        <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
+    
+        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
+    
+        <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
+    
+        <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
+    
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
+    
+        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
+    
+        <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
+    
+        <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br>
+    1、请确保node版本大于6.2<br>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "lilei"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+

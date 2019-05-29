@@ -346,6 +346,92 @@
     
     
     <article class="index-post">
+        <a class="abstract-title" href="/2019/05/19/【ViewPager2避坑系列】瞬间暴增数个Fragment/">
+            
+                <span>【ViewPager2避坑系列】瞬间暴增数个Fragment</span>
+        </a>
+        <div class="abstract-content">
+            前言最近我在关注ViewPager2的使用，期间一直基于官方的Demo调试android-viewpager2，今天遇到一个奇葩的问题，捉摸了半天最终找到原因，原来是Demo中布局的问题，事后感觉有必要分享一下这个过程，一来可以巩固View测量的知识，二来希望大家能避开这个坑；
+阅读指南
+
+代码基于android-viewpager2，看官老爷最好能下载源码亲身体会；
+
+入坑现场为了观察Fragment的生命周期，我事先在CardFragment类中，对生命周期方法进行埋点Log；
+异常发生的操作步骤：
+横屏进入CardFragmentActivity或者CardFragmentActi...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/05/19</span>
+            </div>
+            <!-- tags  -->
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
+        <a class="abstract-title" href="/2019/05/15/Fragment新功能，setMaxLifecycle了解一下/">
+            
+                <span>Fragment新功能，setMaxLifecycle了解一下</span>
+        </a>
+        <div class="abstract-content">
+            前言写上一篇ViewPager2软文时，我发现最新的Fragment代码淘汰了setUserVisibleHint方法，转而支持用setMaxLifecycle方法，setMaxLifecycle言外之意是设置最大生命周期，懂行的人应该知道，Fragment一直都是无法直接设置生命周期，必须通过add、attach、remove、detach、show、hide方法间接干预，本来就此功能，简单介绍一下setMaxLifecycle的原理和上手效果；
+阅读指南：
+
+本文基于androidx 1.1.0-alpha07版本的fragment进行，也是支持setMaxLifecycle的最低版...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/05/15</span>
+            </div>
+            <!-- tags  -->
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
+        <a class="abstract-title" href="/2019/05/14/ViewPager2重大更新，支持offscreenPageLimit/">
+            
+                <span>ViewPager2重大更新，支持offscreenPageLimit</span>
+        </a>
+        <div class="abstract-content">
+            前言最近ViewPager2发布了1.0.0-alpha04版本，新增offscreenPageLimit功能，该功能在ViewPager上并不友好，现在官方将此功能延续下来，这回是骡子是马呢？赶紧拉出来溜溜；
+
+阅读指南: 
+
+内容基于ViewPager21.0.0-alpha04版本讲解，由于正式版还未发布，如有功能变动有劳看官指出
+内容重点：介绍ViewPager2的offscreenPageLimit特性和预加载机制，另外包括Adapter的状态和Fragment的生命周期等内容
+
+ViewPager顽疾顽疾是什么鬼，没有这么严重吧。ViewPager有两个毛病：不能关闭预加载和...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/05/14</span>
+            </div>
+            <!-- tags  -->
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href="/2019/04/24/SnapHelper硬核讲解/">
             
                 <span>SnapHelper硬核讲解</span>
@@ -571,90 +657,11 @@ SnapHelper认识我忽然觉得有必要科普一下SnapHelper的基本情况，
         </div>
     </article>
     
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2019/01/04/Glide4-8源码拆解（二）核心加载流程/">
-            
-                <span>Glide4.8源码拆解（二）核心加载流程</span>
-        </a>
-        <div class="abstract-content">
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在<a href="https://juejin.im/post/5c2c4dba51882565986a27a4" target="_blank" rel="noopener">上一篇</a>文章中介绍了Glide基本的调用流程，总结起来就是<code>Engine</code>是真正加载资源的入口，<code>SingleRequest</code>起到连接<code>RequestManager</code>、<code>Target</code>和<code>Engine</code>的纽带关系，本文将承接上文，探讨Glide的加载流程。</p>
-<p>本章要讨论的内容：</p>
-<ul>
-<li>Engine的工作流程；</li>
-<li>内存缓存ActiveResource原理剖析；</li>
-<li>内存缓存MemoryCache基本原理;</li>
-<li>EngineJob和DecodeJob的工作原理；</li>
-</ul>
-<p>在讨论Engine之前，还是从调用它的地方开始<code>SingleReques.onSizeReady</code></p>
-<h2 id="从Engine开始"><a href="#从Engine开始" class="headerlink" title="从Engine开始"></a>从Engine开始</h2>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/01/04</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="源码分析">源码分析</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Glide">Glide</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2019/01/03/Glide4-8源码拆解（一）基本调用流程/">
-            
-                <span>Glide4.8源码拆解（一）基本调用流程</span>
-        </a>
-        <div class="abstract-content">
-            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Glide是一款功能强大的图片加载框架，它功能强大，用法简单且易于扩展，同时也是Google推荐的Android平台图片加载库，堪称优秀。</p>
-<h2 id="本章拆解思路"><a href="#本章拆解思路" class="headerlink" title="本章拆解思路"></a>本章拆解思路</h2><p>这算是开篇第一章吧，我准备从入口类和简单的调用流程说起，包括但不限于：</p>
-<ul>
-<li>Glide的构造</li>
-<li>RequestManager和生命周期监听</li>
-<li>Request和配置的收集</li>
-<li>Target以及触发异步加载</li>
-</ul>
-<h2 id="Glide对象初始化"><a href="#Glide对象初始化" class="headerlink" title="Glide对象初始化"></a>Glide对象初始化</h2><h3 id="从with-说起"><a href="#从with-说起" class="headerlink" title="从with()说起"></a>从with()说起</h3><p>为何要从with()方法,明明初始化代码在get()方法中：</p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/01/03</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="源码分析">源码分析</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Glide">Glide</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
     <!-- paginator  -->
+    
+    <nav class="page-nav">
+        <span class="page-number current">1</span><a class="page-number" href="/archives/2019/page/2/">2</a><a class="extend next" rel="next" href="/archives/2019/page/2/">NEXT &#62;</a>
+    </nav>
     
 </main>
             <!-- profile -->
@@ -1182,9 +1189,22 @@ SnapHelper认识我忽然觉得有必要科普一下SnapHelper的基本情况，
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 31
+        Total : 34
         </div>
         <!-- search  -->
         
@@ -1197,6 +1217,21 @@ SnapHelper认识我忽然觉得有必要科普一下SnapHelper的基本情况，
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/19</span><a class="archive-post-title" href="/2019/05/19/【ViewPager2避坑系列】瞬间暴增数个Fragment/">【ViewPager2避坑系列】瞬间暴增数个Fragment</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/15</span><a class="archive-post-title" href="/2019/05/15/Fragment新功能，setMaxLifecycle了解一下/">Fragment新功能，setMaxLifecycle了解一下</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/14</span><a class="archive-post-title" href="/2019/05/14/ViewPager2重大更新，支持offscreenPageLimit/">ViewPager2重大更新，支持offscreenPageLimit</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -1317,12 +1352,12 @@ SnapHelper认识我忽然觉得有必要科普一下SnapHelper的基本情况，
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
         </li>
     
     
@@ -1396,6 +1431,8 @@ SnapHelper认识我忽然觉得有必要科普一下SnapHelper的基本情况，
     
         <span class="sidebar-tag-name" data-tags="Android"><span class="iconfont-archer">&#xe606;</span>Android</span>
     
+        <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
+    
         <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
     
         <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
@@ -1404,39 +1441,37 @@ SnapHelper认识我忽然觉得有必要科普一下SnapHelper的基本情况，
     
         <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
     
-        <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
-    
         <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
+    
+        <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
     
         <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
     
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
+    
         <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
+    
+        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
+    
+        <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
     
         <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
     
         <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
     
-        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
-    
-        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
+        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
     
         <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
     
-        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
-    
-        <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
-    
-        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
-    
         <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
     
-        <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
     
         <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
     
         <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
     
-        <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
+        <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
