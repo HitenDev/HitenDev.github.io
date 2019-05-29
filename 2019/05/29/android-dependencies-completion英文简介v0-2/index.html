@@ -22,7 +22,7 @@
     <meta name="description" content="">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>&lt;基础&gt;你是否留意过“位运算” · Hiten&#39;s Blog.</title>
+    <title>android-dependencies-completion英文简介v0.2 · Hiten&#39;s Blog.</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -217,7 +217,7 @@
                 <a href="/">Hiten&#39;s Blog.</a>
             </div>
             <div class="post-title">
-                <a href="#" class="post-name"><基础>你是否留意过“位运算”</基础></a>
+                <a href="#" class="post-name">android-dependencies-completion英文简介v0.2</a>
             </div>
     </div>
     
@@ -247,7 +247,7 @@ height:50vh;
         <h1 class="intro-title">
             <!-- 主页  -->
             
-            你是否留意过“位运算”
+            android-dependencies-completion英文简介v0.2
             <!-- 404 -->
             
         </h1>
@@ -264,20 +264,14 @@ height:50vh;
             <div class="post-intros">
                 <!-- 文章页标签  -->
                 
-                    <div class="post-intro-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="基础">基础</a>
-    
-</div>
-                
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">1.1k</span>阅读时长: <span class="post-count reading-time">5 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">204</span>阅读时长: <span class="post-count reading-time">1 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
                     <span class="post-intro-calander iconfont-archer">&#xe676;</span>
-                    <span class="post-intro-time">2016/12/01</span>
+                    <span class="post-intro-time">2019/05/29</span>
                     
                     <span id="busuanzi_container_page_pv" class="busuanzi-pv">
                         <span class="iconfont-archer">&#xe602;</span>
@@ -401,21 +395,54 @@ height:50vh;
         <div class="container container-unloaded">
             <main class="main post-page">
     <article class="article-entry">
-        <p>长时间阅读Android SDK源码，会发现Google喜欢用位运算，伴随的是代码中会定义一堆int类型的常量，乍一看很懵逼，特别是所在View相关的类里边，比如这些常量你可熟悉：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">static final int FLAG_CLIP_CHILDREN = 0x1;</span><br><span class="line"></span><br><span class="line">private static final int FLAG_CLIP_TO_PADDING = 0x2;</span><br><span class="line"></span><br><span class="line">static final int FLAG_INVALIDATE_REQUIRED  = 0x4;</span><br><span class="line"></span><br><span class="line">private static final int FLAG_RUN_ANIMATION = 0x8;</span><br><span class="line"></span><br><span class="line">static final int FLAG_ANIMATION_DONE = 0x10;</span><br><span class="line"></span><br><span class="line">private static final int FLAG_PADDING_NOT_NULL = 0x20;</span><br><span class="line"></span><br><span class="line">private static final int FLAG_ANIMATION_CACHE = 0x40;</span><br><span class="line"></span><br><span class="line">static final int FLAG_OPTIMIZE_INVALIDATE = 0x80;</span><br><span class="line"></span><br><span class="line">static final int FLAG_CLEAR_TRANSFORMATION = 0x100;</span><br></pre></td></tr></table></figure></p>
-<a id="more"></a>
-<p>又或者这种运算算，乍一看也不知道标识啥意思：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// This is the original call.</span><br><span class="line">         try &#123;</span><br><span class="line">             mGroupFlags |= FLAG_START_ACTION_MODE_FOR_CHILD_IS_NOT_TYPED;</span><br><span class="line">             return startActionModeForChild(originalView, callback, ActionMode.TYPE_PRIMARY);</span><br><span class="line">         &#125; finally &#123;</span><br><span class="line">             mGroupFlags &amp;= ~FLAG_START_ACTION_MODE_FOR_CHILD_IS_NOT_TYPED;</span><br><span class="line">         &#125;</span><br></pre></td></tr></table></figure></p>
-<p>Google常用套路：</p>
-<h3 id="1-int类型通过位运算存储boolean"><a href="#1-int类型通过位运算存储boolean" class="headerlink" title="1.int类型通过位运算存储boolean"></a>1.int类型通过位运算存储boolean</h3><p>下面我写个java文件，你可能一看就明白<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line">public class Youyisi &#123;</span><br><span class="line"></span><br><span class="line">    private static final int BOOL01 = 1;</span><br><span class="line">    private static final int BOOL02 = 1&lt;&lt;1;</span><br><span class="line">    private static final int BOOL03 = 1&lt;&lt;3;</span><br><span class="line">    private static final int BOOL04 = 1&lt;&lt;4;</span><br><span class="line">    private static final int BOOL05 = 1&lt;&lt;5;</span><br><span class="line">    private static final int BOOL06 = 1&lt;&lt;6;</span><br><span class="line">    private static final int BOOL07 = 1&lt;&lt;7;</span><br><span class="line">    private static final int BOOL08 = 1&lt;&lt;8;</span><br><span class="line">    //most &lt;&lt; 31</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">    private int flag;</span><br><span class="line"></span><br><span class="line">    public void setBool01(boolean b)&#123;</span><br><span class="line"></span><br><span class="line">        setBOOL(b, BOOL01);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    public void setBool02(boolean b)&#123;</span><br><span class="line"></span><br><span class="line">        setBOOL(b, BOOL02);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    public void setBool03(boolean b)&#123;</span><br><span class="line">        setBOOL(b, BOOL03);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    public void setBool04(boolean b)&#123;</span><br><span class="line">        setBOOL(b, BOOL04);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    public boolean getBool1()&#123;</span><br><span class="line">        return getBOOL(BOOL01);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public boolean getBool2()&#123;</span><br><span class="line">        return getBOOL(BOOL02);</span><br><span class="line">    &#125;</span><br><span class="line">    public boolean getBool3()&#123;</span><br><span class="line">        return getBOOL(BOOL03);</span><br><span class="line">    &#125;</span><br><span class="line">    public boolean getBool4()&#123;</span><br><span class="line">        return getBOOL(BOOL04);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    private boolean getBOOL(int FLAG)&#123;</span><br><span class="line">        return (flag &amp; FLAG) != 0;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    private void setBOOL(boolean b,int FLAG)&#123;</span><br><span class="line">        if (b == ((flag &amp; FLAG) != 0)) &#123;</span><br><span class="line"></span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line">        if (b) &#123;</span><br><span class="line">            flag |= FLAG;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            flag &amp;= ~FLAG;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    public static void main(String[] args)&#123;</span><br><span class="line">        Youyisi y = new Youyisi();</span><br><span class="line">        y.setBool01(true);</span><br><span class="line">        y.setBool02(true);</span><br><span class="line">        y.setBool03(true);</span><br><span class="line">        y.setBool04(true);</span><br><span class="line">        boolean b  = y.getBool4();</span><br><span class="line">        System.out.println(b);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>java中，int类型长度是32位，化成二进制，每一位上是0、1与否，都能代表一个boolean，所以一个int类型可以存储32个boolean值；<br>setBool过程分析：如果要给FLAG名下设置true，要做的事就是把flag对的FLAG有效位置1，所以就进行   flag |= FLAG运算；相反设置0，就进行 flag &amp;= ~FLAG运算；<br>getBool过程分析：如果flag和FLAG按位想与结果为1，则为true，否则为false，所以采取(flag &amp; FLAG) != 0;</p>
-<h3 id="2-多个相关联的int-bool-enum，通常按位存储在一个int类型中"><a href="#2-多个相关联的int-bool-enum，通常按位存储在一个int类型中" class="headerlink" title="2.多个相关联的int/bool/enum，通常按位存储在一个int类型中"></a>2.多个相关联的int/bool/enum，通常按位存储在一个int类型中</h3><p>什么意思呢，比如每一个都有性别和年龄，假设性别有男、女、未知三种，年龄是int类型的数值，最大值是300，那么就可以把性别和年龄存储在一个int类型中，这只是我简单的举例，看看Android自定义控件中有个MeasureSpec类，是如何将测量模式和size用同一个int表示；</p>
-<p>常量的定义<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">private static final int MODE_SHIFT = 30;</span><br><span class="line">private static final int MODE_MASK  = 0x3 &lt;&lt; MODE_SHIFT;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Measure specification mode: The parent has not imposed any constraint</span><br><span class="line"> * on the child. It can be whatever size it wants.</span><br><span class="line"> */</span><br><span class="line">public static final int UNSPECIFIED = 0 &lt;&lt; MODE_SHIFT;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Measure specification mode: The parent has determined an exact size</span><br><span class="line"> * for the child. The child is going to be given those bounds regardless</span><br><span class="line"> * of how big it wants to be.</span><br><span class="line"> */</span><br><span class="line">public static final int EXACTLY     = 1 &lt;&lt; MODE_SHIFT;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line"> * Measure specification mode: The child can be as large as it wants up</span><br><span class="line"> * to the specified size.</span><br><span class="line"> */</span><br><span class="line">public static final int AT_MOST     = 2 &lt;&lt; MODE_SHIFT;</span><br></pre></td></tr></table></figure></p>
-<p>构造方法就是合并的操作<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">public static int makeMeasureSpec(@IntRange(from = 0, to = (1 &lt;&lt; MeasureSpec.MODE_SHIFT) - 1) int size,</span><br><span class="line">                                         @MeasureSpecMode int mode) &#123;</span><br><span class="line">           if (sUseBrokenMakeMeasureSpec) &#123;</span><br><span class="line">               return size + mode;</span><br><span class="line">           &#125; else &#123;</span><br><span class="line">               return (size &amp; ~MODE_MASK) | (mode &amp; MODE_MASK);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure></p>
-<p>分别获取模式和尺寸</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">//获取模式</span><br><span class="line"> public static int getMode(int measureSpec) &#123;</span><br><span class="line">            //noinspection ResourceType</span><br><span class="line">            return (measureSpec &amp; MODE_MASK);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">//获取尺寸</span><br><span class="line"> public static int getSize(int measureSpec) &#123;</span><br><span class="line">            return (measureSpec &amp; ~MODE_MASK);</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
-<p>分析：MODE_MASK=0x3 &lt;&lt; MODE_SHIFT即把0x3向左移动30位，得到结果就是0x11000….000，一个30个0；<br>合并过程分析：如果sUseBrokenMakeMeasureSpec，sUseBrokenMakeMeasureSpec就是size和mode是做过运算的，得到的值是<br>直接相加size + mode，否则将size和mode坐位运算，得到的值高2位代码mode，低30位代表size；<br>获取的分析：获取分析比较简单，就直接分别获取高2位和低30位；</p>
-<hr>
-<p>上面两个例子说明按位运算的强大之处，但是Java程序员似乎不习惯使用，因为习惯了面向对象，可能会在类中多定义几个属性，那样看起来还简单明了，何必绕来绕去的；但是位操作是不是略显逼格，就是cool，虽然不确定这样能优化多少，但google既然这样做，我们可以尝试追随；</p>
-<h3 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h3><p>其实这些都是计算机基础知识，只是上学时觉得没地方用，工作后也没有留意，至于要不要这样用，又是见仁见智的时候了。</p>
+        <h1 id="android-dependencies-completion"><a href="#android-dependencies-completion" class="headerlink" title="android-dependencies-completion"></a>android-dependencies-completion</h1><p>This is an Android Studio / IntelliJ IDEA plugin for search and complete dependencies from google() and mavenCentral() in Gradle projects.</p>
+<p>This project base on <a href="https://github.com/siosio/GradleDependenciesHelperPlugin" target="_blank" rel="noopener">GradleDependenciesHelperPlugin</a>.</p>
+<h1 id="Features"><a href="#Features" class="headerlink" title="Features"></a>Features</h1><ul>
+<li>support google and mavenCentral，include android’s <code>jetpack</code>/<code>androidx</code>/<code>support</code> packages.</li>
+<li>support generating variable and custom variable.</li>
+<li>dependencies variable offline covert.</li>
+<li>simple and clear UI.</li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/29/16b0239b1d4b3618?w=730&amp;h=378&amp;f=png&amp;s=96725" alt=""></p>
+<h1 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h1><ul>
+<li><p>Plugin website: <a href="https://plugins.jetbrains.com/plugin/12479" target="_blank" rel="noopener">https://plugins.jetbrains.com/plugin/12479</a></p>
+</li>
+<li><p>Download file: <a href="https://github.com/HitenDev/android-dependencies-completion/releases" target="_blank" rel="noopener">https://github.com/HitenDev/android-dependencies-completion/releases</a></p>
+</li>
+</ul>
+<h1 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h1><p> <strong>Enabled <code>Code Completion-&gt;SmartType Completion</code> and <code>Shortcut Key</code></strong></p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/29/16b01bc59c8ffd3d?w=881&amp;h=408&amp;f=png&amp;s=63983" alt=""></p>
+<p><strong>Default Shortcut Key</strong></p>
+<ul>
+<li>macos <code>^(control) + ⇧(shift) + space</code></li>
+<li>windows <code>ctrl + alt + space</code></li>
+<li>linux <code>ctrl + shift + space</code></li>
+</ul>
+<p><em>All the following operations are manual, please note.</em></p>
+<h2 id="Normal-Operation"><a href="#Normal-Operation" class="headerlink" title="Normal Operation"></a>Normal Operation</h2><p>input string in xxx.gradle file</p>
+<p>then press <code>Shortcut Key</code></p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/29/16b021d453eef7c0?w=836&amp;h=368&amp;f=gif&amp;s=159919" alt=""></p>
+<h2 id="Generating-Variable"><a href="#Generating-Variable" class="headerlink" title="Generating Variable"></a>Generating Variable</h2><ul>
+<li><p>append <code>&#39;#&#39;</code> to the end of the input string will generate a version variable</p>
+</li>
+<li><p>append <code>&#39;##&#39;</code> to the end of the input string will generate a full variable</p>
+</li>
+</ul>
+<p>then press <code>Shortcut Key</code></p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/29/16b031d2139637d9?w=850&amp;h=376&amp;f=gif&amp;s=220945" alt=""></p>
+<h2 id="Custom-Variable"><a href="#Custom-Variable" class="headerlink" title="Custom Variable"></a>Custom Variable</h2><ul>
+<li><p>append <code>&#39;#&#39;+custom</code> to the end of the input string will generate a version variable</p>
+</li>
+<li><p>append <code>&#39;##&#39;+custom</code> to the end of the input string will generate a full variable</p>
+</li>
+</ul>
+<p>then press <code>Shortcut Key</code></p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/29/16b031d3cef4a76c?w=794&amp;h=324&amp;f=gif&amp;s=235109" alt=""></p>
+<h1 id="Contact-Me"><a href="#Contact-Me" class="headerlink" title="Contact Me"></a>Contact Me</h1><ul>
+<li><code>nickname</code>: HitenDev</li>
+<li><code>email</code>: <a href="mailto:zzdxit@gmail.com" target="_blank" rel="noopener">zzdxit@gmail.com</a></li>
+<li><code>juejin</code>: <a href="https://juejin.im/user/595a16125188250d944c6997" target="_blank" rel="noopener">https://juejin.im/user/595a16125188250d944c6997</a></li>
+</ul>
 
     </article>
     <!-- license  -->
@@ -424,17 +451,12 @@ height:50vh;
     <ul class="post-paginator">
         <li class="next">
             
-                <div class="nextSlogan">Next Post</div>
-                <a href="/2016/12/02/自定义头部悬停的下拉刷新控件/" title="自定义头部悬停的下拉刷新控件">
-                    <div class="nextTitle">自定义头部悬停的下拉刷新控件</div>
-                </a>
-            
         </li>
         <li class="previous">
             
                 <div class="prevSlogan">Previous Post</div>
-                <a href="/2016/11/28/解惑requestDisallowInterceptTouchEvent/" title="解惑requestDisallowInterceptTouchEvent">
-                    <div class="prevTitle">解惑requestDisallowInterceptTouchEvent</div>
+                <a href="/2019/05/19/【ViewPager2避坑系列】瞬间暴增数个Fragment/" title="【ViewPager2避坑系列】瞬间暴增数个Fragment">
+                    <div class="prevTitle">【ViewPager2避坑系列】瞬间暴增数个Fragment</div>
                 </a>
             
         </li>
@@ -557,7 +579,7 @@ top:50vh;
         <div class="toc-catalog">
             <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
         </div>
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-int类型通过位运算存储boolean"><span class="toc-number">1.</span> <span class="toc-text">1.int类型通过位运算存储boolean</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-多个相关联的int-bool-enum，通常按位存储在一个int类型中"><span class="toc-number">2.</span> <span class="toc-text">2.多个相关联的int/bool/enum，通常按位存储在一个int类型中</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#总结："><span class="toc-number">3.</span> <span class="toc-text">总结：</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#android-dependencies-completion"><span class="toc-number">1.</span> <span class="toc-text">android-dependencies-completion</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Features"><span class="toc-number">2.</span> <span class="toc-text">Features</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Installation"><span class="toc-number">3.</span> <span class="toc-text">Installation</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Usage"><span class="toc-number">4.</span> <span class="toc-text">Usage</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Normal-Operation"><span class="toc-number">4.1.</span> <span class="toc-text">Normal Operation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Generating-Variable"><span class="toc-number">4.2.</span> <span class="toc-text">Generating Variable</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Custom-Variable"><span class="toc-number">4.3.</span> <span class="toc-text">Custom Variable</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Contact-Me"><span class="toc-number">5.</span> <span class="toc-text">Contact Me</span></a></li></ol>
     </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>

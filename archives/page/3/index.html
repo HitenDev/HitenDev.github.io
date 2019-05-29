@@ -346,6 +346,37 @@
     
     
     <article class="index-post">
+        <a class="abstract-title" href="/2016/11/25/Kotlin转Java记录/">
+            
+                <span>Kotlin转Java记录</span>
+        </a>
+        <div class="abstract-content">
+            <p>昨天写了一篇<a href="http://www.jianshu.com/p/8a75af2d3f11" target="_blank" rel="noopener">PermissionsDispatcher</a>初探，文章最后说要用java重写processor模块，今天花了半天时间完成，现在把代码放在github上：<a href="https://github.com/ileelay/PermissionsDispatcher/tree/2.2.0j" target="_blank" rel="noopener">https://github.com/ileelay/PermissionsDispatcher/tree/2.2.0j</a>，欢迎大家纠正！同时感慨到Kotlin太强大，Java太繁琐；<br>虽然Kotlin语法很简练，终究还是基于JVM，同时这篇文章不是循序渐进的Kotlin语法讲解，只是为了记录在转PermissionsDispatcher时的粗略见解；</p>
+<h3 id="普通class"><a href="#普通class" class="headerlink" title="普通class"></a>普通class</h3><p>kotlin是这样子写的<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">class NoParametersAllowedException(e: ExecutableElement) : RuntimeException(&quot;Method &apos;$&#123;e.simpleString()&#125;()&apos; must not have any parameters&quot;)</span><br></pre></td></tr></table></figure></p>
+<p>为了保持参数一致，我用java是这样写的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">public class NoParametersAllowedException extends RuntimeException &#123;</span><br><span class="line"></span><br><span class="line">    public static RuntimeException getInstance(ExecutableElement e) &#123;</span><br><span class="line"></span><br><span class="line">        return new NoParametersAllowedException(&quot;Method &quot;+e.getSimpleName().toString()+&quot; must not have any parameters&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    private NoParametersAllowedException(String s) &#123;</span><br><span class="line">        super(s);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/11/25</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class="abstract-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Kotlin">Kotlin</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href="/2016/11/24/初探Android6-0权限库PermissionsDispatcher/">
             
                 <span>初探Android6.0权限库PermissionsDispatcher</span>
@@ -649,39 +680,6 @@
         <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
     
         <a class="post-tag" href="javascript:void(0);" data-tags="AOP">AOP</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/05/20/解读官方MVP架构/">
-            
-                <span>解读官方MVP架构</span>
-        </a>
-        <div class="abstract-content">
-            <p>在Android应用开发中采用MVC好还是MVP好的话题，一直都争议不断，现在Android官方也来凑热闹了，官方出了个开源项目，来描绘一幅架构蓝图，该项目主要包括mvp，mvvm，clean架构，其中不乏Dagger2，rxjava等主流框架，项目中使用不同的架构来实现同一个Todo App，<a href="https://github.com/googlesamples/android-architecture" target="_blank" rel="noopener">项目地址：https://github.com/googlesamples/android-architecture</a></p>
-<p>今天先来看看MVP在Todo项目中的使用，<a href="https://github.com/googlesamples/android-architecture/tree/todo-mvp" target="_blank" rel="noopener">项目地址：https://github.com/googlesamples/android-architecture/tree/todo-mvp</a><br>clone工程，编译运行效果：</p>
-<p><img src="http://ww2.sinaimg.cn/large/a4cde5d8jw1f68dcjvltzj20a40fzweo.jpg" alt=""></p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/05/20</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="架构">架构</a>
     
 </div>
             
@@ -1233,9 +1231,20 @@
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 34
+        Total : 35
         </div>
         <!-- search  -->
         
@@ -1248,6 +1257,11 @@
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/29</span><a class="archive-post-title" href="/2019/05/29/android-dependencies-completion英文简介v0-2/">android-dependencies-completion英文简介v0.2</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -1383,12 +1397,12 @@
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
         </li>
     
     
@@ -1464,45 +1478,45 @@
     
         <span class="sidebar-tag-name" data-tags="Gradle"><span class="iconfont-archer">&#xe606;</span>Gradle</span>
     
-        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
-    
         <span class="sidebar-tag-name" data-tags="源码分析"><span class="iconfont-archer">&#xe606;</span>源码分析</span>
+    
+        <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
     
         <span class="sidebar-tag-name" data-tags="Bitmap"><span class="iconfont-archer">&#xe606;</span>Bitmap</span>
     
         <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
     
-        <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
-    
         <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
     
+        <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
+    
         <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
+    
+        <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
     
         <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
     
         <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
     
-        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
-    
-        <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
-    
         <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
     
         <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
     
-        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
-    
-        <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
+        <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
     
         <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
     
         <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
     
+        <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
+    
+        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
+    
         <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
     
-        <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
-    
         <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
+    
+        <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
