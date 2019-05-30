@@ -346,6 +346,36 @@
     
     
     <article class="index-post">
+        <a class="abstract-title" href="/2016/11/28/解惑requestDisallowInterceptTouchEvent/">
+            
+                <span>解惑requestDisallowInterceptTouchEvent</span>
+        </a>
+        <div class="abstract-content">
+            <p>最近在看官方控件源码时，无意间看到某些代码，让我想起有很多用requestDisallowInterceptTouchEvent来解决ScrollView和ViewPager冲突的例子，包括任玉刚写的《Android开发艺术探索》一书也提到这种方式，但是关于requestDisallowInterceptTouchEvent，你真的了解了吗？</p>
+<p>这是网上写的最多的用requestDisallowInterceptTouchEvent解决ScroolView相关的滑动冲突例子，确实是正确姿势；<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">publicbooleanonTouchEvent(MotionEventevent)&#123;</span><br><span class="line"><span class="keyword">switch</span>(event.getAction())&#123;</span><br><span class="line">caseMotionEvent.ACTION_MOVE:</span><br><span class="line">parent.requestDisallowInterceptTouchEvent(<span class="keyword">true</span>);</span><br><span class="line"><span class="keyword">break</span>;</span><br><span class="line">caseMotionEvent.ACTION_UP:</span><br><span class="line">caseMotionEvent.ACTION_CANCEL:</span><br><span class="line">parent.requestDisallowInterceptTouchEvent(<span class="keyword">false</span>);</span><br><span class="line"><span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/11/28</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class="abstract-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="View 滑动事件">View 滑动事件</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href="/2016/11/25/Kotlin转Java记录/">
             
                 <span>Kotlin转Java记录</span>
@@ -648,38 +678,6 @@
         <a class="post-tag" href="javascript:void(0);" data-tags="Java">Java</a>
     
         <a class="post-tag" href="javascript:void(0);" data-tags="反射">反射</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/06/27/初探AOP在Android中的使用/">
-            
-                <span>初探AOP在Android中的使用</span>
-        </a>
-        <div class="abstract-content">
-            <p>前些时间在学习Spring时看到AOP，即面向切面编程，这个概念很新鲜，感觉用起来特别牛逼，无奈我是相见恨晚啊，在网上搜一下关于Android AOP的可行方案，大约有两种，一个是阿里的开源项目<a href="https://github.com/alibaba/dexposed" target="_blank" rel="noopener">Dexposed</a>,另一个是<a href="http://www.eclipse.org/aspectj" target="_blank" rel="noopener">AspectJ</a>，在我拜读了看见了邓凡平老师的<a href="http://blog.csdn.net/innost/article/details/49387395" target="_blank" rel="noopener">深入理解Android之AOP</a>后，觉得用AspectJ<br>比较符合Java的本质吧，这个纯属自己的观点，哈哈哈！</p>
-<h2 id="如何集成"><a href="#如何集成" class="headerlink" title="如何集成"></a>如何集成</h2><p>AspectJ的使用核心就是它的编译器，它就做了一件事，将AspectJ的代码在编译期插入目标程序当中，运行时跟在其它地方没什么两样，因此要使用它最关键的就是使用它的编译器去编译代码ajc。ajc会构建目标程序与AspectJ代码的联系，在编译期将AspectJ代码插入被切出的PointCut中，已达到AOP的目的。因此，无论在什么IDE上（如果使用命令行就可以直接使用ajc编译了），问题就是让IDE使用ajc作为编译器编译代码。<br>
-        </p></div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/06/27</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="AOP">AOP</a>
     
 </div>
             
@@ -1242,9 +1240,46 @@
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 35
+        Total : 36
         </div>
         <!-- search  -->
         
@@ -1257,6 +1292,11 @@
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/30</span><a class="archive-post-title" href="/2019/05/30/AS插件利器，实现依赖库自动补全，支持变量提取和JetPack/">AS插件利器，实现依赖库自动补全，支持变量提取和JetPack</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -1397,12 +1437,12 @@
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
         </li>
     
     
@@ -1482,41 +1522,41 @@
     
         <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
     
-        <span class="sidebar-tag-name" data-tags="Bitmap"><span class="iconfont-archer">&#xe606;</span>Bitmap</span>
-    
         <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
+    
+        <span class="sidebar-tag-name" data-tags="Bitmap"><span class="iconfont-archer">&#xe606;</span>Bitmap</span>
     
         <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
     
-        <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
-    
         <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
     
-        <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
-    
-        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
+        <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
     
         <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
+    
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
     
         <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
     
         <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
     
+        <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
+    
         <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
-    
-        <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
-    
-        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
     
         <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
     
-        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
     
-        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
+        <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
+    
+        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
     
         <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
     
         <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
+    
+        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>

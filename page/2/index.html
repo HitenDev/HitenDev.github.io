@@ -357,6 +357,45 @@ height:50vh;
     
     
     <article class="index-post">
+        <a class="abstract-title" href="/2019/01/13/Glide4-8源码拆解（四）Bitmap解析之下采样浅析/">
+            
+                <span>Glide4.8源码拆解（四）Bitmap解析之下采样浅析</span>
+        </a>
+        <div class="abstract-content">
+            <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Glide归根结底是一个图片加载框架，它一定会涉及到<code>BitmapFactory</code>相关API把<code>Bitmap</code>读取到内存；可能大家已经很熟悉如何高效的加载Bitmap(比如使用inSample等)，这一章还是要看一看Glide是如何玩转的；</p>
+<p>本文主要分析这两个类：</p>
+<ul>
+<li><code>DownsampleStrategy</code></li>
+<li><code>Downsampler</code></li>
+</ul>
+<h2 id="从”Glide会对原图进行放大”案例开始"><a href="#从”Glide会对原图进行放大”案例开始" class="headerlink" title="从”Glide会对原图进行放大”案例开始"></a>从”Glide会对原图进行放大”案例开始</h2><p>假设我们有一张宽高100x200的网络图片，需要加载到300x300像素的ImageView上(scaleType属性为CenterCrop)，用Glide加载，不做任何处理会得到多大的Bitmap?</p>
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/01/13</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class="abstract-tags">
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="源码分析">源码分析</a>
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="Glide">Glide</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href="/2019/01/09/Glide4-8源码拆解（三）Registry和数据转换流程/">
             
                 <span>Glide4.8源码拆解（三）Registry和数据转换流程</span>
@@ -683,36 +722,6 @@ height:50vh;
             <div class="abstract-tags">
     
         <a class="post-tag" href="javascript:void(0);" data-tags="基础">基础</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href="/2016/11/28/解惑requestDisallowInterceptTouchEvent/">
-            
-                <span>解惑requestDisallowInterceptTouchEvent</span>
-        </a>
-        <div class="abstract-content">
-            <p>最近在看官方控件源码时，无意间看到某些代码，让我想起有很多用requestDisallowInterceptTouchEvent来解决ScrollView和ViewPager冲突的例子，包括任玉刚写的《Android开发艺术探索》一书也提到这种方式，但是关于requestDisallowInterceptTouchEvent，你真的了解了吗？</p>
-<p>这是网上写的最多的用requestDisallowInterceptTouchEvent解决ScroolView相关的滑动冲突例子，确实是正确姿势；<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">publicbooleanonTouchEvent(MotionEventevent)&#123;</span><br><span class="line"><span class="keyword">switch</span>(event.getAction())&#123;</span><br><span class="line">caseMotionEvent.ACTION_MOVE:</span><br><span class="line">parent.requestDisallowInterceptTouchEvent(<span class="keyword">true</span>);</span><br><span class="line"><span class="keyword">break</span>;</span><br><span class="line">caseMotionEvent.ACTION_UP:</span><br><span class="line">caseMotionEvent.ACTION_CANCEL:</span><br><span class="line">parent.requestDisallowInterceptTouchEvent(<span class="keyword">false</span>);</span><br><span class="line"><span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2016/11/28</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class="abstract-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="View 滑动事件">View 滑动事件</a>
     
 </div>
             
@@ -1364,9 +1373,46 @@ height:50vh;
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 35
+        Total : 36
         </div>
         <!-- search  -->
         
@@ -1379,6 +1425,11 @@ height:50vh;
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/30</span><a class="archive-post-title" href="/2019/05/30/AS插件利器，实现依赖库自动补全，支持变量提取和JetPack/">AS插件利器，实现依赖库自动补全，支持变量提取和JetPack</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -1519,12 +1570,12 @@ height:50vh;
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
         </li>
     
     
         <li class="archive-post-item">
-            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/分享一个RecyclerView的click技巧/">分享一个RecyclerView的click技巧</a>
+            <span class="archive-post-date">11/23</span><a class="archive-post-title" href="/2016/11/23/OkHttp3中Interceptor的使用心得/">OkHttp3中Interceptor的使用心得</a>
         </li>
     
     
@@ -1604,41 +1655,41 @@ height:50vh;
     
         <span class="sidebar-tag-name" data-tags="6"><span class="iconfont-archer">&#xe606;</span>6</span>
     
-        <span class="sidebar-tag-name" data-tags="Bitmap"><span class="iconfont-archer">&#xe606;</span>Bitmap</span>
-    
         <span class="sidebar-tag-name" data-tags="Git"><span class="iconfont-archer">&#xe606;</span>Git</span>
+    
+        <span class="sidebar-tag-name" data-tags="Bitmap"><span class="iconfont-archer">&#xe606;</span>Bitmap</span>
     
         <span class="sidebar-tag-name" data-tags="Glide"><span class="iconfont-archer">&#xe606;</span>Glide</span>
     
-        <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
-    
         <span class="sidebar-tag-name" data-tags="okhttp 网络"><span class="iconfont-archer">&#xe606;</span>okhttp 网络</span>
     
-        <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
-    
-        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
+        <span class="sidebar-tag-name" data-tags="Kotlin"><span class="iconfont-archer">&#xe606;</span>Kotlin</span>
     
         <span class="sidebar-tag-name" data-tags="源码解析"><span class="iconfont-archer">&#xe606;</span>源码解析</span>
+    
+        <span class="sidebar-tag-name" data-tags="基础"><span class="iconfont-archer">&#xe606;</span>基础</span>
     
         <span class="sidebar-tag-name" data-tags="Java"><span class="iconfont-archer">&#xe606;</span>Java</span>
     
         <span class="sidebar-tag-name" data-tags="反射"><span class="iconfont-archer">&#xe606;</span>反射</span>
     
+        <span class="sidebar-tag-name" data-tags="view"><span class="iconfont-archer">&#xe606;</span>view</span>
+    
         <span class="sidebar-tag-name" data-tags="AOP"><span class="iconfont-archer">&#xe606;</span>AOP</span>
-    
-        <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
-    
-        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
     
         <span class="sidebar-tag-name" data-tags="运行时编译 6.0权限"><span class="iconfont-archer">&#xe606;</span>运行时编译 6.0权限</span>
     
-        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
+        <span class="sidebar-tag-name" data-tags="总结"><span class="iconfont-archer">&#xe606;</span>总结</span>
     
-        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
+        <span class="sidebar-tag-name" data-tags="生活思考"><span class="iconfont-archer">&#xe606;</span>生活思考</span>
+    
+        <span class="sidebar-tag-name" data-tags="RxJava"><span class="iconfont-archer">&#xe606;</span>RxJava</span>
     
         <span class="sidebar-tag-name" data-tags="View 滑动事件"><span class="iconfont-archer">&#xe606;</span>View 滑动事件</span>
     
         <span class="sidebar-tag-name" data-tags="架构"><span class="iconfont-archer">&#xe606;</span>架构</span>
+    
+        <span class="sidebar-tag-name" data-tags="自定义控件"><span class="iconfont-archer">&#xe606;</span>自定义控件</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>

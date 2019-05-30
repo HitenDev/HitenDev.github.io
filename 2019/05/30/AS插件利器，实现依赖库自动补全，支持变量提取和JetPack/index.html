@@ -22,7 +22,7 @@
     <meta name="description" content="">
     <meta http-equiv="Cache-control" content="no-cache">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Android6.0运行时权限总结 · Hiten&#39;s Blog.</title>
+    <title>AS插件利器，实现依赖库自动补全，支持变量提取和JetPack · Hiten&#39;s Blog.</title>
     <style type="text/css">
     @font-face {
         font-family: 'Oswald-Regular';
@@ -217,7 +217,7 @@
                 <a href="/">Hiten&#39;s Blog.</a>
             </div>
             <div class="post-title">
-                <a href="#" class="post-name">Android6.0运行时权限总结</a>
+                <a href="#" class="post-name">AS插件利器，实现依赖库自动补全，支持变量提取和JetPack</a>
             </div>
     </div>
     
@@ -247,7 +247,7 @@ height:50vh;
         <h1 class="intro-title">
             <!-- 主页  -->
             
-            Android6.0运行时权限总结
+            AS插件利器，实现依赖库自动补全，支持变量提取和JetPack
             <!-- 404 -->
             
         </h1>
@@ -264,22 +264,14 @@ height:50vh;
             <div class="post-intros">
                 <!-- 文章页标签  -->
                 
-                    <div class="post-intro-tags">
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="Android">Android</a>
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags="6">6</a>
-    
-</div>
-                
                 
                     <div class="post-intro-read">
-                        <span>字数统计: <span class="post-count word-count">769</span>阅读时长: <span class="post-count reading-time">3 min</span></span>
+                        <span>字数统计: <span class="post-count word-count">1.1k</span>阅读时长: <span class="post-count reading-time">4 min</span></span>
                     </div>
                 
                 <div class="post-intro-meta">
                     <span class="post-intro-calander iconfont-archer">&#xe676;</span>
-                    <span class="post-intro-time">2016/05/14</span>
+                    <span class="post-intro-time">2019/05/30</span>
                     
                     <span id="busuanzi_container_page_pv" class="busuanzi-pv">
                         <span class="iconfont-archer">&#xe602;</span>
@@ -403,37 +395,78 @@ height:50vh;
         <div class="container container-unloaded">
             <main class="main post-page">
     <article class="article-entry">
-        <blockquote>
-<p>Beginning in Android 6.0 (API level 23), users grant permissions to apps while the app is running, not when they install the app. This approach streamlines the app install process, since the user does not need to grant permissions when they install or update the app. It also gives the user more control over the app’s functionality   </p>
-</blockquote>
-<p>上面是引用google官方文档的一段话，google将权限分为两类，一类是一般权限，一类是危险权限<br>一般权限有哪些，参加官方文档<a href="https://developer.android.com/guide/topics/security/normal-permissions.html" target="_blank" rel="noopener">https://developer.android.com/guide/topics/security/normal-permissions.html</a><br>这些是一般的权限，看看那些是你认识的</p>
-<a id="more"></a>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">ACCESS_LOCATION_EXTRA_COMMANDS</span><br><span class="line">ACCESS_NETWORK_STATE</span><br><span class="line">ACCESS_NOTIFICATION_POLICY</span><br><span class="line">ACCESS_WIFI_STATE</span><br><span class="line">BLUETOOTH</span><br><span class="line">BLUETOOTH_ADMIN</span><br><span class="line">BROADCAST_STICKY</span><br><span class="line">CHANGE_NETWORK_STATE</span><br><span class="line">CHANGE_WIFI_MULTICAST_STATE</span><br><span class="line">CHANGE_WIFI_STATE</span><br><span class="line">DISABLE_KEYGUARD</span><br><span class="line">EXPAND_STATUS_BAR</span><br><span class="line">GET_PACKAGE_SIZE</span><br><span class="line">INSTALL_SHORTCUT</span><br><span class="line">INTERNET</span><br><span class="line">KILL_BACKGROUND_PROCESSES</span><br><span class="line">MODIFY_AUDIO_SETTINGS</span><br><span class="line">NFC</span><br><span class="line">READ_SYNC_SETTINGS</span><br><span class="line">READ_SYNC_STATS</span><br><span class="line">RECEIVE_BOOT_COMPLETED</span><br><span class="line">REORDER_TASKS</span><br><span class="line">REQUEST_IGNORE_BATTERY_OPTIMIZATIONS</span><br><span class="line">REQUEST_INSTALL_PACKAGES</span><br><span class="line">SET_ALARM</span><br><span class="line">SET_TIME_ZONE</span><br><span class="line">SET_WALLPAPER</span><br><span class="line">SET_WALLPAPER_HINTS</span><br><span class="line">TRANSMIT_IR</span><br><span class="line">UNINSTALL_SHORTCUT</span><br><span class="line">USE_FINGERPRINT</span><br><span class="line">VIBRATE</span><br><span class="line">WAKE_LOCK</span><br><span class="line">WRITE_SYNC_SETTINGS</span><br></pre></td></tr></table></figure>
-<p>对于危险权限，参考文档：<a href="https://developer.android.com/guide/topics/security/permissions.html#normal-dangerous" target="_blank" rel="noopener">https://developer.android.com/guide/topics/security/permissions.html#normal-dangerous</a></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">Permission Group	Permissions</span><br><span class="line">CALENDAR	</span><br><span class="line">READ_CALENDAR</span><br><span class="line">WRITE_CALENDAR</span><br><span class="line">CAMERA	</span><br><span class="line">CAMERA</span><br><span class="line">CONTACTS	</span><br><span class="line">READ_CONTACTS</span><br><span class="line">WRITE_CONTACTS</span><br><span class="line">GET_ACCOUNTS</span><br><span class="line">LOCATION	</span><br><span class="line">ACCESS_FINE_LOCATION</span><br><span class="line">ACCESS_COARSE_LOCATION</span><br><span class="line">MICROPHONE	</span><br><span class="line">RECORD_AUDIO</span><br><span class="line">PHONE	</span><br><span class="line">READ_PHONE_STATE</span><br><span class="line">CALL_PHONE</span><br><span class="line">READ_CALL_LOG</span><br><span class="line">WRITE_CALL_LOG</span><br><span class="line">ADD_VOICEMAIL</span><br><span class="line">USE_SIP</span><br><span class="line">PROCESS_OUTGOING_CALLS</span><br><span class="line">SENSORS	</span><br><span class="line">BODY_SENSORS</span><br><span class="line">SMS	</span><br><span class="line">SEND_SMS</span><br><span class="line">RECEIVE_SMS</span><br><span class="line">READ_SMS</span><br><span class="line">RECEIVE_WAP_PUSH</span><br><span class="line">RECEIVE_MMS</span><br><span class="line">STORAGE	</span><br><span class="line">READ_EXTERNAL_STORAGE</span><br><span class="line">WRITE_EXTERNAL_STORAGE</span><br></pre></td></tr></table></figure>
-<p>从官网粘贴过来的表格数据格式一塌糊涂，我了个擦擦</p>
-<p> 险权限为毛要分组，googl的一句话：All dangerous Android system permissions belong to permission groups.好吧<br> 分就分吧，注意，授权机制只对6.0以上的机器有效，授权机制如下：</p>
-<p> 如果一个APP申请一个在manifest文件中申明过的危险权限，如果这个权限没被授予，会谈Dialgo提示用户，用户点击确认方可授权<br> 如果一个APP申请一个在manifest文件中申明过的危险权限，如果这个权限被授予过，就直接授予，不用再弹框提醒；<br> 如果APP已经授予过READ_CONTACTS权限，那么申请WRITE_CONTACTS权限时，也会直接授予，就是在一个组里的，只要授予一个了，其他的都授。</p>
-<p>相关API<a href="https://developer.android.com/training/permissions/requesting.html" target="_blank" rel="noopener">参考</a></p>
+        <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>最近博主在关注<code>JetPack</code>相关内容，发现从<code>support</code>转到<code>androidx</code>后，很多依赖库的名称变化有点大，每次想添加一个依赖库，都都得扒一扒官网查看路径和版本，确实有点难受。不过在<code>jetbrains</code>插件世界里，有一款可以自动补全的插件<a href="https://github.com/siosio/GradleDependenciesHelperPlugin" target="_blank" rel="noopener">GradleDependenciesHelperPlugin</a>，它只支持从<code>mavenCentral()</code>搜索并不支持<code>google()</code>的仓库，所以<code>android-dependencies-completion</code>应运而生，这是一款尝试对<code>Android开发</code><strong>友好的</strong><code>dependencies</code>补全插件。</p>
+<h1 id="功能特色"><a href="#功能特色" class="headerlink" title="功能特色"></a>功能特色</h1><ul>
+<li>支持gradle依赖库名称自动补全，包括<code>Jetpack</code>相关的软件包</li>
+<li>支持版本号提取生成变量和整个路径提取生成变量</li>
+<li>变量提取功能可以单独使用</li>
+<li>简洁明了的用户界面</li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/29/16b0239b1d4b3618?w=730&amp;h=378&amp;f=png&amp;s=96725" alt=""></p>
+<h1 id="如何获取"><a href="#如何获取" class="headerlink" title="如何获取"></a>如何获取</h1><h2 id="AS中安装"><a href="#AS中安装" class="headerlink" title="AS中安装"></a>AS中安装</h2><p>在Android Studio-&gt;Setting -&gt;Plugins中搜索关键字：<code>android-dependencies-completion</code> 或者 <code>12479</code>：</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/30/16b06a736bba12c6?w=785&amp;h=336&amp;f=png&amp;s=29981" alt=""></p>
+<h2 id="jar包安装"><a href="#jar包安装" class="headerlink" title="jar包安装"></a>jar包安装</h2><p><code>插件网站</code>:<a href="https://plugins.jetbrains.com/plugin/12479" target="_blank" rel="noopener">https://plugins.jetbrains.com/plugin/12479</a></p>
+<p><code>下载地址</code>：<a href="https://github.com/HitenDev/android-dependencies-completion/releases" target="_blank" rel="noopener">https://github.com/HitenDev/android-dependencies-completion/releases</a></p>
+<p>您可以在上面两个地址下载jar包，AS安装本地jar插件的方法比较简单，这里就不啰嗦了；</p>
+<h1 id="如何使用"><a href="#如何使用" class="headerlink" title="如何使用"></a>如何使用</h1><h2 id="掌握快捷键"><a href="#掌握快捷键" class="headerlink" title="掌握快捷键"></a>掌握快捷键</h2><p>由于插件依赖 Code Completion-&gt;SmartType Completion，所以使用时务必保证<code>SmartType Completion</code>是开启的，而且包装<code>SmartType Completion</code>的快捷键不和其它快捷键冲突；</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/29/16b01bc59c8ffd3d?w=881&amp;h=408&amp;f=png&amp;s=63983" alt=""></p>
+<p><strong>默认快捷键：</strong></p>
 <ul>
-<li>检查权限 <blockquote>
-<p>To check if you have a permission, call the ContextCompat.checkSelfPermission() method. For example, this snippet shows how to check if the activity has permission to write to the calendar:</p>
-</blockquote>
+<li>MacOS <code>^(control) + ⇧(shift) + space</code></li>
+<li>Windows <code>ctrl + alt + space</code></li>
+<li>Linux <code>ctrl + shift + space</code></li>
+</ul>
+<p>据悉<code>Windows</code>快捷键和系统的快捷键冲突，请使用的小伙伴耐心解决一下冲突，千万不要因此而放弃；</p>
+<h2 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h2><p>在项目<code>gradle</code>文件中输入字符串时，如果需要补全，请按下<code>快捷键</code></p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/29/16b021d453eef7c0?w=836&amp;h=368&amp;f=gif&amp;s=159919" alt=""></p>
+<p>使用场景不限制<code>build.gradle</code>，也不限制<code>dependencies</code>下，更不限制是<code>implementation</code>还是<code>compile</code>；</p>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/30/16b06becbba141b9?w=1110&amp;h=605&amp;f=png&amp;s=207421" alt=""></p>
+<p>通常Anroid开发者喜欢把依赖库统一放置，不见得定义在<code>build.gradle</code>中，所有这种场景还是得支持；</p>
+<h2 id="生成变量"><a href="#生成变量" class="headerlink" title="生成变量"></a>生成变量</h2><p>Android开发习惯把gradle依赖库提取成变量，这种场景也是考虑在内，操作方式是在输入字符串的尾部添加<code>#</code>符号；</p>
+<ul>
+<li>添加一个<code>#</code>，表示需要提取版本号</li>
+<li>添加两个<code>##</code>，表示需要把整个字符串都提取出来；</li>
+</ul>
+<p><img src="https://user-gold-cdn.xitu.io/2019/5/30/16b06ce55cbc65bd?w=776&amp;h=362&amp;f=gif&amp;s=151632" alt=""></p>
+<p><strong>常见场景：</strong></p>
+<p>由于依赖库字符串是由<code>group:artifact:version</code>三部分组成，而用户输入关键字时大部分都不会是完整的三段式，所以<code>#</code>支持在缺少的状态下完成；</p>
+<ul>
+<li><code>关键字+#</code><br><img src="https://user-gold-cdn.xitu.io/2019/5/30/16b06c8e31d10907?w=755&amp;h=259&amp;f=png&amp;s=57498" alt=""></li>
+</ul>
+<ul>
+<li><code>group:artifact:+#</code><br><img src="https://user-gold-cdn.xitu.io/2019/5/30/16b06c98e7545cf5?w=640&amp;h=525&amp;f=png&amp;s=135160" alt=""></li>
+</ul>
+<h3 id="直接转"><a href="#直接转" class="headerlink" title="直接转"></a>直接转</h3><ul>
+<li><code>group:artifact:version+#</code> 当字符串是由完整的格式加<code>#</code>时，会直接提取变量并完成替换<br><img src="https://user-gold-cdn.xitu.io/2019/5/29/16b031d2139637d9?w=850&amp;h=376&amp;f=gif&amp;s=220945" alt=""></li>
+</ul>
+<h2 id="变量规则"><a href="#变量规则" class="headerlink" title="变量规则"></a>变量规则</h2><h3 id="命名规则"><a href="#命名规则" class="headerlink" title="命名规则"></a>命名规则</h3><ul>
+<li><p>使用<code>#</code>生成的版本变量，命名规则是ver_$artifact</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//before</span><br><span class="line">implementation &apos;com.google.code.gson:gson:2.8.5#&apos;</span><br><span class="line"></span><br><span class="line">//after</span><br><span class="line">ext.ver_gson = &apos;2.8.5&apos; //please move this code to a unified place.</span><br><span class="line">implementation &quot;com.google.code.gson:gson:$ver_gson&quot;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>#</code>号后面追加字符串xxx，则命名为ver_xxx</p>
 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">// Assume thisActivity is the current activity</span><br><span class="line">int permissionCheck = ContextCompat.checkSelfPermission(thisActivity,</span><br><span class="line">        Manifest.permission.WRITE_CALENDAR);</span><br></pre></td></tr></table></figure>
-<p>方法主要返回值为PackageManager.PERMISSION_GRANTED或者PERMISSION_DENIED，如果返回PERMISSION_GRANTED表示已授权，如果返回PERMISSION_DENIED，表示没有被授权</p>
-<p>解释为什么app需要授权<br><img src="https://developer.android.com/images/training/permissions/request_permission_dialog_2x.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//before</span><br><span class="line">implementation &apos;com.google.code.gson:gson:2.8.5#hiten&apos;</span><br><span class="line"></span><br><span class="line">//after</span><br><span class="line">ext.ver_hiten = &apos;2.8.5&apos; //please move this code to a unified place.</span><br><span class="line">implementation &quot;com.google.code.gson:gson:$ver_hiten&quot;</span><br></pre></td></tr></table></figure>
 <ul>
-<li>申请授权</li>
+<li>使用<code>##</code>生成的全路径变量，命名规则是dep_$artifact</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">// Here, thisActivity is the current activity</span><br><span class="line">if (ContextCompat.checkSelfPermission(thisActivity,</span><br><span class="line">                Manifest.permission.READ_CONTACTS)</span><br><span class="line">        != PackageManager.PERMISSION_GRANTED) &#123;</span><br><span class="line"></span><br><span class="line">    // 我们需要向用户解释为什么需要这个授权，主要是用户已经拒绝过一次了</span><br><span class="line">    if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity,</span><br><span class="line">            Manifest.permission.READ_CONTACTS)) &#123;</span><br><span class="line"></span><br><span class="line">        // Show an expanation to the user *asynchronously* -- don&apos;t block</span><br><span class="line">        // this thread waiting for the user&apos;s response! After the user</span><br><span class="line">        // sees the explanation, try again to request the permission.</span><br><span class="line"></span><br><span class="line">    &#125; else &#123;</span><br><span class="line"></span><br><span class="line">        //不需要解释，</span><br><span class="line">        //请求权限，请求了权限一个数组</span><br><span class="line">        ActivityCompat.requestPermissions(thisActivity,</span><br><span class="line">                new String[]&#123;Manifest.permission.READ_CONTACTS&#125;,</span><br><span class="line">                MY_PERMISSIONS_REQUEST_READ_CONTACTS);</span><br><span class="line">                </span><br><span class="line">        // MY_PERMISSIONS_REQUEST_READ_CONTACTS 是程序员自己定义的一个常量，在结果回调时判断，类似于startActivityForResult()方法中的requestCode</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>，其实主要有两个方法ActivityCompat.shouldShowRequestPermissionRationale和ActivityCompat.requestPermissions</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//before</span><br><span class="line">implementation &apos;com.google.code.gson:gson:2.8.5##&apos;</span><br><span class="line"></span><br><span class="line">//after</span><br><span class="line">ext.dep_gson = &apos;com.google.code.gson:gson:2.8.5&apos; //please move this code to a unified place.</span><br><span class="line">implementation &quot;$dep_gson&quot;</span><br></pre></td></tr></table></figure>
 <ul>
-<li>处理回调</li>
+<li><code>##</code>号后面追加字符串xxx，则命名为dep_xxx</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void onRequestPermissionsResult(int requestCode,</span><br><span class="line">        String permissions[], int[] grantResults) &#123;</span><br><span class="line">            //grantResults对应于请求权限的那个String[]</span><br><span class="line">    switch (requestCode) &#123;</span><br><span class="line">        //对应刚才那个请求code</span><br><span class="line">        case MY_PERMISSIONS_REQUEST_READ_CONTACTS: &#123;</span><br><span class="line">            // 如果权限取消，数组是空的</span><br><span class="line">            if (grantResults.length &gt; 0</span><br><span class="line">                &amp;&amp; grantResults[0] == PackageManager.PERMISSION_GRANTED) &#123;</span><br><span class="line">              //获取权限成功</span><br><span class="line">            &#125; else &#123;</span><br><span class="line">                //获取权限失败</span><br><span class="line">            &#125;</span><br><span class="line">            return;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">      //其他请求</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>总结：6.0运行权限其实是很简单的API，在项目中也用了起来，下一步可以进行封装，再接再厉！</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">//before</span><br><span class="line">implementation &apos;com.google.code.gson:gson:2.8.5##hiten&apos;</span><br><span class="line"></span><br><span class="line">//after</span><br><span class="line">ext.dep_hiten = &apos;com.google.code.gson:gson:2.8.5&apos; //please move this code to a unified place.</span><br><span class="line">implementation &quot;$dep_hiten&quot;</span><br></pre></td></tr></table></figure>
+<h3 id="插入规则"><a href="#插入规则" class="headerlink" title="插入规则"></a>插入规则</h3><p>变量生成的代码，会在当前光标上一行插入，并和当前行左对齐，理论上这行代码放在此处不讲究，所以通常还需要作者把这行代码移动到项目的指定位置；<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ext.ver_gson = &apos;2.8.5&apos; //please move this code to a unified place.</span><br></pre></td></tr></table></figure></p>
+<h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><p><strong>单/双引号不设限</strong></p>
+<p>gralde字符串中可以使用<code>$</code>引用变量，前提是字符串必须是双引号<code>&quot;</code>包裹，我此处做了特殊转换，用户输入时不用在意是单引号还是双引号，只管使用<code>#</code>生成就行；</p>
+<h2 id="再次提示-自动补全不会自动触发，需要用快捷键触发，请读者不要困惑于此。"><a href="#再次提示-自动补全不会自动触发，需要用快捷键触发，请读者不要困惑于此。" class="headerlink" title="再次提示:自动补全不会自动触发，需要用快捷键触发，请读者不要困惑于此。"></a>再次提示:自动补全不会自动触发，需要用快捷键触发，请读者不要困惑于此。</h2><h1 id="关注该项目"><a href="#关注该项目" class="headerlink" title="关注该项目"></a>关注该项目</h1><p>如果您对这个功能感兴趣，可以加入一起完善：</p>
+<p>项目地址：<br><a href="https://github.com/HitenDev/android-dependencies-completion" target="_blank" rel="noopener">https://github.com/HitenDev/android-dependencies-completion</a></p>
+<p>您有新的想法，欢迎私聊我或者在github上添加issues；</p>
+<h1 id="联系我"><a href="#联系我" class="headerlink" title="联系我"></a>联系我</h1><ul>
+<li><code>昵称</code>: HitenDev</li>
+<li><code>邮箱</code>: <a href="mailto:zzdxit@gmail.com" target="_blank" rel="noopener">zzdxit@gmail.com</a></li>
+<li><code>gayhub</code> : <a href="https://github.com/HitenDev" target="_blank" rel="noopener">https://github.com/HitenDev</a></li>
+<li><code>掘金</code>: <a href="https://juejin.im/user/595a16125188250d944c6997" target="_blank" rel="noopener">https://juejin.im/user/595a16125188250d944c6997</a><br><img src="https://user-gold-cdn.xitu.io/2019/5/30/16b071a5ebe62733?w=357&amp;h=387&amp;f=png&amp;s=137081" alt=""></li>
+</ul>
 
     </article>
     <!-- license  -->
@@ -442,17 +475,12 @@ height:50vh;
     <ul class="post-paginator">
         <li class="next">
             
-                <div class="nextSlogan">Next Post</div>
-                <a href="/2016/05/20/解读官方MVP架构/" title="解读官方MVP架构">
-                    <div class="nextTitle">解读官方MVP架构</div>
-                </a>
-            
         </li>
         <li class="previous">
             
                 <div class="prevSlogan">Previous Post</div>
-                <a href="/2016/04/22/我为什么使用RxJava/" title="我为什么要使用RxJava">
-                    <div class="prevTitle">我为什么要使用RxJava</div>
+                <a href="/2019/05/29/android-dependencies-completion英文简介v0-2/" title="android-dependencies-completion英文简介v0.2">
+                    <div class="prevTitle">android-dependencies-completion英文简介v0.2</div>
                 </a>
             
         </li>
@@ -575,7 +603,7 @@ top:50vh;
         <div class="toc-catalog">
             <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
         </div>
-        
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#背景"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#功能特色"><span class="toc-number">2.</span> <span class="toc-text">功能特色</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#如何获取"><span class="toc-number">3.</span> <span class="toc-text">如何获取</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#AS中安装"><span class="toc-number">3.1.</span> <span class="toc-text">AS中安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#jar包安装"><span class="toc-number">3.2.</span> <span class="toc-text">jar包安装</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#如何使用"><span class="toc-number">4.</span> <span class="toc-text">如何使用</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#掌握快捷键"><span class="toc-number">4.1.</span> <span class="toc-text">掌握快捷键</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#基本使用"><span class="toc-number">4.2.</span> <span class="toc-text">基本使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#生成变量"><span class="toc-number">4.3.</span> <span class="toc-text">生成变量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#直接转"><span class="toc-number">4.3.1.</span> <span class="toc-text">直接转</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#变量规则"><span class="toc-number">4.4.</span> <span class="toc-text">变量规则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#命名规则"><span class="toc-number">4.4.1.</span> <span class="toc-text">命名规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#插入规则"><span class="toc-number">4.4.2.</span> <span class="toc-text">插入规则</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#其他"><span class="toc-number">5.</span> <span class="toc-text">其他</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#再次提示-自动补全不会自动触发，需要用快捷键触发，请读者不要困惑于此。"><span class="toc-number">5.1.</span> <span class="toc-text">再次提示:自动补全不会自动触发，需要用快捷键触发，请读者不要困惑于此。</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#关注该项目"><span class="toc-number">6.</span> <span class="toc-text">关注该项目</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#联系我"><span class="toc-number">7.</span> <span class="toc-text">联系我</span></a></li></ol>
     </div>
     
     <div class="back-top iconfont-archer">&#xe639;</div>
